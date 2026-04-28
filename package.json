@@ -1,6 +1,6 @@
 {
   "name": "emily-css",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A config-driven utility CSS framework. Define your brand once, generate the CSS.",
   "main": "src/index.js",
   "bin": {
@@ -9,7 +9,10 @@
   "files": [
     "bin/",
     "src/",
-    "dist/",
+    "dist/emily.css",
+    "dist/emily.min.css",
+    "dist/emily.demo.css",
+    "dist/emily.demo.min.css",
     "fonts/",
     "README.md",
     "LICENSE"
