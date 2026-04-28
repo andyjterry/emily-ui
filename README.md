@@ -1,17 +1,19 @@
-# emily-css
+# EmilyUI
 
 A config-driven utility CSS framework. Define your brand once, generate the CSS.
 
+Part of the EmilyUI ecosystem - `emily-css` is the utility layer. More packages coming.
+
 ## Features
 
-- **Config-driven** — Entire framework configured via `emily.config.json`
-- **Utility-first** — 11,844 composable utilities covering layout, spacing, typography, colours, responsive variants, state variants
-- **Responsive ready** — All utilities work with responsive prefixes (sm:, md:, lg:, xl:, 2xl:)
-- **State variants** — hover, focus-visible, active, disabled states built-in
-- **Accessibility first** — WCAG 2.2 AA compliance in core utilities (focus rings, contrast, motion)
-- **Purge system** — Remove unused CSS automatically (97% file size reduction)
-- **Framework-agnostic** — Works with Drupal, static HTML, Power Pages, Vue, Next.js, anything that accepts CSS
-- **No build pipeline required** — Generate CSS, use it directly in your project
+- **Config-driven** - Entire framework configured via `emily.config.json`
+- **Utility-first** - 11,844 composable utilities covering layout, spacing, typography, colours, responsive variants, state variants
+- **Responsive ready** - All utilities work with responsive prefixes (sm:, md:, lg:, xl:, 2xl:)
+- **State variants** - hover, focus-visible, active, disabled states built-in
+- **Accessibility first** - WCAG 2.2 AA compliance in core utilities (focus rings, contrast, motion)
+- **Purge system** - Remove unused CSS automatically (97% file size reduction)
+- **Works anywhere** - Drupal, static HTML, Power Pages, Vue, Next.js, anything that accepts CSS
+- **No build pipeline required** - Generate CSS, drop it into your project
 
 ## Quick Start
 
@@ -33,16 +35,8 @@ emily-ui build
 ```
 
 Output:
-- `dist/emily.css` — Full CSS (1.1 MB)
-- `dist/emily.min.css` — Minified (1.04 MB)
-
-### 2b. Run Tests (Optional)
-```bash
-npm test
-```
-*(Run from inside the emily-ui project folder)*
-
-Automated validation of colour generation, utilities, variants, config integrity, and build output (66 tests, all passing). Tests confirm the generator works correctly; manual testing of real-world usage is still recommended before deploying to production.
+- `dist/emily.css` - Full CSS (1.1 MB)
+- `dist/emily.min.css` - Minified (1.04 MB)
 
 ### 3. Use Components
 Open `showcase.html` in your browser to see 8 production components (button, input, textarea, select, checkbox, radio, card, alert). Copy the HTML, paste into your project.
@@ -52,46 +46,46 @@ Open `showcase.html` in your browser to see 8 production components (button, inp
 emily-ui build --purge ./src
 ```
 
-Scans your HTML/templates for used classes, removes unused utilities. Typical reduction: 99%+ (1.1 MB → 10–50 KB).
+Scans your HTML/templates for used classes, removes unused utilities. Typical reduction: 99%+ (1.1 MB to 10-50 KB).
 
 Output:
-- `dist/emily.purged.css` — Only utilities you use
-- `dist/emily.purged.min.css` — Minified version
+- `dist/emily.purged.css` - Only utilities you use
+- `dist/emily.purged.min.css` - Minified version
 
 ## File Size Comparison
 
-Emily uses a purge-based approach (generate all utilities, then remove unused). Unpurged file size: ~1.1 MB.
+EmilyUI uses a purge-based approach (generate all utilities, then remove unused). Unpurged file size: ~1.1 MB.
 
 For context:
-- **Tailwind v2** (purge-based): 2.4–8MB unpurged → <10KB purged
-- **Emily v1** (purge-based): 1.1MB unpurged → 10–50KB purged
+- **Tailwind v2** (purge-based): 2.4-8MB unpurged, under 10KB purged
+- **EmilyUI v1** (purge-based): 1.1MB unpurged, 10-50KB purged
 - **Tailwind v3/v4** (JIT): Generates only what you use, no purge step needed
 
-Emily's unpurged file is roughly half the size of Tailwind v2. For production, both frameworks achieve similar post-purge sizes. JIT-style on-demand generation is planned for Emily v2.
+EmilyUI's unpurged file is roughly half the size of Tailwind v2. For production, both achieve similar post-purge sizes. JIT-style generation is planned for v2.
 
 ## File Structure
 
 ```
-emily-ui/
+emily-css/
   ├── src/
-  │   ├── index.js          — Main build script
-  │   ├── generators.js     — Utility generation functions
-  │   ├── purge.js          — CSS purge system
-  │   └── init.js           — Interactive config generator
+  │   ├── index.js          - Main build script
+  │   ├── generators.js     - Utility generation functions
+  │   ├── purge.js          - CSS purge system
+  │   └── init.js           - Interactive config generator
   ├── dist/
-  │   ├── emily.css         — Generated CSS
-  │   ├── emily.min.css     — Minified CSS
-  │   ├── emily.purged.css  — Purged CSS (with --purge flag)
+  │   ├── emily.css         - Generated CSS
+  │   ├── emily.min.css     - Minified CSS
+  │   ├── emily.purged.css  - Purged CSS (with --purge flag)
   │   └── emily.purged.min.css
-  ├── showcase.html         — Component browser
-  ├── emily.config.json     — Framework configuration
+  ├── showcase.html         - Component browser
+  ├── emily.config.json     - Framework configuration
   ├── package.json
   └── README.md
 ```
 
 ## Configuration
 
-Edit `emily.config.json` to customize:
+Edit `emily.config.json` to customise:
 
 ```json
 {
@@ -120,22 +114,22 @@ Edit `emily.config.json` to customize:
   },
   
   "spacing": {
-    "scale": { "0": "0px", "1": "0.25rem", ... },
-    "borderRadius": { "sm": "4px", "base": "8px", "lg": "16px", ... }
+    "scale": { "0": "0px", "1": "0.25rem" },
+    "borderRadius": { "sm": "4px", "base": "8px", "lg": "16px" }
   },
   
   "typography": {
-    "fontWeights": { "light": 300, "normal": 400, ... },
-    "fontSizes": [ { "name": "sm", "value": "14px" }, ... ]
+    "fontWeights": { "light": 300, "normal": 400 },
+    "fontSizes": [ { "name": "sm", "value": "14px" } ]
   },
   
-  "shadows": { ... },
-  "transitions": { ... },
-  "zIndex": { ... },
-  "opacity": [ ... ],
+  "shadows": {},
+  "transitions": {},
+  "zIndex": {},
+  "opacity": [],
   
   "purge": {
-    "extensions": [".html", ".jsx", ".tsx", ".vue", ...]
+    "extensions": [".html", ".jsx", ".tsx", ".vue"]
   }
 }
 ```
@@ -147,22 +141,22 @@ emily-ui build
 
 ## Utilities
 
-Emily generates utilities across these categories:
+EmilyUI generates utilities across these categories:
 
-- **Display** — block, inline, flex, grid, hidden
-- **Spacing** — margin (m-), padding (p-), gap (gap-)
-- **Sizing** — width (w-), height (h-), max-width, min-height
-- **Positioning** — absolute, relative, fixed, sticky, top, right, bottom, left
-- **Flexbox** — flex, flex-direction, justify-content, align-items, flex-wrap
-- **Grid** — grid, grid-cols, grid-rows, grid-gap
-- **Colours** — background (bg-), text, borders, accent for form controls
-- **Typography** — font-size, font-weight, line-height, text-align
-- **Borders** — border-width, border-style, border-colour, border-radius
-- **Shadows** — box-shadow, text-shadow
-- **Opacity** — opacity levels
-- **Accessibility** — sr-only, focus-visible, motion-safe, forced-colors
-- **State variants** — hover:, focus-visible:, active:, disabled:
-- **Responsive variants** — sm:, md:, lg:, xl:, 2xl:
+- **Display** - block, inline, flex, grid, hidden
+- **Spacing** - margin (m-), padding (p-), gap (gap-)
+- **Sizing** - width (w-), height (h-), max-width, min-height
+- **Positioning** - absolute, relative, fixed, sticky, top, right, bottom, left
+- **Flexbox** - flex, flex-direction, justify-content, align-items, flex-wrap
+- **Grid** - grid, grid-cols, grid-rows, grid-gap
+- **Colours** - background (bg-), text, borders, accent for form controls
+- **Typography** - font-size, font-weight, line-height, text-align
+- **Borders** - border-width, border-style, border-colour, border-radius
+- **Shadows** - box-shadow, text-shadow
+- **Opacity** - opacity levels
+- **Accessibility** - sr-only, focus-visible, motion-safe, forced-colors
+- **State variants** - hover:, focus-visible:, active:, disabled:
+- **Responsive variants** - sm:, md:, lg:, xl:, 2xl:
 
 ## Examples
 
@@ -197,43 +191,39 @@ Emily generates utilities across these categories:
 
 All utilities are built with WCAG 2.2 AA in mind:
 
-- **Focus rings** — Focus-visible states include proper colour contrast
-- **Colour contrast** — All colour scales meet AA contrast ratios
-- **Motion** — `motion-safe` and `motion-reduce` utilities for users with vestibular disorders
-- **Semantic HTML** — Components use proper heading hierarchy and form labels
-- **Screen reader support** — `.sr-only` utility for screen-reader-only content
-- **Forced colours** — Utilities respect Windows High Contrast mode
+- **Focus rings** - Focus-visible states include proper colour contrast
+- **Colour contrast** - All colour scales meet AA contrast ratios
+- **Motion** - `motion-safe` and `motion-reduce` utilities for users with vestibular disorders
+- **Semantic HTML** - Components use proper heading hierarchy and form labels
+- **Screen reader support** - `.sr-only` utility for screen-reader-only content
+- **Forced colours** - Utilities respect Windows High Contrast mode
 
-## Known Limitations
+## Testing
 
-These are post-v1 priorities:
-- Arbitrary values (`w-[123px]`) — deferred to v2
-- Extend system for custom utilities — deferred to v2
-- Pattern utilities (Wrapper, Flow, Stack) — deferred to v2
-- Watch mode / HMR — deferred to v2
-- Pre-built component tier — deferred to v2
+```bash
+npm test
+```
+
+66 automated tests covering colour generation, utilities, variants, config integrity, and build output. All passing.
 
 ## Troubleshooting
 
 ### Styles not applying?
-1. Check that responsive prefix is correct: `.md\:flex` not `.md:flex`
+1. Check the responsive prefix: `.md\:flex` not `.md:flex`
 2. Verify class name spelling in HTML
 3. Clear browser cache and rebuild CSS
 
 ### File size too large?
-Use the purge system:
 ```bash
 emily-ui build --purge ./src
 ```
 
 ### Config not applying?
 1. Edit `emily.config.json`
-2. Run `npm run build` to regenerate CSS
-3. No cache invalidation needed (CSS is regenerated from scratch)
+2. Run `emily-ui build` to regenerate
+3. No cache invalidation needed
 
 ## CDN
-
-Use emily-ui directly without npm via jsDelivr:
 
 ```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emily-css/dist/emily.css">
@@ -241,8 +231,8 @@ Use emily-ui directly without npm via jsDelivr:
 
 ## Support
 
-Open an issue or start a discussion on GitHub:
-https://github.com/andyjterry/emily-ui
+- Website: https://www.emilyui.com
+- GitHub: https://github.com/andyjterry/emily-ui
 
 ## License
 
