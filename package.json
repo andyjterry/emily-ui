@@ -1,0 +1,42 @@
+{
+  "name": "emily-ui",
+  "version": "1.0.0",
+  "description": "Config-driven CSS and component library generator. Brand colours to production-ready components in minutes.",
+  "main": "src/index.js",
+  "bin": {
+    "emily-ui": "./bin/emilyui.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "dist/",
+    "fonts/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "init": "node src/init.js",
+    "test": "node tests/test.js"
+  },
+  "keywords": [
+    "css",
+    "design-system",
+    "components",
+    "config-driven",
+    "utility-css",
+    "accessibility",
+    "drupal",
+    "legacy",
+    "no-build-step"
+  ],
+  "author": "Andy Terry",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}

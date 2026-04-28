@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emily — Design System Showcase</title>
+  <link rel="stylesheet" href="./dist/emily.purged.css">
+  <style>
+    @font-face {
+      font-family: "Lexend";
+      src: url("./fonts/lexend/Lexend-Variable.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+    html { scroll-behavior: smooth; }
+    .font-lexend { font-family: "Lexend", system-ui, sans-serif; }
+    .section-anchor { scroll-margin-top: 64px; }
+    .mono { font-family: 'Menlo', 'Monaco', 'Courier New', monospace; }
+    .label-xs { font-size: 10px; line-height: 1.4; }
+    .code-block { background: #0d1117; border-radius: 6px; position: relative; overflow: hidden; }
+    .code-block pre { color: #e6edf3; font-family: 'Menlo','Monaco','Courier New',monospace; font-size: 13px; line-height: 1.6; overflow-x: auto; margin: 0; padding: 20px; white-space: pre; }
+    .code-inline { background: #0d1117; color: #e6edf3; font-family: 'Menlo','Monaco','Courier New',monospace; font-size: 13px; line-height: 1.6; border-radius: 6px; padding: 16px 20px; overflow-x: auto; }
+    .copy-btn { position: absolute; top: 10px; right: 10px; background: #21262d; color: #8b949e; border: 1px solid #30363d; padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; transition: background 200ms; white-space: nowrap; }
+    .copy-btn:hover { background: #30363d; color: #e6edf3; }
+    .copy-btn.copied { background: #1a7f37; color: white; border-color: #1a7f37; }
+  </style>
+</head>
+<body class="bg-neutral-10 text-neutral-90">
+
+<!-- ============================================================ -->
+<!-- NAV                                                           -->
+<!-- ============================================================ -->
+<nav class="sticky top-0 z-sticky" style="background-color:#1C1917;">
+  <div style="max-width:1280px;margin:0 auto;" class="px-6 py-4 flex items-center justify-between gap-6">
+    <span class="font-lexend font-bold text-4xl text-primary-80">EmilyUI</span>
+    <div class="flex gap-5 text-sm flex-wrap">
+      <a href="#how-it-works" class="text-neutral-40 hover:text-primary-80 transition" style="text-decoration:none;">How it works</a>
+      <a href="#get-started" class="text-neutral-40 hover:text-primary-80 transition" style="text-decoration:none;">Get started</a>
+      <a href="#cheatsheet" class="text-neutral-40 hover:text-primary-80 transition" style="text-decoration:none;">Reference</a>
+      <a href="#colours" class="text-neutral-40 hover:text-primary-80 transition" style="text-decoration:none;">Colours</a>
+      <a href="#typography" class="text-neutral-40 hover:text-primary-80 transition" style="text-decoration:none;">Typography</a>
+      <a href="#spacing" class="text-neutral-40 hover:text-primary-80 transition" style="text-decoration:none;">Spacing</a>
+      <a href="#shadows" class="text-neutral-40 hover:text-primary-80 transition" style="text-decoration:none;">Shadows</a>
+      <a href="#components" class="text-neutral-40 hover:text-primary-80 transition" style="text-decoration:none;">Components</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================================================ -->
+<!-- HERO                                                          -->
+<!-- ============================================================ -->
+<section style="background-color:#1C1917;" class="px-6 py-20">
+  <div style="max-width:800px;margin:0 auto;" class="text-center">
+    <p class="text-primary-80 font-semibold text-sm mono mb-4 tracking-wide">emily.config.json &rarr; emily.css</p>
+    <h1 class="font-lexend font-bold text-4xl mb-5" style="color:#F8F5F0;line-height:1.15;">One config.<br>Your complete CSS system.</h1>
+    <p class="text-lg mb-8" style="color:#A8A29E;max-width:560px;margin-left:auto;margin-right:auto;margin-bottom:2rem;">Define your brand colours, fonts, and spacing once. Emily generates every utility you need and gives you production-ready components to copy straight into any project.</p>
+    <div class="flex gap-4 justify-center flex-wrap">
+      <a href="#get-started" class="bg-primary-80 hover:bg-primary-90 text-white font-semibold px-6 py-3 rounded transition cursor-pointer" style="text-decoration:none;">Get started</a>
+      <a href="#components" class="font-semibold px-6 py-3 rounded transition cursor-pointer border-2" style="color:#F8F5F0;border-color:#57534E;text-decoration:none;">Browse components</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- HOW IT WORKS                                                  -->
+<!-- ============================================================ -->
+<section id="how-it-works" class="section-anchor py-16 px-6">
+  <div style="max-width:1280px;margin:0 auto;">
+    <h2 class="font-lexend font-bold text-2xl text-neutral-90 text-center mb-10">How it works</h2>
+    <div class="grid grid-cols-3 gap-8">
+
+      <div class="bg-white rounded-lg border-2 border-neutral-20 p-6 flex flex-col gap-3">
+        <div class="bg-primary-10 text-primary-80 font-bold text-lg w-10 h-10 rounded-full flex items-center justify-center font-lexend">1</div>
+        <h3 class="font-semibold text-neutral-90 text-base">Define your brand</h3>
+        <p class="text-sm text-neutral-60">Add your brand colours to <code class="mono text-xs bg-neutral-10 px-1 py-0.5 rounded">emily.config.json</code>. Fonts, spacing, and breakpoints too. One file, everything in one place.</p>
+        <pre class="code-inline text-xs mt-2">{
+  "colours": {
+    "primary": "#DB2777",
+    "secondary": "#2563EB"
+  }
+}</pre>
+      </div>
+
+      <div class="bg-white rounded-lg border-2 border-neutral-20 p-6 flex flex-col gap-3">
+        <div class="bg-primary-10 text-primary-80 font-bold text-lg w-10 h-10 rounded-full flex items-center justify-center font-lexend">2</div>
+        <h3 class="font-semibold text-neutral-90 text-base">Build your stylesheet</h3>
+        <p class="text-sm text-neutral-60">Run the build script. Emily generates a 10-shade scale per colour, plus every utility you need. Purge unused classes to get down to 10–50 KB.</p>
+        <pre class="code-inline text-xs mt-2">node src/index.js --purge .
+
+# Before: 1.1 MB
+# After:  ~39 KB</pre>
+      </div>
+
+      <div class="bg-white rounded-lg border-2 border-neutral-20 p-6 flex flex-col gap-3">
+        <div class="bg-primary-10 text-primary-80 font-bold text-lg w-10 h-10 rounded-full flex items-center justify-center font-lexend">3</div>
+        <h3 class="font-semibold text-neutral-90 text-base">Copy and ship</h3>
+        <p class="text-sm text-neutral-60">Link the stylesheet. Browse the components below. Copy the HTML, paste into your project. Works in Drupal, static HTML, Power Pages — anything that loads a CSS file.</p>
+        <pre class="code-inline text-xs mt-2">&lt;link rel="stylesheet"
+  href="dist/emily.purged.css"&gt;</pre>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- GET STARTED                                                   -->
+<!-- ============================================================ -->
+<section id="get-started" class="section-anchor py-12 px-6" style="background-color:#F8F5F0;">
+  <div style="max-width:860px;margin:0 auto;">
+    <h2 class="font-lexend font-bold text-2xl text-neutral-90 mb-2">Get started</h2>
+    <p class="text-sm text-neutral-60 mb-8">From zero to a working design system in under 30 minutes.</p>
+
+    <div class="flex flex-col gap-6">
+
+      <!-- Step 1 -->
+      <div class="flex gap-5 items-start">
+        <div class="bg-primary-80 text-white font-bold text-sm w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 font-lexend">1</div>
+        <div class="flex flex-col gap-2 flex-1">
+          <h3 class="font-semibold text-neutral-90 text-base">Clone or download the repo</h3>
+          <div class="code-block">
+            <pre>git clone https://github.com/yourusername/emilyui.git
+cd emilyui</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="flex gap-5 items-start">
+        <div class="bg-primary-80 text-white font-bold text-sm w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 font-lexend">2</div>
+        <div class="flex flex-col gap-2 flex-1">
+          <h3 class="font-semibold text-neutral-90 text-base">Edit <code class="mono text-sm bg-neutral-20 px-1.5 py-0.5 rounded">emily.config.json</code></h3>
+          <p class="text-sm text-neutral-60">Set your brand colours. Shade 80 is always your input hex — the rest of the scale is generated automatically.</p>
+          <div class="code-block">
+            <pre>{
+  "colours": {
+    "primary":   "#DB2777",
+    "secondary": "#2563EB",
+    "success":   "#059669",
+    "warning":   "#D97706",
+    "error":     "#DC2626",
+    "neutral":   "#57534E"
+  },
+  "fontFamily": "inter"
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="flex gap-5 items-start">
+        <div class="bg-primary-80 text-white font-bold text-sm w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 font-lexend">3</div>
+        <div class="flex flex-col gap-2 flex-1">
+          <h3 class="font-semibold text-neutral-90 text-base">Build and purge</h3>
+          <p class="text-sm text-neutral-60">Point <code class="mono text-xs">--purge</code> at any directory. Emily scans your HTML, Twig, Vue, JSX — whatever you use.</p>
+          <div class="code-block">
+            <pre>node src/index.js --purge .</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="flex gap-5 items-start">
+        <div class="bg-primary-80 text-white font-bold text-sm w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 font-lexend">4</div>
+        <div class="flex flex-col gap-2 flex-1">
+          <h3 class="font-semibold text-neutral-90 text-base">Link the stylesheet</h3>
+          <p class="text-sm text-neutral-60">Drop this into your <code class="mono text-xs">&lt;head&gt;</code>. No JavaScript, no build pipeline, no dependencies.</p>
+          <div class="code-block">
+            <pre>&lt;link rel="stylesheet" href="dist/emily.purged.css"&gt;</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="flex gap-5 items-start">
+        <div class="bg-primary-80 text-white font-bold text-sm w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 font-lexend">5</div>
+        <div class="flex flex-col gap-2 flex-1">
+          <h3 class="font-semibold text-neutral-90 text-base">Use utility classes in your markup</h3>
+          <p class="text-sm text-neutral-60">Classes follow a consistent naming pattern. Responsive with <code class="mono text-xs">md:</code>, <code class="mono text-xs">lg:</code> prefixes. State variants with <code class="mono text-xs">hover:</code>, <code class="mono text-xs">focus:</code>.</p>
+          <div class="code-block">
+            <pre>&lt;!-- Colour --&gt;
+bg-primary-80    text-primary-80    border-primary-80
+
+&lt;!-- Spacing --&gt;
+p-4   px-6   py-3   m-2   mt-8   gap-4
+
+&lt;!-- Typography --&gt;
+text-xl   font-semibold   text-neutral-60
+
+&lt;!-- Responsive --&gt;
+text-base md:text-lg lg:text-xl
+
+&lt;!-- State --&gt;
+hover:bg-primary-90   focus-visible:outline-2</pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- CHEAT SHEET                                                   -->
+<!-- ============================================================ -->
+<section id="cheatsheet" class="section-anchor py-12 px-6" style="background-color:#F8F5F0;">
+  <div style="max-width:1280px;margin:0 auto;">
+    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden">
+      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
+        <h2 class="text-xl font-semibold text-neutral-90">Quick reference</h2>
+        <p class="text-sm text-neutral-60 mt-1">The most common utility categories. Every class follows the same pattern — change the value, the result changes.</p>
+      </div>
+      <div class="p-6 grid grid-cols-2 gap-4" style="grid-template-columns:repeat(4,minmax(0,1fr));">
+
+        <!-- Colours -->
+        <div class="bg-neutral-10 rounded p-4 flex flex-col gap-2">
+          <h3 class="text-xs font-semibold text-neutral-60 uppercase tracking-wide mb-1">Colours</h3>
+          <code class="mono label-xs text-neutral-70 block">bg-primary-80</code>
+          <code class="mono label-xs text-neutral-70 block">text-primary-80</code>
+          <code class="mono label-xs text-neutral-70 block">border-primary-80</code>
+          <code class="mono label-xs text-neutral-70 block">bg-primary-10</code>
+          <code class="mono label-xs text-neutral-50 block">bg-{colour}-{10–100}</code>
+        </div>
+
+        <!-- Spacing -->
+        <div class="bg-neutral-10 rounded p-4 flex flex-col gap-2">
+          <h3 class="text-xs font-semibold text-neutral-60 uppercase tracking-wide mb-1">Spacing</h3>
+          <code class="mono label-xs text-neutral-70 block">p-4 &nbsp; px-6 &nbsp; py-3</code>
+          <code class="mono label-xs text-neutral-70 block">mt-8 &nbsp; mb-4 &nbsp; mx-auto</code>
+          <code class="mono label-xs text-neutral-70 block">gap-4 &nbsp; gap-6</code>
+          <code class="mono label-xs text-neutral-50 block">p-{0–96} &nbsp; m-{0–96}</code>
+        </div>
+
+        <!-- Typography -->
+        <div class="bg-neutral-10 rounded p-4 flex flex-col gap-2">
+          <h3 class="text-xs font-semibold text-neutral-60 uppercase tracking-wide mb-1">Typography</h3>
+          <code class="mono label-xs text-neutral-70 block">text-xl &nbsp; text-sm</code>
+          <code class="mono label-xs text-neutral-70 block">font-semibold &nbsp; font-bold</code>
+          <code class="mono label-xs text-neutral-70 block">text-neutral-60</code>
+          <code class="mono label-xs text-neutral-70 block">uppercase &nbsp; tracking-wide</code>
+          <code class="mono label-xs text-neutral-50 block">text-{xs–4xl}</code>
+        </div>
+
+        <!-- Layout -->
+        <div class="bg-neutral-10 rounded p-4 flex flex-col gap-2">
+          <h3 class="text-xs font-semibold text-neutral-60 uppercase tracking-wide mb-1">Layout</h3>
+          <code class="mono label-xs text-neutral-70 block">flex &nbsp; flex-col &nbsp; flex-wrap</code>
+          <code class="mono label-xs text-neutral-70 block">items-center &nbsp; items-start</code>
+          <code class="mono label-xs text-neutral-70 block">justify-between</code>
+          <code class="mono label-xs text-neutral-70 block">shrink-0 &nbsp; flex-1</code>
+        </div>
+
+        <!-- Grid -->
+        <div class="bg-neutral-10 rounded p-4 flex flex-col gap-2">
+          <h3 class="text-xs font-semibold text-neutral-60 uppercase tracking-wide mb-1">Grid</h3>
+          <code class="mono label-xs text-neutral-70 block">grid &nbsp; grid-cols-2</code>
+          <code class="mono label-xs text-neutral-70 block">grid-cols-3 &nbsp; grid-cols-4</code>
+          <code class="mono label-xs text-neutral-70 block">gap-4 &nbsp; gap-6</code>
+          <code class="mono label-xs text-neutral-50 block">grid-cols-{1–12}</code>
+        </div>
+
+        <!-- Borders -->
+        <div class="bg-neutral-10 rounded p-4 flex flex-col gap-2">
+          <h3 class="text-xs font-semibold text-neutral-60 uppercase tracking-wide mb-1">Borders &amp; Radius</h3>
+          <code class="mono label-xs text-neutral-70 block">border &nbsp; border-2 &nbsp; border-4</code>
+          <code class="mono label-xs text-neutral-70 block">border-neutral-30</code>
+          <code class="mono label-xs text-neutral-70 block">rounded &nbsp; rounded-md</code>
+          <code class="mono label-xs text-neutral-70 block">rounded-lg &nbsp; rounded-full</code>
+        </div>
+
+        <!-- Shadows -->
+        <div class="bg-neutral-10 rounded p-4 flex flex-col gap-2">
+          <h3 class="text-xs font-semibold text-neutral-60 uppercase tracking-wide mb-1">Shadows</h3>
+          <code class="mono label-xs text-neutral-70 block">shadow-sm</code>
+          <code class="mono label-xs text-neutral-70 block">shadow</code>
+          <code class="mono label-xs text-neutral-70 block">shadow-md</code>
+          <code class="mono label-xs text-neutral-70 block">shadow-lg</code>
+        </div>
+
+        <!-- States -->
+        <div class="bg-neutral-10 rounded p-4 flex flex-col gap-2">
+          <h3 class="text-xs font-semibold text-neutral-60 uppercase tracking-wide mb-1">States &amp; Variants</h3>
+          <code class="mono label-xs text-neutral-70 block">hover:bg-primary-90</code>
+          <code class="mono label-xs text-neutral-70 block">focus-visible:outline-2</code>
+          <code class="mono label-xs text-neutral-70 block">cursor-not-allowed</code>
+          <code class="mono label-xs text-neutral-70 block">transition &nbsp; sr-only</code>
+          <code class="mono label-xs text-neutral-50 block">md: &nbsp; lg: &nbsp; hover: &nbsp; focus:</code>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- COLOURS                                                       -->
+<!-- ============================================================ -->
+<section id="colours" class="section-anchor py-12 px-6">
+  <div style="max-width:1280px;margin:0 auto;">
+    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden">
+      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
+        <h2 class="text-xl font-semibold text-neutral-90">Colours</h2>
+        <p class="text-sm text-neutral-60 mt-1">Each config colour generates a 10-shade scale. Shade 80 is your input hex. Use <span class="mono">bg-{colour}-{shade}</span>, <span class="mono">text-{colour}-{shade}</span>, <span class="mono">border-{colour}-{shade}</span>.</p>
+      </div>
+      <div class="p-6 flex flex-col gap-8">
+
+        <!-- PRIMARY -->
+        <div>
+          <div class="flex items-baseline gap-3 mb-3">
+            <span class="text-sm font-semibold text-neutral-80">primary</span>
+            <span class="label-xs mono text-neutral-50" id="hex-primary">—</span>
+          </div>
+          <div class="flex gap-1">
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-10" class="w-full bg-primary-10 rounded-sm border border-neutral-20" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">10</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-20" class="w-full bg-primary-20 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">20</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-30" class="w-full bg-primary-30 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">30</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-40" class="w-full bg-primary-40 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">40</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-50" class="w-full bg-primary-50 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">50</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-60" class="w-full bg-primary-60 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">60</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-70" class="w-full bg-primary-70 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">70</span></div>
+            <div class="flex-1 flex flex-col gap-1">
+              <div id="sw-primary-80" class="w-full bg-primary-80 rounded-sm flex flex-col items-center justify-center gap-0.5" style="height:80px;padding:8px 4px;"></div>
+              <span class="label-xs mono text-center text-primary-80 font-semibold block">80</span>
+            </div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-90" class="w-full bg-primary-90 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">90</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-100" class="w-full bg-primary-100 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">100</span></div>
+          </div>
+        </div>
+
+        <!-- SECONDARY -->
+        <div>
+          <div class="flex items-baseline gap-3 mb-3">
+            <span class="text-sm font-semibold text-neutral-80">secondary</span>
+            <span class="label-xs mono text-neutral-50" id="hex-secondary">—</span>
+          </div>
+          <div class="flex gap-1">
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-10" class="w-full bg-secondary-10 rounded-sm border border-neutral-20" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">10</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-20" class="w-full bg-secondary-20 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">20</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-30" class="w-full bg-secondary-30 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">30</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-40" class="w-full bg-secondary-40 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">40</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-50" class="w-full bg-secondary-50 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">50</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-60" class="w-full bg-secondary-60 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">60</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-70" class="w-full bg-secondary-70 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">70</span></div>
+            <div class="flex-1 flex flex-col gap-1">
+              <div id="sw-secondary-80" class="w-full bg-secondary-80 rounded-sm flex flex-col items-center justify-center gap-0.5" style="height:80px;padding:8px 4px;"></div>
+              <span class="label-xs mono text-center text-secondary-80 font-semibold block">80</span>
+            </div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-90" class="w-full bg-secondary-90 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">90</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-100" class="w-full bg-secondary-100 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">100</span></div>
+          </div>
+        </div>
+
+        <!-- SUCCESS -->
+        <div>
+          <div class="flex items-baseline gap-3 mb-3">
+            <span class="text-sm font-semibold text-neutral-80">success</span>
+            <span class="label-xs mono text-neutral-50" id="hex-success">—</span>
+          </div>
+          <div class="flex gap-1">
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-10" class="w-full bg-success-10 rounded-sm border border-neutral-20" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">10</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-20" class="w-full bg-success-20 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">20</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-30" class="w-full bg-success-30 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">30</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-40" class="w-full bg-success-40 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">40</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-50" class="w-full bg-success-50 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">50</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-60" class="w-full bg-success-60 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">60</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-70" class="w-full bg-success-70 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">70</span></div>
+            <div class="flex-1 flex flex-col gap-1">
+              <div id="sw-success-80" class="w-full bg-success-80 rounded-sm flex flex-col items-center justify-center gap-0.5" style="height:80px;padding:8px 4px;"></div>
+              <span class="label-xs mono text-center text-success-80 font-semibold block">80</span>
+            </div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-90" class="w-full bg-success-90 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">90</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-100" class="w-full bg-success-100 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">100</span></div>
+          </div>
+        </div>
+
+        <!-- WARNING -->
+        <div>
+          <div class="flex items-baseline gap-3 mb-3">
+            <span class="text-sm font-semibold text-neutral-80">warning</span>
+            <span class="label-xs mono text-neutral-50" id="hex-warning">—</span>
+          </div>
+          <div class="flex gap-1">
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-10" class="w-full bg-warning-10 rounded-sm border border-neutral-20" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">10</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-20" class="w-full bg-warning-20 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">20</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-30" class="w-full bg-warning-30 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">30</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-40" class="w-full bg-warning-40 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">40</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-50" class="w-full bg-warning-50 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">50</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-60" class="w-full bg-warning-60 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">60</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-70" class="w-full bg-warning-70 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">70</span></div>
+            <div class="flex-1 flex flex-col gap-1">
+              <div id="sw-warning-80" class="w-full bg-warning-80 rounded-sm flex flex-col items-center justify-center gap-0.5" style="height:80px;padding:8px 4px;"></div>
+              <span class="label-xs mono text-center text-warning-60 font-semibold block">80</span>
+            </div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-90" class="w-full bg-warning-90 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">90</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-100" class="w-full bg-warning-100 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">100</span></div>
+          </div>
+        </div>
+
+        <!-- ERROR -->
+        <div>
+          <div class="flex items-baseline gap-3 mb-3">
+            <span class="text-sm font-semibold text-neutral-80">error</span>
+            <span class="label-xs mono text-neutral-50" id="hex-error">—</span>
+          </div>
+          <div class="flex gap-1">
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-10" class="w-full bg-error-10 rounded-sm border border-neutral-20" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">10</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-20" class="w-full bg-error-20 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">20</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-30" class="w-full bg-error-30 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">30</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-40" class="w-full bg-error-40 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">40</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-50" class="w-full bg-error-50 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">50</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-60" class="w-full bg-error-60 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">60</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-70" class="w-full bg-error-70 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">70</span></div>
+            <div class="flex-1 flex flex-col gap-1">
+              <div id="sw-error-80" class="w-full bg-error-80 rounded-sm flex flex-col items-center justify-center gap-0.5" style="height:80px;padding:8px 4px;"></div>
+              <span class="label-xs mono text-center text-error-80 font-semibold block">80</span>
+            </div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-90" class="w-full bg-error-90 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">90</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-100" class="w-full bg-error-100 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">100</span></div>
+          </div>
+        </div>
+
+        <!-- NEUTRAL -->
+        <div>
+          <div class="flex items-baseline gap-3 mb-3">
+            <span class="text-sm font-semibold text-neutral-80">neutral</span>
+            <span class="label-xs mono text-neutral-50" id="hex-neutral">—</span>
+          </div>
+          <div class="flex gap-1">
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-10" class="w-full bg-neutral-10 rounded-sm border border-neutral-20" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">10</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-20" class="w-full bg-neutral-20 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">20</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-30" class="w-full bg-neutral-30 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">30</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-40" class="w-full bg-neutral-40 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">40</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-50" class="w-full bg-neutral-50 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">50</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-60" class="w-full bg-neutral-60 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">60</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-70" class="w-full bg-neutral-70 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">70</span></div>
+            <div class="flex-1 flex flex-col gap-1">
+              <div id="sw-neutral-80" class="w-full bg-neutral-80 rounded-sm flex flex-col items-center justify-center gap-0.5" style="height:80px;padding:8px 4px;"></div>
+              <span class="label-xs mono text-center text-neutral-70 font-semibold block">80</span>
+            </div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-90" class="w-full bg-neutral-90 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">90</span></div>
+            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-100" class="w-full bg-neutral-100 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">100</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- TYPOGRAPHY                                                    -->
+<!-- ============================================================ -->
+<section id="typography" class="section-anchor py-12 px-6">
+  <div style="max-width:1280px;margin:0 auto;">
+    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden">
+      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
+        <h2 class="text-xl font-semibold text-neutral-90">Typography</h2>
+        <p class="text-sm text-neutral-60 mt-1">Type scale and font weight utilities. Use <span class="mono">text-{size}</span> and <span class="mono">font-{weight}</span>.</p>
+      </div>
+      <div class="p-6">
+        <h3 class="text-sm font-semibold text-neutral-60 uppercase tracking-wide mb-4">Type Scale</h3>
+        <div class="flex flex-col gap-4 mb-10">
+          <div class="flex items-baseline gap-6 border-b border-neutral-10 pb-4">
+            <span class="mono label-xs text-neutral-50 w-16 shrink-0">text-4xl</span>
+            <span class="mono label-xs text-neutral-40 shrink-0">36px</span>
+            <span class="text-4xl font-semibold text-neutral-90 leading-none">The quick brown fox</span>
+          </div>
+          <div class="flex items-baseline gap-6 border-b border-neutral-10 pb-4">
+            <span class="mono label-xs text-neutral-50 w-16 shrink-0">text-3xl</span>
+            <span class="mono label-xs text-neutral-40 shrink-0">30px</span>
+            <span class="text-3xl font-semibold text-neutral-90 leading-none">The quick brown fox</span>
+          </div>
+          <div class="flex items-baseline gap-6 border-b border-neutral-10 pb-4">
+            <span class="mono label-xs text-neutral-50 w-16 shrink-0">text-2xl</span>
+            <span class="mono label-xs text-neutral-40 shrink-0">24px</span>
+            <span class="text-2xl font-semibold text-neutral-90 leading-none">The quick brown fox jumps over the lazy dog</span>
+          </div>
+          <div class="flex items-baseline gap-6 border-b border-neutral-10 pb-4">
+            <span class="mono label-xs text-neutral-50 w-16 shrink-0">text-xl</span>
+            <span class="mono label-xs text-neutral-40 shrink-0">20px</span>
+            <span class="text-xl text-neutral-90">The quick brown fox jumps over the lazy dog</span>
+          </div>
+          <div class="flex items-baseline gap-6 border-b border-neutral-10 pb-4">
+            <span class="mono label-xs text-neutral-50 w-16 shrink-0">text-lg</span>
+            <span class="mono label-xs text-neutral-40 shrink-0">18px</span>
+            <span class="text-lg text-neutral-90">The quick brown fox jumps over the lazy dog</span>
+          </div>
+          <div class="flex items-baseline gap-6 border-b border-neutral-10 pb-4">
+            <span class="mono label-xs text-neutral-50 w-16 shrink-0">text-base</span>
+            <span class="mono label-xs text-neutral-40 shrink-0">16px</span>
+            <span class="text-base text-neutral-90">The quick brown fox jumps over the lazy dog</span>
+          </div>
+          <div class="flex items-baseline gap-6 border-b border-neutral-10 pb-4">
+            <span class="mono label-xs text-neutral-50 w-16 shrink-0">text-sm</span>
+            <span class="mono label-xs text-neutral-40 shrink-0">14px</span>
+            <span class="text-sm text-neutral-90">The quick brown fox jumps over the lazy dog</span>
+          </div>
+          <div class="flex items-baseline gap-6">
+            <span class="mono label-xs text-neutral-50 w-16 shrink-0">text-xs</span>
+            <span class="mono label-xs text-neutral-40 shrink-0">12px</span>
+            <span class="text-xs text-neutral-90">The quick brown fox jumps over the lazy dog</span>
+          </div>
+        </div>
+        <h3 class="text-sm font-semibold text-neutral-60 uppercase tracking-wide mb-4">Font Weights</h3>
+        <div class="flex flex-col gap-3">
+          <div class="flex items-center gap-6">
+            <span class="mono label-xs text-neutral-50 w-24 shrink-0">font-light</span>
+            <span class="mono label-xs text-neutral-40 shrink-0">300</span>
+            <span class="text-xl font-light text-neutral-90">Emily — config-driven design</span>
+          </div>
+          <div class="flex items-center gap-6">
+            <span class="mono label-xs text-neutral-50 w-24 shrink-0">font-normal</span>
+            <span class="mono label-xs text-neutral-40 shrink-0">400</span>
+            <span class="text-xl font-normal text-neutral-90">Emily — config-driven design</span>
+          </div>
+          <div class="flex items-center gap-6">
+            <span class="mono label-xs text-neutral-50 w-24 shrink-0">font-medium</span>
+            <span class="mono label-xs text-neutral-40 shrink-0">500</span>
+            <span class="text-xl font-medium text-neutral-90">Emily — config-driven design</span>
+          </div>
+          <div class="flex items-center gap-6">
+            <span class="mono label-xs text-neutral-50 w-24 shrink-0">font-semibold</span>
+            <span class="mono label-xs text-neutral-40 shrink-0">600</span>
+            <span class="text-xl font-semibold text-neutral-90">Emily — config-driven design</span>
+          </div>
+          <div class="flex items-center gap-6">
+            <span class="mono label-xs text-neutral-50 w-24 shrink-0">font-bold</span>
+            <span class="mono label-xs text-neutral-40 shrink-0">700</span>
+            <span class="text-xl font-bold text-neutral-90">Emily — config-driven design</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SPACING                                                       -->
+<!-- ============================================================ -->
+<section id="spacing" class="section-anchor py-12 px-6">
+  <div style="max-width:1280px;margin:0 auto;">
+    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden">
+      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
+        <h2 class="text-xl font-semibold text-neutral-90">Spacing</h2>
+        <p class="text-sm text-neutral-60 mt-1">Padding, margin, and gap utilities. Use <span class="mono">p-{n}</span>, <span class="mono">m-{n}</span>, <span class="mono">gap-{n}</span>.</p>
+      </div>
+      <div class="p-6">
+        <h3 class="text-sm font-semibold text-neutral-60 uppercase tracking-wide mb-4">Padding Scale</h3>
+        <div class="flex flex-col gap-2 mb-10">
+          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">p-1</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">0.25rem</span><div class="bg-primary-10 rounded-sm flex items-center justify-center" style="padding:0.25rem 0.5rem;"><div class="bg-primary-30 rounded-sm w-8 h-4"></div></div></div>
+          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">p-2</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">0.5rem</span><div class="bg-primary-10 rounded-sm flex items-center justify-center p-2"><div class="bg-primary-30 rounded-sm w-8 h-4"></div></div></div>
+          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">p-4</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">1rem</span><div class="bg-primary-10 rounded-sm flex items-center justify-center p-4"><div class="bg-primary-30 rounded-sm w-8 h-4"></div></div></div>
+          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">p-6</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">1.5rem</span><div class="bg-primary-10 rounded-sm flex items-center justify-center p-6"><div class="bg-primary-30 rounded-sm w-8 h-4"></div></div></div>
+          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">p-8</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">2rem</span><div class="bg-primary-10 rounded-sm flex items-center justify-center p-8"><div class="bg-primary-30 rounded-sm w-8 h-4"></div></div></div>
+          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">p-12</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">3rem</span><div class="bg-primary-10 rounded-sm flex items-center justify-center p-12"><div class="bg-primary-30 rounded-sm w-8 h-4"></div></div></div>
+        </div>
+        <h3 class="text-sm font-semibold text-neutral-60 uppercase tracking-wide mb-4">Gap Scale</h3>
+        <div class="flex flex-col gap-3">
+          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">gap-1</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">0.25rem</span><div class="flex gap-1"><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div></div></div>
+          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">gap-2</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">0.5rem</span><div class="flex gap-2"><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div></div></div>
+          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">gap-4</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">1rem</span><div class="flex gap-4"><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div></div></div>
+          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">gap-6</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">1.5rem</span><div class="flex gap-6"><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div></div></div>
+          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">gap-8</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">2rem</span><div class="flex gap-8"><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SHADOWS & BORDERS                                             -->
+<!-- ============================================================ -->
+<section id="shadows" class="section-anchor py-12 px-6">
+  <div style="max-width:1280px;margin:0 auto;">
+    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden">
+      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
+        <h2 class="text-xl font-semibold text-neutral-90">Shadows &amp; Borders</h2>
+        <p class="text-sm text-neutral-60 mt-1">Use <span class="mono">shadow-{size}</span> and <span class="mono">rounded-{size}</span>.</p>
+      </div>
+      <div class="p-6">
+        <h3 class="text-sm font-semibold text-neutral-60 uppercase tracking-wide mb-6">Box Shadows</h3>
+        <div class="grid grid-cols-4 gap-6 mb-10">
+          <div class="flex flex-col items-center gap-3"><div class="bg-white shadow-sm w-full h-20 rounded flex items-center justify-center"><span class="mono label-xs text-neutral-50">shadow-sm</span></div><span class="mono label-xs text-neutral-50">Small</span></div>
+          <div class="flex flex-col items-center gap-3"><div class="bg-white shadow w-full h-20 rounded flex items-center justify-center"><span class="mono label-xs text-neutral-50">shadow</span></div><span class="mono label-xs text-neutral-50">Base</span></div>
+          <div class="flex flex-col items-center gap-3"><div class="bg-white shadow-md w-full h-20 rounded flex items-center justify-center"><span class="mono label-xs text-neutral-50">shadow-md</span></div><span class="mono label-xs text-neutral-50">Medium</span></div>
+          <div class="flex flex-col items-center gap-3"><div class="bg-white shadow-lg w-full h-20 rounded flex items-center justify-center"><span class="mono label-xs text-neutral-50">shadow-lg</span></div><span class="mono label-xs text-neutral-50">Large</span></div>
+        </div>
+        <h3 class="text-sm font-semibold text-neutral-60 uppercase tracking-wide mb-6">Border Radius</h3>
+        <div class="flex flex-wrap gap-8 items-end mb-10">
+          <div class="flex flex-col items-center gap-2"><div class="bg-primary-20 border-2 border-primary-40 w-16 h-16 rounded-none"></div><span class="mono label-xs text-neutral-50">rounded-none</span><span class="mono label-xs text-neutral-40">0</span></div>
+          <div class="flex flex-col items-center gap-2"><div class="bg-primary-20 border-2 border-primary-40 w-16 h-16 rounded-sm"></div><span class="mono label-xs text-neutral-50">rounded-sm</span><span class="mono label-xs text-neutral-40">4px</span></div>
+          <div class="flex flex-col items-center gap-2"><div class="bg-primary-20 border-2 border-primary-40 w-16 h-16 rounded"></div><span class="mono label-xs text-neutral-50">rounded</span><span class="mono label-xs text-neutral-40">8px</span></div>
+          <div class="flex flex-col items-center gap-2"><div class="bg-primary-20 border-2 border-primary-40 w-16 h-16 rounded-md"></div><span class="mono label-xs text-neutral-50">rounded-md</span><span class="mono label-xs text-neutral-40">12px</span></div>
+          <div class="flex flex-col items-center gap-2"><div class="bg-primary-20 border-2 border-primary-40 w-16 h-16 rounded-lg"></div><span class="mono label-xs text-neutral-50">rounded-lg</span><span class="mono label-xs text-neutral-40">16px</span></div>
+          <div class="flex flex-col items-center gap-2"><div class="bg-primary-20 border-2 border-primary-40 w-16 h-16 rounded-full"></div><span class="mono label-xs text-neutral-50">rounded-full</span><span class="mono label-xs text-neutral-40">9999px</span></div>
+        </div>
+        <h3 class="text-sm font-semibold text-neutral-60 uppercase tracking-wide mb-6">Border Widths</h3>
+        <div class="flex flex-wrap gap-8 items-end">
+          <div class="flex flex-col items-center gap-2"><div class="bg-neutral-10 w-16 h-16 rounded border-0 border-primary-80"></div><span class="mono label-xs text-neutral-50">border-0</span><span class="mono label-xs text-neutral-40">0px</span></div>
+          <div class="flex flex-col items-center gap-2"><div class="bg-neutral-10 w-16 h-16 rounded border border-primary-80"></div><span class="mono label-xs text-neutral-50">border</span><span class="mono label-xs text-neutral-40">1px</span></div>
+          <div class="flex flex-col items-center gap-2"><div class="bg-neutral-10 w-16 h-16 rounded border-2 border-primary-80"></div><span class="mono label-xs text-neutral-50">border-2</span><span class="mono label-xs text-neutral-40">2px</span></div>
+          <div class="flex flex-col items-center gap-2"><div class="bg-neutral-10 w-16 h-16 rounded border-4 border-primary-80"></div><span class="mono label-xs text-neutral-50">border-4</span><span class="mono label-xs text-neutral-40">4px</span></div>
+          <div class="flex flex-col items-center gap-2"><div class="bg-neutral-10 w-16 h-16 rounded border-8 border-primary-80"></div><span class="mono label-xs text-neutral-50">border-8</span><span class="mono label-xs text-neutral-40">8px</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- COMPONENTS                                                    -->
+<!-- ============================================================ -->
+<section id="components" class="section-anchor py-12 px-6">
+  <div style="max-width:1280px;margin:0 auto;">
+    <div class="mb-6">
+      <h2 class="font-lexend font-bold text-2xl text-neutral-90">Components</h2>
+      <p class="text-sm text-neutral-60 mt-1">Production-ready. Copy the HTML, paste into your project. All accessibility attributes included.</p>
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden mb-6">
+      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
+        <h3 class="text-lg font-semibold text-neutral-90">Button</h3>
+      </div>
+      <div class="p-6 flex flex-wrap gap-3 items-center">
+        <button class="bg-primary-80 text-white px-5 py-2 rounded font-medium text-sm hover:bg-primary-90 focus-visible:outline-2 focus-visible:outline-primary-80 transition cursor-pointer border-0">Primary</button>
+        <button class="bg-neutral-80 text-white px-5 py-2 rounded font-medium text-sm hover:bg-neutral-90 focus-visible:outline-2 focus-visible:outline-neutral-80 transition cursor-pointer border-0">Secondary</button>
+        <button class="bg-white text-primary-80 px-5 py-2 rounded font-medium text-sm border-2 border-primary-80 hover:bg-primary-10 focus-visible:outline-2 focus-visible:outline-primary-80 transition cursor-pointer">Outline</button>
+        <button class="bg-success-80 text-white px-5 py-2 rounded font-medium text-sm hover:bg-success-90 focus-visible:outline-2 focus-visible:outline-success-80 transition cursor-pointer border-0">Success</button>
+        <button class="bg-error-80 text-white px-5 py-2 rounded font-medium text-sm hover:bg-error-90 focus-visible:outline-2 focus-visible:outline-error-80 transition cursor-pointer border-0">Danger</button>
+        <button class="bg-neutral-20 text-neutral-50 px-5 py-2 rounded font-medium text-sm cursor-not-allowed border-0" disabled aria-disabled="true">Disabled</button>
+        <button class="bg-primary-80 text-white px-4 py-2 rounded font-medium text-sm hover:bg-primary-90 transition cursor-pointer border-0 flex items-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          With icon
+        </button>
+      </div>
+      <div class="px-6 pb-6">
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><code>&lt;!-- Primary --&gt;
+&lt;button class="bg-primary-80 text-white px-5 py-2 rounded font-medium text-sm hover:bg-primary-90 focus-visible:outline-2 focus-visible:outline-primary-80 transition cursor-pointer border-0"&gt;
+  Primary
+&lt;/button&gt;
+
+&lt;!-- Outline --&gt;
+&lt;button class="bg-white text-primary-80 px-5 py-2 rounded font-medium text-sm border-2 border-primary-80 hover:bg-primary-10 focus-visible:outline-2 focus-visible:outline-primary-80 transition cursor-pointer"&gt;
+  Outline
+&lt;/button&gt;
+
+&lt;!-- Disabled --&gt;
+&lt;button class="bg-neutral-20 text-neutral-50 px-5 py-2 rounded font-medium text-sm cursor-not-allowed border-0" disabled aria-disabled="true"&gt;
+  Disabled
+&lt;/button&gt;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEXT INPUT -->
+    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden mb-6">
+      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
+        <h3 class="text-lg font-semibold text-neutral-90">Text Input</h3>
+        <p class="text-xs text-success-80 flex items-center gap-1.5 mt-1.5">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          Includes focus-visible, error state with aria-invalid, and disabled variant.
+        </p>
+      </div>
+      <div class="p-6 flex flex-col gap-4" style="max-width:480px;">
+        <div class="flex flex-col gap-1">
+          <label for="input-default" class="text-sm font-medium text-neutral-80">Email address</label>
+          <input id="input-default" type="email" placeholder="you@example.com" class="w-full px-3 py-2 border-2 border-neutral-30 rounded text-sm text-neutral-90 bg-white focus-visible:outline-2 focus-visible:outline-primary-80 transition" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="input-error" class="text-sm font-medium text-neutral-80">Email address</label>
+          <input id="input-error" type="email" value="not-an-email" class="w-full px-3 py-2 border-2 border-error-80 rounded text-sm text-neutral-90 bg-white focus-visible:outline-2 focus-visible:outline-error-80 transition" aria-describedby="input-error-msg" aria-invalid="true" />
+          <span id="input-error-msg" class="text-xs text-error-80" role="alert">Enter a valid email address.</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="input-disabled" class="text-sm font-medium text-neutral-50">Read-only field</label>
+          <input id="input-disabled" type="text" value="Northumberland County Council" class="w-full px-3 py-2 border-2 border-neutral-20 rounded text-sm text-neutral-50 bg-neutral-10 cursor-not-allowed" disabled />
+        </div>
+      </div>
+      <div class="px-6 pb-6">
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><code>&lt;div class="flex flex-col gap-1"&gt;
+  &lt;label for="email" class="text-sm font-medium text-neutral-80"&gt;Email address&lt;/label&gt;
+  &lt;input id="email" type="email" placeholder="you@example.com"
+    class="w-full px-3 py-2 border-2 border-neutral-30 rounded text-sm text-neutral-90 bg-white focus-visible:outline-2 focus-visible:outline-primary-80 transition" /&gt;
+&lt;/div&gt;
+
+&lt;!-- Error state --&gt;
+&lt;div class="flex flex-col gap-1"&gt;
+  &lt;label for="email-error" class="text-sm font-medium text-neutral-80"&gt;Email address&lt;/label&gt;
+  &lt;input id="email-error" type="email" aria-invalid="true" aria-describedby="email-error-msg"
+    class="w-full px-3 py-2 border-2 border-error-80 rounded text-sm text-neutral-90 bg-white focus-visible:outline-2 focus-visible:outline-error-80 transition" /&gt;
+  &lt;span id="email-error-msg" class="text-xs text-error-80" role="alert"&gt;Enter a valid email address.&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD -->
+    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden mb-6">
+      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
+        <h3 class="text-lg font-semibold text-neutral-90">Card</h3>
+      </div>
+      <div class="p-6 grid grid-cols-3 gap-6">
+        <div class="bg-white border-2 border-neutral-20 rounded-lg p-5 shadow-sm flex flex-col gap-3">
+          <h4 class="text-base font-semibold text-neutral-90">Basic card</h4>
+          <p class="text-sm text-neutral-60">A simple card with a title, some body text, and an action.</p>
+          <button class="bg-primary-80 text-white px-4 py-2 rounded text-sm font-medium hover:bg-primary-90 transition cursor-pointer border-0 self-start">View details</button>
+        </div>
+        <div class="bg-primary-80 border-2 border-primary-80 rounded-lg p-5 shadow flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-base font-semibold text-white">Featured</h4>
+            <span class="bg-white text-primary-80 text-xs font-bold px-2 py-1 rounded-full">PRO</span>
+          </div>
+          <p class="text-sm text-primary-20">Highlighted card for key features or calls to action.</p>
+          <button class="bg-white text-primary-80 px-4 py-2 rounded text-sm font-semibold hover:bg-primary-10 transition cursor-pointer border-0 self-start">Get started</button>
+        </div>
+        <div class="bg-white border-2 border-neutral-20 rounded-lg p-5 shadow-sm flex flex-col gap-2">
+          <span class="text-xs font-medium text-neutral-50 uppercase tracking-wide">Total projects</span>
+          <span class="text-4xl font-bold text-neutral-90">142</span>
+          <span class="text-sm text-success-80 font-medium">&#x2191; 12% this month</span>
+        </div>
+      </div>
+      <div class="px-6 pb-6">
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><code>&lt;div class="bg-white border-2 border-neutral-20 rounded-lg p-5 shadow-sm flex flex-col gap-3"&gt;
+  &lt;h2 class="text-base font-semibold text-neutral-90"&gt;Card title&lt;/h2&gt;
+  &lt;p class="text-sm text-neutral-60"&gt;Card body text goes here.&lt;/p&gt;
+  &lt;button class="bg-primary-80 text-white px-4 py-2 rounded text-sm font-medium hover:bg-primary-90 transition cursor-pointer border-0 self-start"&gt;
+    View details
+  &lt;/button&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERT -->
+    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden mb-6">
+      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
+        <h3 class="text-lg font-semibold text-neutral-90">Alert</h3>
+      </div>
+      <div class="p-6 flex flex-col gap-3">
+        <div class="bg-success-10 border-2 border-success-30 rounded p-4 flex gap-3 items-start" role="alert">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success-80 shrink-0 mt-0.5" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <div><p class="text-sm font-semibold text-success-90">Changes saved</p><p class="text-sm text-success-80">Your settings have been updated successfully.</p></div>
+        </div>
+        <div class="bg-error-10 border-2 border-error-30 rounded p-4 flex gap-3 items-start" role="alert">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-error-80 shrink-0 mt-0.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          <div><p class="text-sm font-semibold text-error-90">Something went wrong</p><p class="text-sm text-error-80">We couldn't save your changes. Please try again.</p></div>
+        </div>
+        <div class="bg-warning-10 border-2 border-warning-40 rounded p-4 flex gap-3 items-start" role="alert">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warning-60 shrink-0 mt-0.5" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div><p class="text-sm font-semibold text-neutral-90">Review required</p><p class="text-sm text-neutral-70">This action will affect 23 connected records.</p></div>
+        </div>
+        <div class="bg-primary-10 border-2 border-primary-30 rounded p-4 flex gap-3 items-start" role="status">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-80 shrink-0 mt-0.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div><p class="text-sm font-semibold text-primary-90">Heads up</p><p class="text-sm text-primary-80">Scheduled maintenance on Sunday 29 April, 2&ndash;4am.</p></div>
+        </div>
+      </div>
+      <div class="px-6 pb-6">
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><code>&lt;!-- Success alert --&gt;
+&lt;div class="bg-success-10 border-2 border-success-30 rounded p-4 flex gap-3 items-start" role="alert"&gt;
+  &lt;!-- icon --&gt;
+  &lt;div&gt;
+    &lt;p class="text-sm font-semibold text-success-90"&gt;Changes saved&lt;/p&gt;
+    &lt;p class="text-sm text-success-80"&gt;Your settings have been updated successfully.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Error alert --&gt;
+&lt;div class="bg-error-10 border-2 border-error-30 rounded p-4 flex gap-3 items-start" role="alert"&gt;
+  &lt;!-- icon --&gt;
+  &lt;div&gt;
+    &lt;p class="text-sm font-semibold text-error-90"&gt;Something went wrong&lt;/p&gt;
+    &lt;p class="text-sm text-error-80"&gt;We couldn&amp;apos;t save your changes. Please try again.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- BADGE -->
+    <div class="bg-white rounded-lg bor
