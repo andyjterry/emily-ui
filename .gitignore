@@ -1,6 +1,5 @@
 node_modules/
-dist/emily.purged.css
-dist/emily.purged.min.css
+dist/
 *.log
 .DS_Store
 Thumbs.db
