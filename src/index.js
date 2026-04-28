@@ -777,7 +777,7 @@ function addStateVariants(css) {
 function build(options = {}) {
   const configPath = path.join(process.cwd(), 'emily.config.json');
   if (!fs.existsSync(configPath)) {
-    console.error(`\n  emily-ui: No config found.\n  Expected: ${configPath}\n  Run "emily-ui init" to create one.\n`);
+    console.error(`\n  emily-css: No config found.\n  Expected: ${configPath}\n  Run "emily-css init" to create one.\n`);
     process.exit(1);
   }
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
@@ -786,7 +786,7 @@ function build(options = {}) {
     const { purgeCSS } = require('./purge.js');
     const cssPath = path.join(process.cwd(), 'dist/emily.css');
     if (!fs.existsSync(cssPath)) {
-      console.error('  emily-ui: Run emily-ui build first before purging.');
+      console.error('  emily-css: Run "emily-css build" first.');
       process.exit(1);
     }
     console.log(`Purging unused utilities from ${options.purge}...`);

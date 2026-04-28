@@ -4,24 +4,24 @@ const path = require('path');
 function runPurge() {
   const configPath = path.join(process.cwd(), 'emily.config.json');
 
-  if (\!fs.existsSync(configPath)) {
-    console.error('\n  emily-ui: No config found. Run "emily-ui init" first.\n');
+  if (!fs.existsSync(configPath)) {
+    console.error('\n  emily-css: No config found. Run "emily-css init" first.\n');
     process.exit(1);
   }
 
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
   const sourceDir = config.purge && config.purge.sourceDir;
 
-  if (\!sourceDir) {
-    console.error('\n  emily-ui: No purge sourceDir in emily.config.json.');
+  if (!sourceDir) {
+    console.error('\n  emily-css: No purge sourceDir in emily.config.json.');
     console.error('  Add: "purge": { "sourceDir": "./src" }\n');
     process.exit(1);
   }
 
   const cssPath = path.join(process.cwd(), 'dist/emily.css');
 
-  if (\!fs.existsSync(cssPath)) {
-    console.error('\n  emily-ui: No CSS found. Run "emily-ui build" first.\n');
+  if (!fs.existsSync(cssPath)) {
+    console.error('\n  emily-css: No CSS found. Run "emily-css build" first.\n');
     process.exit(1);
   }
 
@@ -46,10 +46,10 @@ function runPurge() {
   const purgedSize = Buffer.byteLength(purged, 'utf8');
   const reduction = Math.round((1 - purgedSize / original) * 100);
 
-  console.log('\n✓ Purged CSS written:');
+  console.log('\n\u2713 Purged CSS written:');
   console.log('  dist/emily.purged.css');
   console.log('  dist/emily.purged.min.css');
-  console.log('\n  ' + Math.round(original/1024) + 'KB -> ' + Math.round(purgedSize/1024) + 'KB (' + reduction + '% reduction)\n');
+  console.log('\n  ' + Math.round(original / 1024) + 'KB -> ' + Math.round(purgedSize / 1024) + 'KB (' + reduction + '% reduction)\n');
 }
 
 runPurge();
