@@ -857,7 +857,10 @@ function build(options = {}) {
   // components → reserved for future component styles
   // utilities  → generated utility classes (highest priority)
   const { fontFace, bodyFont } = generateFontCSS(config);
-  console.log(`✓ Font: ${config.fontFamily || 'system'}`);
+  const fontLabel = typeof config.fontFamily === 'object'
+    ? 'heading: ' + (config.fontFamily.heading || 'system') + ', body: ' + (config.fontFamily.body || 'system')
+    : (config.fontFamily || 'system');
+  console.log('✓ Font: ' + fontLabel);
 
   const baseCss = `
   /* Box sizing */

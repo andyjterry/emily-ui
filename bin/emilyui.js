@@ -5,7 +5,8 @@ const command = process.argv[2];
 if (command === "init") {
   require("../src/init.js");
 } else if (command === "build") {
-  require("../src/index.js");
+  const { build } = require("../src/index.js");
+  build();
 } else if (command === "purge") {
   require("../src/purge-cmd.js");
 } else {
