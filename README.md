@@ -242,7 +242,7 @@ Use emily-ui directly without npm via jsDelivr:
 ## Support
 
 Open an issue or start a discussion on GitHub:
-https://github.com/andyterry/emily-ui
+https://github.com/andyjterry/emily-ui
 
 ## License
 

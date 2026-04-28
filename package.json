@@ -1,10 +1,10 @@
 {
-  "name": "emily-ui",
+  "name": "emily-css",
   "version": "1.0.0",
-  "description": "Config-driven CSS and component library generator. Brand colours to production-ready components in minutes.",
+  "description": "Config-driven, utility-first CSS framework. Define brand colours once, generate 11,000+ utilities, browse and copy production-ready components.",
   "main": "src/index.js",
   "bin": {
-    "emily-ui": "./bin/emilyui.js"
+    "emily-ui": "bin/emilyui.js"
   },
   "files": [
     "bin/",
