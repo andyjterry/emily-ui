@@ -38,7 +38,7 @@ function createDefaultConfig(name, colours, fonts, baseUnit, sourceDir) {
     description: `${name} design system`,
     baseUnit: `${baseUnit}px`,
     baseFontSize: '16px',
-    fontFamily: 'system-ui',
+    fontFamily: { heading: 'lexend', body: 'inter' },
     customFonts: [],
     colours,
     breakpoints: {

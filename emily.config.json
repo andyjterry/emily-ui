@@ -1,14 +1,14 @@
 {
   "name": "My Brand Design System",
   "description": "A complete, production-ready design system",
-
   "baseUnit": "8px",
   "baseFontSize": "16px",
-
   "_fontFamily_options": "inter | lexend | system | georgia | mono",
-  "fontFamily": "inter",
+  "fontFamily": {
+    "heading": "lexend",
+    "body": "inter"
+  },
   "customFonts": [],
-
   "colours": {
     "primary": "#DB2777",
     "secondary": "#2563EB",
@@ -17,7 +17,6 @@
     "error": "#DC2626",
     "neutral": "#1C1917"
   },
-
   "breakpoints": {
     "sm": "640px",
     "md": "768px",
@@ -25,7 +24,6 @@
     "xl": "1280px",
     "2xl": "1536px"
   },
-
   "spacing": {
     "scale": {
       "0": "0px",
@@ -64,7 +62,12 @@
       "80": "20rem",
       "96": "24rem"
     },
-    "borderWidths": [0, 2, 4, 8],
+    "borderWidths": [
+      0,
+      2,
+      4,
+      8
+    ],
     "borderRadius": {
       "none": "0",
       "sm": "4px",
@@ -74,7 +77,6 @@
       "full": "9999px"
     }
   },
-
   "typography": {
     "lineHeightRatio": 1.5,
     "fontWeights": {
@@ -85,17 +87,48 @@
       "bold": 700
     },
     "fontSizes": [
-      { "name": "xs", "value": "12px", "lineHeight": 1.5 },
-      { "name": "sm", "value": "14px", "lineHeight": 1.5 },
-      { "name": "base", "value": "16px", "lineHeight": 1.6 },
-      { "name": "lg", "value": "18px", "lineHeight": 1.6 },
-      { "name": "xl", "value": "20px", "lineHeight": 1.6 },
-      { "name": "2xl", "value": "24px", "lineHeight": 1.4 },
-      { "name": "3xl", "value": "30px", "lineHeight": 1.4 },
-      { "name": "4xl", "value": "36px", "lineHeight": 1.3 }
+      {
+        "name": "xs",
+        "value": "12px",
+        "lineHeight": 1.5
+      },
+      {
+        "name": "sm",
+        "value": "14px",
+        "lineHeight": 1.5
+      },
+      {
+        "name": "base",
+        "value": "16px",
+        "lineHeight": 1.6
+      },
+      {
+        "name": "lg",
+        "value": "18px",
+        "lineHeight": 1.6
+      },
+      {
+        "name": "xl",
+        "value": "20px",
+        "lineHeight": 1.6
+      },
+      {
+        "name": "2xl",
+        "value": "24px",
+        "lineHeight": 1.4
+      },
+      {
+        "name": "3xl",
+        "value": "30px",
+        "lineHeight": 1.4
+      },
+      {
+        "name": "4xl",
+        "value": "36px",
+        "lineHeight": 1.3
+      }
     ]
   },
-
   "shadows": {
     "sm": "0 1px 2px rgba(0, 0, 0, 0.05)",
     "base": "0 4px 6px rgba(0, 0, 0, 0.1)",
@@ -103,14 +136,12 @@
     "lg": "0 20px 25px rgba(0, 0, 0, 0.15)",
     "none": "none"
   },
-
   "transitions": {
     "fast": "100ms",
     "base": "200ms",
     "slow": "300ms",
     "timing": "cubic-bezier(0.4, 0, 0.2, 1)"
   },
-
   "zIndex": {
     "auto": "auto",
     "0": "0",
@@ -126,11 +157,19 @@
     "popover": "1060",
     "tooltip": "1070"
   },
-
-  "opacity": [0, 5, 10, 25, 50, 75, 90, 95, 100],
-
+  "opacity": [
+    0,
+    5,
+    10,
+    25,
+    50,
+    75,
+    90,
+    95,
+    100
+  ],
   "baseStyles": {
-    "p":  "base",
+    "p": "base",
     "h1": "4xl",
     "h2": "3xl",
     "h3": "2xl",
@@ -138,8 +177,25 @@
     "h5": "lg",
     "h6": "base"
   },
-
   "purge": {
-    "extensions": [".html", ".htm", ".twig", ".njk", ".liquid", ".hbs", ".jsx", ".tsx", ".vue", ".php", ".astro", ".svelte", ".blade.php", ".jinja", ".jinja2", ".j2", ".md"]
+    "extensions": [
+      ".html",
+      ".htm",
+      ".twig",
+      ".njk",
+      ".liquid",
+      ".hbs",
+      ".jsx",
+      ".tsx",
+      ".vue",
+      ".php",
+      ".astro",
+      ".svelte",
+      ".blade.php",
+      ".jinja",
+      ".jinja2",
+      ".j2",
+      ".md"
+    ]
   }
 }

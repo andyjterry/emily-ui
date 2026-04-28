@@ -151,57 +151,62 @@ function generateSpacing(baseUnit, scale) {
 // FONT PRESETS
 // ============================================================================
 
-// Bundled fonts live in fonts/{name}/ relative to the package root.
-// The generated CSS lives in dist/, so relative paths use ../fonts/...
 const FONT_PRESETS = {
   'system': {
     stack: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    bundled: false,
+    googleFont: false,
   },
   'inter': {
     name: 'Inter',
     stack: '"Inter", system-ui, sans-serif',
-    bundled: true,
-    file: '../fonts/inter/Inter-Variable.woff2',
-    weight: '100 900',
-    style: 'normal',
+    googleFont: true,
+    importUrl: 'https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap',
   },
   'lexend': {
     name: 'Lexend',
     stack: '"Lexend", system-ui, sans-serif',
-    bundled: true,
-    file: '../fonts/lexend/Lexend-Variable.woff2',
-    weight: '100 900',
-    style: 'normal',
+    googleFont: true,
+    importUrl: 'https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap',
   },
   'georgia': {
     stack: 'Georgia, "Times New Roman", serif',
-    bundled: false,
+    googleFont: false,
   },
   'mono': {
     stack: '"Menlo", "Monaco", "Courier New", monospace',
-    bundled: false,
+    googleFont: false,
   },
 };
 
 function generateFontCSS(config) {
-  const fontFamily = (config.fontFamily || 'system').toLowerCase();
-  const preset = FONT_PRESETS[fontFamily] || FONT_PRESETS['system'];
+  // Support both legacy string format and new { heading, body } object format
+  const fontConfig = config.fontFamily || 'system';
+  let headingKey, bodyKey;
+
+  if (typeof fontConfig === 'object') {
+    headingKey = (fontConfig.heading || 'system').toLowerCase();
+    bodyKey = (fontConfig.body || 'system').toLowerCase();
+  } else {
+    headingKey = fontConfig.toLowerCase();
+    bodyKey = fontConfig.toLowerCase();
+  }
+
+  const headingPreset = FONT_PRESETS[headingKey] || FONT_PRESETS['system'];
+  const bodyPreset = FONT_PRESETS[bodyKey] || FONT_PRESETS['system'];
 
   let fontFace = '';
   let bodyFont = '';
 
-  if (preset.bundled) {
-    fontFace += `@font-face {\n`;
-    fontFace += `  font-family: "${preset.name}";\n`;
-    fontFace += `  src: url("${preset.file}") format("woff2");\n`;
-    fontFace += `  font-weight: ${preset.weight};\n`;
-    fontFace += `  font-style: ${preset.style};\n`;
-    fontFace += `  font-display: swap;\n`;
-    fontFace += `}\n`;
-  }
+  // Import Google Fonts — dedupe if heading and body use the same font
+  const imports = new Set();
+  if (headingPreset.googleFont) imports.add(headingPreset.importUrl);
+  if (bodyPreset.googleFont) imports.add(bodyPreset.importUrl);
+  imports.forEach(url => {
+    fontFace += `@import url("${url}");\n`;
+  });
 
-  bodyFont = `  body {\n    font-family: ${preset.stack};\n    font-synthesis: style;\n  }\n`;
+  bodyFont += `  body {\n    font-family: ${bodyPreset.stack};\n    font-synthesis: style;\n  }\n`;
+  bodyFont += `  h1, h2, h3, h4, h5, h6 {\n    font-family: ${headingPreset.stack};\n  }\n`;
 
   return { fontFace, bodyFont };
 }
@@ -949,4 +954,5 @@ module.exports = {
   generateSpacingUtilities,
   addStateVariants,
   addResponsiveVariants,
+  generateFontCSS,
 };

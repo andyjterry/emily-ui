@@ -152,7 +152,10 @@ Edit `emily.config.json` to customise:
 
   "baseUnit": "8px",
   "baseFontSize": "16px",
-  "fontFamily": "system-ui",
+  "fontFamily": {
+    "heading": "lexend",
+    "body": "inter"
+  },
 
   "colours": {
     "primary": "#0077b6",
@@ -273,11 +276,19 @@ npx emily-css purge
 2. Run `npx emily-css build`
 3. No cache invalidation needed
 
-## CDN
+## Fonts
 
-```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emily-css/dist/emily.css">
+Emily includes built-in support for **Inter** and **Lexend** via Google Fonts. Set `fontFamily` in your config and the generated CSS handles the import automatically:
+
+```json
+"fontFamily": "inter"
 ```
+
+```json
+"fontFamily": "lexend"
+```
+
+To use your own font, set `fontFamily` to any value (e.g. `"system"` for system-ui), then add your own `@import` or `<link>` to your HTML before loading `emily.css`.
 
 ## Support
 
