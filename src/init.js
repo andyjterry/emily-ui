@@ -23,16 +23,16 @@ function isValidHex(hex) {
 
 // Default colours
 const defaultColours = {
-  primary: '#0077b6',
-  secondary: '#006d9e',
+  primary: '#DB2777',
+  secondary: '#2563EB',
   success: '#017F65',
   warning: '#ffc107',
   error: '#b20000',
-  neutral: '#6b7280'
+  neutral: '#57534E'
 };
 
 // Default config template - matches emily.config.json structure
-function createDefaultConfig(name, colours, fonts, baseUnit) {
+function createDefaultConfig(name, colours, fonts, baseUnit, sourceDir) {
   return {
     name,
     description: `${name} design system`,
@@ -206,10 +206,15 @@ async function init() {
       }
     }
 
-    // 5. Create config
-    const config = createDefaultConfig(name, colours, fonts, baseUnit);
+    // 5. Source directory for purge
+    console.log('\nSource directory for purge (where your templates/HTML live):');
+    let sourceDir = await prompt('  Source directory [./src]: ');
+    sourceDir = sourceDir.trim() || './src';
 
-    // 6. Write config file to the user's project directory
+    // 6. Create config
+    const config = createDefaultConfig(name, colours, fonts, baseUnit, sourceDir);
+
+    // 7. Write config file to the user's project directory
     const configPath = path.join(process.cwd(), 'emily.config.json');
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
 
@@ -219,7 +224,7 @@ async function init() {
     console.log(`   Base unit: ${baseUnit}px`);
     console.log(`\n📝 Config saved: ${configPath}`);
 
-    // 7. Run build
+    // 8. Run build
     console.log('\n🔨 Building CSS...\n');
     rl.close();
 
@@ -237,7 +242,7 @@ async function init() {
         console.log('   1. Open showcase.html in your browser to see components');
         console.log('   2. Copy component code into your project');
         console.log('   3. Update emily.config.json to customize colours/fonts');
-        console.log('   4. Run: npm run build -- --purge ./src (to reduce CSS size)');
+        console.log('   4. Run: emily-ui purge (to remove unused CSS for production)');
       } else {
         console.log('\n❌ Build failed');
       }
