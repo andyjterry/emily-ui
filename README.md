@@ -1,4 +1,4 @@
-# emily-ui
+# emily-css
 
 A config-driven, utility-first CSS framework for developers in constrained environments. Define brand once (colours, fonts, spacing) → generate CSS → browse and copy production-ready components.
 
@@ -17,7 +17,7 @@ A config-driven, utility-first CSS framework for developers in constrained envir
 
 ### 1. Install
 ```bash
-npm install emily-ui
+npm install emily-css
 emily-ui init
 ```
 
@@ -236,7 +236,7 @@ emily-ui build --purge ./src
 Use emily-ui directly without npm via jsDelivr:
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emily-ui/dist/emily.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emily-css/dist/emily.css">
 ```
 
 ## Support
