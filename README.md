@@ -2,13 +2,11 @@
 
 A config-driven utility CSS framework. Define your brand once, generate the CSS.
 
-**EmilyUI** is the ecosystem name. `emily-css` is both the npm package and the CLI command.
-
-Part of the EmilyUI ecosystem - `emily-css` is the utility layer, with more packages coming.
+**EmilyUI** is the ecosystem name. `emily-css` is the utility layer published on npm — it's both the package you install and the CLI you use to generate and purge CSS. More packages coming.
 
 ## Features
 
-- **Works anywhere** - No build pipeline required. Generate CSS and drop it into any project.
+- **Works anywhere** - Generate static CSS and drop it into any project, no build pipeline required.
 - **Config-driven** - Entire framework configured via `emily.config.json`
 - **Utility-first** - Composable utilities for layout, spacing, typography and colour
 - **Responsive ready** - All utilities work with responsive prefixes (`sm:`, `md:`, `lg:`, `xl:`, `2xl:`)
@@ -95,7 +93,7 @@ For example:
 
 EmilyUI keeps `.p-4`, `.bg-primary-80`, `.rounded-lg` and removes everything else.
 
-Supported file types: `.html`, `.twig`, `.njk`, `.liquid`, `.hbs`, `.jsx`, `.tsx`, `.vue`, `.php`, `.astro`, `.svelte`, `.blade.php`
+Supported file types: `.html`, `.twig`, `.njk`, `.liquid`, `.hbs`, `.jsx`, `.tsx`, `.vue`, `.php`, `.astro`, `.svelte`, `.blade.php` (configurable via `extensions` in `emily.config.json`)
 
 **Note:** Class names must exist as plain text in your files. Dynamically constructed class names will not be detected:
 
