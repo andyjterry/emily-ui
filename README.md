@@ -1,6 +1,6 @@
 # emily-css
 
-A config-driven, utility-first CSS framework for developers in constrained environments. Define brand once (colours, fonts, spacing) → generate CSS → browse and copy production-ready components.
+A config-driven utility CSS framework. Define your brand once, generate the CSS.
 
 ## Features
 

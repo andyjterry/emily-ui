@@ -1,7 +1,7 @@
 {
   "name": "emily-css",
   "version": "1.0.0",
-  "description": "Config-driven, utility-first CSS framework. Define brand colours once, generate 11,000+ utilities, browse and copy production-ready components.",
+  "description": "A config-driven utility CSS framework. Define your brand once, generate the CSS.",
   "main": "src/index.js",
   "bin": {
     "emily-ui": "bin/emilyui.js"
