@@ -10,11 +10,11 @@ if (command === "init") {
   require("../src/purge-cmd.js");
 } else {
   console.log(`
-emily-ui - Config-driven CSS framework generator
+emily-css - Config-driven CSS framework generator
 
 Usage:
-  emily-ui init     Set up a new project
-  emily-ui build    Generate emily.css from your config
-  emily-ui purge    Remove unused utilities for production
+  emily-css init     Set up a new project
+  emily-css build    Generate emily.css from your config
+  emily-css purge    Remove unused utilities for production
 `);
 }

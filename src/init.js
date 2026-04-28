@@ -230,7 +230,7 @@ async function init() {
 
     // Spawn build process
     const { spawn } = require('child_process');
-    const build = spawn('npx', ['emily-ui', 'build'], {
+    const build = spawn('npx', ['emily-css', 'build'], {
       cwd: process.cwd(),
       stdio: 'inherit'
     });
@@ -242,7 +242,7 @@ async function init() {
         console.log('   1. Open showcase.html in your browser to see components');
         console.log('   2. Copy component code into your project');
         console.log('   3. Update emily.config.json to customize colours/fonts');
-        console.log('   4. Run: emily-ui purge (to remove unused CSS for production)');
+        console.log('   4. Run: emily-css purge (to remove unused CSS for production)');
       } else {
         console.log('\n❌ Build failed');
       }

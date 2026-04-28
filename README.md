@@ -2,7 +2,7 @@
 
 A config-driven utility CSS framework. Define your brand once, generate the CSS.
 
-**EmilyUI** is the project name. `emily-css` is the npm package. `emily-ui` is the CLI command.
+**EmilyUI** is the ecosystem name. `emily-css` is both the npm package and the CLI command.
 
 Part of the EmilyUI ecosystem - `emily-css` is the utility layer, with more packages coming.
 
@@ -27,7 +27,7 @@ npm install emily-css
 ### 2. Create your config
 
 ```bash
-npx emily-ui init
+npx emily-css init
 ```
 
 This walks you through:
@@ -59,7 +59,7 @@ Colours, spacing and typography all come from your config.
 ### 5. Purge unused CSS for production
 
 ```bash
-npx emily-ui purge
+npx emily-css purge
 ```
 
 Scans your template files, keeps only the utilities you actually use.
@@ -77,9 +77,9 @@ Use the purged file in production:
 ## Commands
 
 ```bash
-npx emily-ui init     # Create emily.config.json and run first build
-npx emily-ui build    # Regenerate CSS after config changes
-npx emily-ui purge    # Remove unused utilities for production
+npx emily-css init     # Create emily.config.json and run first build
+npx emily-css build    # Regenerate CSS after config changes
+npx emily-css purge    # Remove unused utilities for production
 npm test              # Run test suite (if working on EmilyUI itself)
 ```
 
@@ -183,7 +183,7 @@ Edit `emily.config.json` to customise:
 After editing, rebuild:
 
 ```bash
-npx emily-ui build
+npx emily-css build
 ```
 
 ## Utilities
@@ -261,18 +261,18 @@ npm test
 
 1. Check the responsive prefix: `.md\:flex` not `.md:flex`
 2. Verify class name spelling
-3. Clear browser cache and rebuild: `npx emily-ui build`
+3. Clear browser cache and rebuild: `npx emily-css build`
 
 ### File size too large?
 
 ```bash
-npx emily-ui purge
+npx emily-css purge
 ```
 
 ### Config not applying?
 
 1. Edit `emily.config.json`
-2. Run `npx emily-ui build`
+2. Run `npx emily-css build`
 3. No cache invalidation needed
 
 ## CDN
