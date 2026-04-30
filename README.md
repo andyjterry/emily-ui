@@ -2,7 +2,7 @@
 
 A config-driven utility CSS framework. Define your brand once, generate the CSS.
 
-**EmilyUI** is the ecosystem name. `emily-css` is the utility layer published on npm — it's both the package you install and the CLI you use to generate and purge CSS. More packages coming.
+**EmilyUI** is the ecosystem name. `emily-css` is the utility layer published on npm. It's both the package you install and the CLI you use to generate and purge CSS. More packages coming.
 
 ## Features
 
@@ -175,7 +175,6 @@ Edit `emily.config.json` to customise:
   },
 
   "purge": {
-    "sourceDir": "./src",
     "extensions": [".html", ".jsx", ".tsx", ".vue"]
   }
 }
@@ -254,7 +253,7 @@ All utilities are built with WCAG 2.2 AA in mind:
 npm test
 ```
 
-66 automated tests covering colour generation, utilities, variants, config integrity, and build output. All passing.
+72 automated tests covering colour generation, utilities, variants, config integrity, and build output. All passing.
 
 ## Troubleshooting
 
@@ -278,17 +277,26 @@ npx emily-css purge
 
 ## Fonts
 
-Emily includes built-in support for **Inter** and **Lexend** via Google Fonts. Set `fontFamily` in your config and the generated CSS handles the import automatically:
+EmilyUI includes built-in support for **Inter** and **Lexend** via Google Fonts CDN. No font files to download or host. The generated CSS handles the import automatically.
+
+Set `fontFamily` as an object to use different fonts for headings and body:
+
+```json
+"fontFamily": {
+  "heading": "lexend",
+  "body": "inter"
+}
+```
+
+Or as a string if you want one font throughout:
 
 ```json
 "fontFamily": "inter"
 ```
 
-```json
-"fontFamily": "lexend"
-```
+Supported values: `inter`, `lexend`, `system` (system-ui stack), `georgia`, `mono`.
 
-To use your own font, set `fontFamily` to any value (e.g. `"system"` for system-ui), then add your own `@import` or `<link>` to your HTML before loading `emily.css`.
+To use a custom font, set `fontFamily` to any other value and add your own `@import` or `<link>` to your HTML before loading `emily.css`.
 
 ## Support
 

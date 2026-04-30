@@ -119,7 +119,7 @@ function purgeBlock(block, usedClasses) {
     if (!selector.includes('.')) return true;
 
     for (const used of usedClasses) {
-      const escapedUsed = used.replace(/:/g, '\\\\:').replace(/\./g, '\\\\.');
+      const escapedUsed = used.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/:/g, '\\\\:');
       const boundaryRegex = new RegExp(`\\.${escapedUsed}(?::[\\w\\-]+|[\\s,>+~]|$)`);
       if (boundaryRegex.test(selector)) return true;
     }

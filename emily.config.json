@@ -10,12 +10,12 @@
   },
   "customFonts": [],
   "colours": {
-    "primary": "#DB2777",
-    "secondary": "#2563EB",
-    "success": "#059669",
-    "warning": "#D97706",
-    "error": "#DC2626",
-    "neutral": "#1C1917"
+    "primary": "#0077b6",
+    "secondary": "#006d9e",
+    "success": "#017f65",
+    "warning": "#ffc107",
+    "error": "#b20000",
+    "neutral": "#6b7280"
   },
   "breakpoints": {
     "sm": "640px",
