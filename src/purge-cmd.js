@@ -30,7 +30,7 @@ function runPurge() {
   console.log('\nPurging unused utilities from ' + sourceDir + '...');
 
   const css = fs.readFileSync(cssPath, 'utf8');
-  const purged = purgeCSS(css, sourceDir);
+  const purged = purgeCSS(css, sourceDir, config);
   const minified = purged
     .replace(/\/\*[\s\S]*?\*\//g, '')
     .replace(/\s+/g, ' ')
