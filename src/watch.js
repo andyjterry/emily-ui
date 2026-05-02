@@ -2,12 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const chokidar = require('chokidar');
 const chalk = require('chalk');
-const { build } = require('./index.js');
-const { purgeCSS, getAllFiles, extractClassNames } = require('./purge.js');
+const { buildFullFramework, buildProductionCss, ensureFullFramework } = require('./index.js');
+const { getAllFiles, extractClassNames } = require('./purge.js');
 
 let isRunning = false;
 let pendingRun = false;
-let debounceTimer = null;
 let previousClasses = new Set();
 let hasRunOnce = false;
 
@@ -22,14 +21,21 @@ function readConfig() {
   return JSON.parse(fs.readFileSync(configPath, 'utf8'));
 }
 
-function minify(css) {
-  return css
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/\s+/g, ' ')
-    .replace(/\s?\{/g, '{')
-    .replace(/\s?\}/g, '}')
-    .replace(/;\s/g, ';')
-    .trim();
+function shouldIgnore(filePath) {
+  const normalised = filePath.replace(/\\/g, '/');
+
+  return [
+    'node_modules/',
+    '.git/',
+    '.nuxt/',
+    '.next/',
+    '.output/',
+    'dist/',
+    'build/',
+    'coverage/',
+    '.cache/',
+    '.vite/'
+  ].some(part => normalised.includes('/' + part) || normalised.startsWith(part));
 }
 
 function runQuietly(fn) {
@@ -47,49 +53,8 @@ function runQuietly(fn) {
   }
 }
 
-function shouldIgnore(filePath) {
-  const normalised = filePath.replace(/\\/g, '/');
-
-  const ignoredParts = [
-    'node_modules/',
-    '.git/',
-    '.nuxt/',
-    '.next/',
-    '.output/',
-    'dist/',
-    'build/',
-    'coverage/',
-    '.cache/',
-    '.vite/'
-  ];
-
-  return ignoredParts.some(part =>
-    normalised.includes(`/${part}`) || normalised.startsWith(part)
-  );
-}
-
 function collectUsedClasses(sourceDir, config) {
-  const extensions = config?.purge?.extensions || [
-    '.html',
-    '.htm',
-    '.twig',
-    '.njk',
-    '.liquid',
-    '.hbs',
-    '.jsx',
-    '.tsx',
-    '.vue',
-    '.php',
-    '.astro',
-    '.svelte',
-    '.blade.php',
-    '.jinja',
-    '.jinja2',
-    '.j2',
-    '.md'
-  ];
-
-  const files = getAllFiles(sourceDir, extensions);
+  const files = getAllFiles(sourceDir, config.purge?.extensions);
   const usedClasses = new Set();
 
   for (const file of files) {
@@ -97,11 +62,8 @@ function collectUsedClasses(sourceDir, config) {
 
     try {
       const content = fs.readFileSync(file, 'utf8');
-      const classes = extractClassNames(content);
-      classes.forEach(cls => usedClasses.add(cls));
-    } catch {
-      // Ignore unreadable files in watch mode.
-    }
+      extractClassNames(content).forEach(cls => usedClasses.add(cls));
+    } catch {}
   }
 
   return usedClasses;
@@ -120,41 +82,33 @@ function formatClassList(classes) {
   if (classes.length === 0) return '';
 
   const shown = classes.slice(0, 8).join(', ');
-  const extra = classes.length > 8 ? ` +${classes.length - 8} more` : '';
+  const extra = classes.length > 8 ? ' +' + (classes.length - 8) + ' more' : '';
 
-  return `${shown}${extra}`;
+  return shown + extra;
 }
 
-function printSummary({ currentClasses, css, purged, added, removed }) {
-  const originalSize = Buffer.byteLength(css, 'utf8');
-  const purgedSize = Buffer.byteLength(purged, 'utf8');
-  const reduction = (((originalSize - purgedSize) / originalSize) * 100).toFixed(1);
-  const sizeKb = (purgedSize / 1024).toFixed(1);
+function printSummary({ currentClasses, result, added, removed }) {
+  const reduction = (((result.originalSize - result.outputSize) / result.originalSize) * 100).toFixed(1);
+  const sizeKb = (result.outputSize / 1024).toFixed(1);
   const time = new Date().toLocaleTimeString();
 
   console.log(
-    chalk.green(`✓ ${time} updated`) +
-    chalk.gray(` | ${currentClasses.size} classes | ${sizeKb} KB | ${reduction}% reduced`)
+    chalk.green('✓ ' + time + ' updated') +
+    chalk.gray(' | ' + currentClasses.size + ' classes | ' + sizeKb + ' KB | ' + reduction + '% reduced')
   );
 
   if (!hasRunOnce) return;
 
   if (removed.length > 0) {
-    console.log(
-      chalk.red(`− removed ${removed.length} class${removed.length === 1 ? '' : 'es'}`) +
-      chalk.gray(` (${formatClassList(removed)})`)
-    );
+    console.log(chalk.red('− removed ' + removed.length + ' class' + (removed.length === 1 ? '' : 'es')) + chalk.gray(' (' + formatClassList(removed) + ')'));
   }
 
   if (added.length > 0) {
-    console.log(
-      chalk.green(`+ added ${added.length} class${added.length === 1 ? '' : 'es'}`) +
-      chalk.gray(` (${formatClassList(added)})`)
-    );
+    console.log(chalk.green('+ added ' + added.length + ' class' + (added.length === 1 ? '' : 'es')) + chalk.gray(' (' + formatClassList(added) + ')'));
   }
 }
 
-function runBuildAndPurge() {
+function runProductionUpdate(filePath) {
   if (isRunning) {
     pendingRun = true;
     return;
@@ -165,33 +119,20 @@ function runBuildAndPurge() {
   try {
     const config = readConfig();
     const sourceDir = config.purge?.sourceDir || '.';
-
-    runQuietly(() => build());
-
+    const isConfigChange = filePath && filePath.replace(/\\/g, '/').endsWith('emily.config.json');
     const cssPath = path.join(process.cwd(), 'dist/emily.css');
 
-    if (!fs.existsSync(cssPath)) {
-      console.error('\n  emily-css: No CSS found after build.\n');
-      return;
-    }
+ if (isConfigChange) {
+  runQuietly(() => buildFullFramework());
+} else {
+  runQuietly(() => ensureFullFramework());
+}
 
-    const css = fs.readFileSync(cssPath, 'utf8');
-    const purged = runQuietly(() => purgeCSS(css, sourceDir, config));
-    const minified = minify(purged);
-
-    fs.writeFileSync(path.join(process.cwd(), 'dist/emily.purged.css'), purged);
-    fs.writeFileSync(path.join(process.cwd(), 'dist/emily.purged.min.css'), minified);
-
+    const result = runQuietly(() => buildProductionCss());
     const currentClasses = collectUsedClasses(sourceDir, config);
     const { added, removed } = getClassDiff(currentClasses);
 
-    printSummary({
-      currentClasses,
-      css,
-      purged,
-      added,
-      removed
-    });
+    printSummary({ currentClasses, result, added, removed });
 
     hasRunOnce = true;
   } catch (error) {
@@ -202,30 +143,21 @@ function runBuildAndPurge() {
 
     if (pendingRun) {
       pendingRun = false;
-      queueBuildAndPurge();
+      runProductionUpdate();
     }
   }
 }
 
-function queueBuildAndPurge(filePath) {
-  if (filePath && shouldIgnore(filePath)) {
-    return;
-  }
-
-  clearTimeout(debounceTimer);
-
-  debounceTimer = setTimeout(() => {
-    runBuildAndPurge();
-  }, 500);
-}
-
 function getWatchPaths(config) {
-  const purge = config.purge || {};
-
   return [
-    purge.sourceDir || '.',
+    config.purge?.sourceDir || '.',
     'emily.config.json'
   ];
+}
+
+function queueUpdate(filePath) {
+  if (filePath && shouldIgnore(filePath)) return;
+  runProductionUpdate(filePath);
 }
 
 function runWatch() {
@@ -234,9 +166,10 @@ function runWatch() {
 
   console.log('\n👀 EmilyUI is watching...');
   console.log(chalk.gray('   Watching:'));
-  watchPaths.forEach(item => console.log(chalk.gray(`   - ${item}`)));
+  watchPaths.forEach(item => console.log(chalk.gray('   - ' + item)));
 
-  runBuildAndPurge();
+  runQuietly(() => ensureFullFramework());
+  runProductionUpdate();
 
   const watcher = chokidar.watch(watchPaths, {
     ignored: shouldIgnore,
@@ -247,9 +180,9 @@ function runWatch() {
     }
   });
 
-  watcher.on('change', queueBuildAndPurge);
-  watcher.on('add', queueBuildAndPurge);
-  watcher.on('unlink', queueBuildAndPurge);
+  watcher.on('change', queueUpdate);
+  watcher.on('add', queueUpdate);
+  watcher.on('unlink', queueUpdate);
 
   watcher.on('error', error => {
     console.error('\n❌ EmilyUI watcher error');

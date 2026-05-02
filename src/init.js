@@ -567,10 +567,10 @@ async function init() {
         console.log('\n' + boxen(
           chalk.green.bold('Setup complete') +
           `\n\nConfig: ${chalk.cyan('emily.config.json')}` +
-          `\nOutput: ${chalk.cyan('dist/emily.css')}` +
+          `\nOutput: ${chalk.cyan('dist/emily.min.css')}` +
           `\nProject: ${chalk.cyan(detectedProject.name)}` +
           `\nScan: ${chalk.cyan(config.purge.sourceDir)}` +
-          `\n\nNext: add ${chalk.yellow('dist/emily.css')} to your project.`,
+          `\n\nNext: add ${chalk.yellow('dist/emily.min.css')} to your project.`,
           {
             padding: 1,
             margin: 1,

@@ -779,7 +779,7 @@ function addStateVariants(css) {
 // BUILD FUNCTION
 // ============================================================================
 
-function build(options = {}) {
+function buildFullFramework() {
   const configPath = path.join(process.cwd(), 'emily.config.json');
   if (!fs.existsSync(configPath)) {
     console.error(`\n  emily-css: No config found.\n  Expected: ${configPath}\n  Run "emily-css init" to create one.\n`);
@@ -787,24 +787,7 @@ function build(options = {}) {
   }
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
-  if (options.purge) {
-    const { purgeCSS } = require('./purge.js');
-    const cssPath = path.join(process.cwd(), 'dist/emily.css');
-    if (!fs.existsSync(cssPath)) {
-      console.error('  emily-css: Run "emily-css build" first.');
-      process.exit(1);
-    }
-    console.log(`Purging unused utilities from ${options.purge}...`);
-    const css = fs.readFileSync(cssPath, 'utf8');
-    const purged = purgeCSS(css, options.purge);
-    const minified = purged.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').replace(/\s?\{/g, '{').replace(/\s?\}/g, '}').replace(/;\s/g, ';').trim();
-    fs.writeFileSync(path.join(process.cwd(), 'dist/emily.purged.css'), purged);
-    fs.writeFileSync(path.join(process.cwd(), 'dist/emily.purged.min.css'), minified);
-    console.log('✓ Purged CSS: dist/emily.purged.css');
-    return;
-  }
-
-  console.log('Building EmilyUI...');
+  console.log('Building EmilyCSS full framework...');
 
   // Generate colours
   const colours = generateAllColours(config.colours);
@@ -926,26 +909,103 @@ ${bodyFont}`;
   fs.writeFileSync(outputPath, css);
   console.log(`✓ Generated CSS: ${outputPath}`);
   console.log(`✓ File size: ${(css.length / 1024).toFixed(2)} KB (unminified)`);
+  console.log('Full framework build complete');
+}
 
-  // Generate minified version
-  const minified = css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').replace(/\s?\{/g, '{').replace(/\s?\}/g, '}').replace(/;\s/g, ';').trim();
+function minify(css) {
+  return css
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/\s?\{/g, '{')
+    .replace(/\s?\}/g, '}')
+    .replace(/;\s/g, ';')
+    .trim();
+}
+
+function getConfig() {
+  const configPath = path.join(process.cwd(), 'emily.config.json');
+
+  if (!fs.existsSync(configPath)) {
+    console.error('\n  emily-css: No config found. Run "emily-css init" first.\n');
+    process.exit(1);
+  }
+
+  return JSON.parse(fs.readFileSync(configPath, 'utf8'));
+}
+
+function getSourceDir(config) {
+  return config.purge && config.purge.sourceDir ? config.purge.sourceDir : '.';
+}
+
+function buildProductionCss() {
+  const config = getConfig();
+  const sourceDir = getSourceDir(config);
+  const cssPath = path.join(process.cwd(), 'dist/emily.css');
   const minPath = path.join(process.cwd(), 'dist/emily.min.css');
+
+  if (!fs.existsSync(cssPath)) {
+    buildFullFramework();
+  }
+
+  const { purgeCSS } = require('./purge.js');
+  const css = fs.readFileSync(cssPath, 'utf8');
+  const purged = purgeCSS(css, sourceDir, config);
+  const minified = minify(purged);
+
   fs.writeFileSync(minPath, minified);
-  console.log('  -> Minified: ' + minPath);
-  console.log('  -> File size: ' + (minified.length / 1024).toFixed(2) + ' KB (minified)');
+
+  return {
+    css,
+    purged,
+    minified,
+    originalSize: Buffer.byteLength(css, 'utf8'),
+    outputSize: Buffer.byteLength(minified, 'utf8')
+  };
+}
+
+function isFrameworkStale() {
+  const configPath = path.join(process.cwd(), 'emily.config.json');
+  const cssPath = path.join(process.cwd(), 'dist/emily.css');
+
+  if (!fs.existsSync(cssPath)) return true;
+  if (!fs.existsSync(configPath)) return true;
+
+  return fs.statSync(configPath).mtimeMs > fs.statSync(cssPath).mtimeMs;
+}
+
+function ensureFullFramework() {
+  if (isFrameworkStale()) {
+    buildFullFramework();
+  }
+}
+
+function build(options = {}) {
+  ensureFullFramework();
+
+  const result = buildProductionCss();
+  const cssPath = path.join(process.cwd(), 'dist/emily.css');
+
+  console.log('✓ Generated production CSS: dist/emily.min.css');
+  console.log('✓ File size: ' + (result.outputSize / 1024).toFixed(2) + ' KB');
+
+  if (!options.keepFull && fs.existsSync(cssPath)) {
+    fs.unlinkSync(cssPath);
+    console.log('Removed dist/emily.css for production build.');
+  }
 
   console.log('Build complete');
 }
 
 if (require.main === module) {
   const args = process.argv.slice(2);
-  const purgeIndex = args.indexOf('--purge');
-  const purgeDir = purgeIndex !== -1 ? args[purgeIndex + 1] : null;
-  build(purgeDir ? { purge: purgeDir } : {});
+  build({ keepFull: args.includes('--keep-full') });
 }
 
 module.exports = {
   build,
+  buildFullFramework,
+  buildProductionCss,
+  ensureFullFramework,
   hexToOklch,
   oklchToHex,
   generateColourScale,
