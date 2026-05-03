@@ -16,7 +16,8 @@
     "build": "node src/index.js",
     "dev": "nodemon src/index.js",
     "init": "node src/init.js",
-    "test": "node tests/test.js"
+    "test": "node tests/test.js",
+    "emily:showcase": "node src/showcase.js"
   },
   "keywords": [
     "css",
