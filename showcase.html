@@ -1,790 +1,861 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" style="scroll-behavior: smooth;">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Emily - Design System Showcase</title>
-  <link rel="stylesheet" href="./dist/emily.purged.css">
-  <style>
-    @font-face {
-      font-family: "Lexend";
-      src: url("./fonts/lexend/Lexend-Variable.woff2") format("woff2");
-      font-weight: 100 900;
-      font-style: normal;
-      font-display: swap;
-    }
-    html { scroll-behavior: smooth; }
-    .font-lexend { font-family: "Lexend", system-ui, sans-serif; }
-    .section-anchor { scroll-margin-top: 64px; }
-    .mono { font-family: 'Menlo', 'Monaco', 'Courier New', monospace; }
-    .label-xs { font-size: 10px; line-height: 1.4; }
-    .code-block { background: #0d1117; border-radius: 6px; position: relative; overflow: hidden; }
-    .code-block pre { color: #e6edf3; font-family: 'Menlo','Monaco','Courier New',monospace; font-size: 13px; line-height: 1.6; overflow-x: auto; margin: 0; padding: 20px; white-space: pre; }
-    .code-inline { background: #0d1117; color: #e6edf3; font-family: 'Menlo','Monaco','Courier New',monospace; font-size: 13px; line-height: 1.6; border-radius: 6px; padding: 16px 20px; overflow-x: auto; }
-    .copy-btn { position: absolute; top: 10px; right: 10px; background: #21262d; color: #8b949e; border: 1px solid #30363d; padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; transition: background 200ms; white-space: nowrap; }
-    .copy-btn:hover { background: #30363d; color: #e6edf3; }
-    .copy-btn.copied { background: #1a7f37; color: white; border-color: #1a7f37; }
-  </style>
-</head>
-<body class="bg-neutral-10 text-neutral-90">
-
-<!-- ============================================================ -->
-<!-- NAV                                                           -->
-<!-- ============================================================ -->
-<nav class="sticky top-0 z-sticky" style="background-color:#1C1917;">
-  <div style="max-width:1280px;margin:0 auto;" class="px-6 py-4 flex items-center justify-between gap-6">
-    <span class="font-lexend font-bold text-4xl text-primary-80">EmilyUI</span>
-    <div class="flex gap-5 text-sm flex-wrap">
-      <a href="#how-it-works" class="text-neutral-40 hover:text-primary-80 transition" style="text-decoration:none;">How it works</a>
-      <a href="#get-started" class="text-neutral-40 hover:text-primary-80 transition" style="text-decoration:none;">Get started</a>
-      <a href="#cheatsheet" class="text-neutral-40 hover:text-primary-80 transition" style="text-decoration:none;">Reference</a>
-      <a href="#colours" class="text-neutral-40 hover:text-primary-80 transition" style="text-decoration:none;">Colours</a>
-      <a href="#typography" class="text-neutral-40 hover:text-primary-80 transition" style="text-decoration:none;">Typography</a>
-      <a href="#spacing" class="text-neutral-40 hover:text-primary-80 transition" style="text-decoration:none;">Spacing</a>
-      <a href="#shadows" class="text-neutral-40 hover:text-primary-80 transition" style="text-decoration:none;">Shadows</a>
-      <a href="#components" class="text-neutral-40 hover:text-primary-80 transition" style="text-decoration:none;">Components</a>
-    </div>
-  </div>
-</nav>
-
-<!-- ============================================================ -->
-<!-- HERO                                                          -->
-<!-- ============================================================ -->
-<section style="background-color:#1C1917;" class="px-6 py-20">
-  <div style="max-width:800px;margin:0 auto;" class="text-center">
-    <p class="text-primary-80 font-semibold text-sm mono mb-4 tracking-wide">emily.config.json &rarr; emily.css</p>
-    <h1 class="font-lexend font-bold text-4xl mb-5" style="color:#F8F5F0;line-height:1.15;">One config.<br>Your complete CSS system.</h1>
-    <p class="text-lg mb-8" style="color:#A8A29E;max-width:560px;margin-left:auto;margin-right:auto;margin-bottom:2rem;">Define your brand colours, fonts, and spacing once. Emily generates every utility you need and gives you production-ready components to copy straight into any project.</p>
-    <div class="flex gap-4 justify-center flex-wrap">
-      <a href="#get-started" class="bg-primary-80 hover:bg-primary-90 text-white font-semibold px-6 py-3 rounded transition cursor-pointer" style="text-decoration:none;">Get started</a>
-      <a href="#components" class="font-semibold px-6 py-3 rounded transition cursor-pointer border-2" style="color:#F8F5F0;border-color:#57534E;text-decoration:none;">Browse components</a>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================ -->
-<!-- HOW IT WORKS                                                  -->
-<!-- ============================================================ -->
-<section id="how-it-works" class="section-anchor py-16 px-6">
-  <div style="max-width:1280px;margin:0 auto;">
-    <h2 class="font-lexend font-bold text-2xl text-neutral-90 text-center mb-10">How it works</h2>
-    <div class="grid grid-cols-3 gap-8">
-
-      <div class="bg-white rounded-lg border-2 border-neutral-20 p-6 flex flex-col gap-3">
-        <div class="bg-primary-10 text-primary-80 font-bold text-lg w-10 h-10 rounded-full flex items-center justify-center font-lexend">1</div>
-        <h3 class="font-semibold text-neutral-90 text-base">Define your brand</h3>
-        <p class="text-sm text-neutral-60">Add your brand colours to <code class="mono text-xs bg-neutral-10 px-1 py-0.5 rounded">emily.config.json</code>. Fonts, spacing, and breakpoints too. One file, everything in one place.</p>
-        <pre class="code-inline text-xs mt-2">{
-  "colours": {
-    "primary": "#DB2777",
-    "secondary": "#2563EB"
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EmilyUI Showcase</title>
+  <link rel="stylesheet" href="./dist/emily.min.css">
+<style>
+  html {
+    scroll-behavior: smooth;
   }
-}</pre>
-      </div>
 
-      <div class="bg-white rounded-lg border-2 border-neutral-20 p-6 flex flex-col gap-3">
-        <div class="bg-primary-10 text-primary-80 font-bold text-lg w-10 h-10 rounded-full flex items-center justify-center font-lexend">2</div>
-        <h3 class="font-semibold text-neutral-90 text-base">Build your stylesheet</h3>
-        <p class="text-sm text-neutral-60">Run the build script. Emily generates a 10-shade scale per colour, plus every utility you need. Purge unused classes to get down to 10–50 KB.</p>
-        <pre class="code-inline text-xs mt-2">node src/index.js --purge .
+  [id] {
+    scroll-margin-top: 7rem;
+  }
+</style>
+</head>
 
-# Before: 1.1 MB
-# After:  ~39 KB</pre>
-      </div>
-
-      <div class="bg-white rounded-lg border-2 border-neutral-20 p-6 flex flex-col gap-3">
-        <div class="bg-primary-10 text-primary-80 font-bold text-lg w-10 h-10 rounded-full flex items-center justify-center font-lexend">3</div>
-        <h3 class="font-semibold text-neutral-90 text-base">Copy and ship</h3>
-        <p class="text-sm text-neutral-60">Link the stylesheet. Browse the components below. Copy the HTML, paste into your project. Works in Drupal, static HTML, Power Pages - anything that loads a CSS file.</p>
-        <pre class="code-inline text-xs mt-2">&lt;link rel="stylesheet"
-  href="dist/emily.purged.css"&gt;</pre>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================ -->
-<!-- GET STARTED                                                   -->
-<!-- ============================================================ -->
-<section id="get-started" class="section-anchor py-12 px-6" style="background-color:#F8F5F0;">
-  <div style="max-width:860px;margin:0 auto;">
-    <h2 class="font-lexend font-bold text-2xl text-neutral-90 mb-2">Get started</h2>
-    <p class="text-sm text-neutral-60 mb-8">From zero to a working design system in under 30 minutes.</p>
-
-    <div class="flex flex-col gap-6">
-
-      <!-- Step 1 -->
-      <div class="flex gap-5 items-start">
-        <div class="bg-primary-80 text-white font-bold text-sm w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 font-lexend">1</div>
-        <div class="flex flex-col gap-2 flex-1">
-          <h3 class="font-semibold text-neutral-90 text-base">Clone or download the repo</h3>
-          <div class="code-block">
-            <pre>git clone https://github.com/yourusername/emilyui.git
-cd emilyui</pre>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 2 -->
-      <div class="flex gap-5 items-start">
-        <div class="bg-primary-80 text-white font-bold text-sm w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 font-lexend">2</div>
-        <div class="flex flex-col gap-2 flex-1">
-          <h3 class="font-semibold text-neutral-90 text-base">Edit <code class="mono text-sm bg-neutral-20 px-1.5 py-0.5 rounded">emily.config.json</code></h3>
-          <p class="text-sm text-neutral-60">Set your brand colours. Shade 80 is always your input hex. The rest of the scale is generated automatically.</p>
-          <div class="code-block">
-            <pre>{
-  "colours": {
-    "primary":   "#DB2777",
-    "secondary": "#2563EB",
-    "success":   "#059669",
-    "warning":   "#D97706",
-    "error":     "#DC2626",
-    "neutral":   "#57534E"
-  },
-  "fontFamily": "inter"
-}</pre>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 3 -->
-      <div class="flex gap-5 items-start">
-        <div class="bg-primary-80 text-white font-bold text-sm w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 font-lexend">3</div>
-        <div class="flex flex-col gap-2 flex-1">
-          <h3 class="font-semibold text-neutral-90 text-base">Build and purge</h3>
-          <p class="text-sm text-neutral-60">Point <code class="mono text-xs">--purge</code> at any directory. Emily scans your HTML, Twig, Vue, JSX - whatever you use.</p>
-          <div class="code-block">
-            <pre>node src/index.js --purge .</pre>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 4 -->
-      <div class="flex gap-5 items-start">
-        <div class="bg-primary-80 text-white font-bold text-sm w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 font-lexend">4</div>
-        <div class="flex flex-col gap-2 flex-1">
-          <h3 class="font-semibold text-neutral-90 text-base">Link the stylesheet</h3>
-          <p class="text-sm text-neutral-60">Drop this into your <code class="mono text-xs">&lt;head&gt;</code>. No JavaScript, no build pipeline, no dependencies.</p>
-          <div class="code-block">
-            <pre>&lt;link rel="stylesheet" href="dist/emily.purged.css"&gt;</pre>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 5 -->
-      <div class="flex gap-5 items-start">
-        <div class="bg-primary-80 text-white font-bold text-sm w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 font-lexend">5</div>
-        <div class="flex flex-col gap-2 flex-1">
-          <h3 class="font-semibold text-neutral-90 text-base">Use utility classes in your markup</h3>
-          <p class="text-sm text-neutral-60">Classes follow a consistent naming pattern. Responsive with <code class="mono text-xs">md:</code>, <code class="mono text-xs">lg:</code> prefixes. State variants with <code class="mono text-xs">hover:</code>, <code class="mono text-xs">focus:</code>.</p>
-          <div class="code-block">
-            <pre>&lt;!-- Colour --&gt;
-bg-primary-80    text-primary-80    border-primary-80
-
-&lt;!-- Spacing --&gt;
-p-4   px-6   py-3   m-2   mt-8   gap-4
-
-&lt;!-- Typography --&gt;
-text-xl   font-semibold   text-neutral-60
-
-&lt;!-- Responsive --&gt;
-text-base md:text-lg lg:text-xl
-
-&lt;!-- State --&gt;
-hover:bg-primary-90   focus-visible:outline-2</pre>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================ -->
-<!-- CHEAT SHEET                                                   -->
-<!-- ============================================================ -->
-<section id="cheatsheet" class="section-anchor py-12 px-6" style="background-color:#F8F5F0;">
-  <div style="max-width:1280px;margin:0 auto;">
-    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden">
-      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
-        <h2 class="text-xl font-semibold text-neutral-90">Quick reference</h2>
-        <p class="text-sm text-neutral-60 mt-1">The most common utility categories. Every class follows the same pattern. Change the value, the result changes.</p>
-      </div>
-      <div class="p-6 grid grid-cols-2 gap-4" style="grid-template-columns:repeat(4,minmax(0,1fr));">
-
-        <!-- Colours -->
-        <div class="bg-neutral-10 rounded p-4 flex flex-col gap-2">
-          <h3 class="text-xs font-semibold text-neutral-60 uppercase tracking-wide mb-1">Colours</h3>
-          <code class="mono label-xs text-neutral-70 block">bg-primary-80</code>
-          <code class="mono label-xs text-neutral-70 block">text-primary-80</code>
-          <code class="mono label-xs text-neutral-70 block">border-primary-80</code>
-          <code class="mono label-xs text-neutral-70 block">bg-primary-10</code>
-          <code class="mono label-xs text-neutral-50 block">bg-{colour}-{10–100}</code>
-        </div>
-
-        <!-- Spacing -->
-        <div class="bg-neutral-10 rounded p-4 flex flex-col gap-2">
-          <h3 class="text-xs font-semibold text-neutral-60 uppercase tracking-wide mb-1">Spacing</h3>
-          <code class="mono label-xs text-neutral-70 block">p-4 &nbsp; px-6 &nbsp; py-3</code>
-          <code class="mono label-xs text-neutral-70 block">mt-8 &nbsp; mb-4 &nbsp; mx-auto</code>
-          <code class="mono label-xs text-neutral-70 block">gap-4 &nbsp; gap-6</code>
-          <code class="mono label-xs text-neutral-50 block">p-{0–96} &nbsp; m-{0–96}</code>
-        </div>
-
-        <!-- Typography -->
-        <div class="bg-neutral-10 rounded p-4 flex flex-col gap-2">
-          <h3 class="text-xs font-semibold text-neutral-60 uppercase tracking-wide mb-1">Typography</h3>
-          <code class="mono label-xs text-neutral-70 block">text-xl &nbsp; text-sm</code>
-          <code class="mono label-xs text-neutral-70 block">font-semibold &nbsp; font-bold</code>
-          <code class="mono label-xs text-neutral-70 block">text-neutral-60</code>
-          <code class="mono label-xs text-neutral-70 block">uppercase &nbsp; tracking-wide</code>
-          <code class="mono label-xs text-neutral-50 block">text-{xs–4xl}</code>
-        </div>
-
-        <!-- Layout -->
-        <div class="bg-neutral-10 rounded p-4 flex flex-col gap-2">
-          <h3 class="text-xs font-semibold text-neutral-60 uppercase tracking-wide mb-1">Layout</h3>
-          <code class="mono label-xs text-neutral-70 block">flex &nbsp; flex-col &nbsp; flex-wrap</code>
-          <code class="mono label-xs text-neutral-70 block">items-center &nbsp; items-start</code>
-          <code class="mono label-xs text-neutral-70 block">justify-between</code>
-          <code class="mono label-xs text-neutral-70 block">shrink-0 &nbsp; flex-1</code>
-        </div>
-
-        <!-- Grid -->
-        <div class="bg-neutral-10 rounded p-4 flex flex-col gap-2">
-          <h3 class="text-xs font-semibold text-neutral-60 uppercase tracking-wide mb-1">Grid</h3>
-          <code class="mono label-xs text-neutral-70 block">grid &nbsp; grid-cols-2</code>
-          <code class="mono label-xs text-neutral-70 block">grid-cols-3 &nbsp; grid-cols-4</code>
-          <code class="mono label-xs text-neutral-70 block">gap-4 &nbsp; gap-6</code>
-          <code class="mono label-xs text-neutral-50 block">grid-cols-{1–12}</code>
-        </div>
-
-        <!-- Borders -->
-        <div class="bg-neutral-10 rounded p-4 flex flex-col gap-2">
-          <h3 class="text-xs font-semibold text-neutral-60 uppercase tracking-wide mb-1">Borders &amp; Radius</h3>
-          <code class="mono label-xs text-neutral-70 block">border &nbsp; border-2 &nbsp; border-4</code>
-          <code class="mono label-xs text-neutral-70 block">border-neutral-30</code>
-          <code class="mono label-xs text-neutral-70 block">rounded &nbsp; rounded-md</code>
-          <code class="mono label-xs text-neutral-70 block">rounded-lg &nbsp; rounded-full</code>
-        </div>
-
-        <!-- Shadows -->
-        <div class="bg-neutral-10 rounded p-4 flex flex-col gap-2">
-          <h3 class="text-xs font-semibold text-neutral-60 uppercase tracking-wide mb-1">Shadows</h3>
-          <code class="mono label-xs text-neutral-70 block">shadow-sm</code>
-          <code class="mono label-xs text-neutral-70 block">shadow</code>
-          <code class="mono label-xs text-neutral-70 block">shadow-md</code>
-          <code class="mono label-xs text-neutral-70 block">shadow-lg</code>
-        </div>
-
-        <!-- States -->
-        <div class="bg-neutral-10 rounded p-4 flex flex-col gap-2">
-          <h3 class="text-xs font-semibold text-neutral-60 uppercase tracking-wide mb-1">States &amp; Variants</h3>
-          <code class="mono label-xs text-neutral-70 block">hover:bg-primary-90</code>
-          <code class="mono label-xs text-neutral-70 block">focus-visible:outline-2</code>
-          <code class="mono label-xs text-neutral-70 block">cursor-not-allowed</code>
-          <code class="mono label-xs text-neutral-70 block">transition &nbsp; sr-only</code>
-          <code class="mono label-xs text-neutral-50 block">md: &nbsp; lg: &nbsp; hover: &nbsp; focus:</code>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================ -->
-<!-- COLOURS                                                       -->
-<!-- ============================================================ -->
-<section id="colours" class="section-anchor py-12 px-6">
-  <div style="max-width:1280px;margin:0 auto;">
-    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden">
-      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
-        <h2 class="text-xl font-semibold text-neutral-90">Colours</h2>
-        <p class="text-sm text-neutral-60 mt-1">Each config colour generates a 10-shade scale. Shade 80 is your input hex. Use <span class="mono">bg-{colour}-{shade}</span>, <span class="mono">text-{colour}-{shade}</span>, <span class="mono">border-{colour}-{shade}</span>.</p>
-      </div>
-      <div class="p-6 flex flex-col gap-8">
-
-        <!-- PRIMARY -->
+<body class="bg-neutral-10 text-neutral-90 font-inter p-4 md:p-6">
+  <header class="sticky top-4 z-50 max-w-7xl mx-auto mb-6">
+    <nav class="flex items-center justify-between bg-white border border-neutral-20 rounded-lg shadow-md p-4">
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center justify-center bg-primary-80 text-white rounded-md w-10 h-10 font-bold">
+          E
+        </span>
         <div>
-          <div class="flex items-baseline gap-3 mb-3">
-            <span class="text-sm font-semibold text-neutral-80">primary</span>
-            <span class="label-xs mono text-neutral-50" id="hex-primary">—</span>
-          </div>
-          <div class="flex gap-1">
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-10" class="w-full bg-primary-10 rounded-sm border border-neutral-20" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">10</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-20" class="w-full bg-primary-20 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">20</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-30" class="w-full bg-primary-30 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">30</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-40" class="w-full bg-primary-40 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">40</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-50" class="w-full bg-primary-50 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">50</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-60" class="w-full bg-primary-60 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">60</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-70" class="w-full bg-primary-70 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">70</span></div>
-            <div class="flex-1 flex flex-col gap-1">
-              <div id="sw-primary-80" class="w-full bg-primary-80 rounded-sm flex flex-col items-center justify-center gap-0.5" style="height:80px;padding:8px 4px;"></div>
-              <span class="label-xs mono text-center text-primary-80 font-semibold block">80</span>
-            </div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-90" class="w-full bg-primary-90 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">90</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-primary-100" class="w-full bg-primary-100 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">100</span></div>
-          </div>
+          <p class="font-bold text-lg">EmilyUI</p>
+          <p class="text-sm text-neutral-70">Component showcase</p>
         </div>
-
-        <!-- SECONDARY -->
-        <div>
-          <div class="flex items-baseline gap-3 mb-3">
-            <span class="text-sm font-semibold text-neutral-80">secondary</span>
-            <span class="label-xs mono text-neutral-50" id="hex-secondary">—</span>
-          </div>
-          <div class="flex gap-1">
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-10" class="w-full bg-secondary-10 rounded-sm border border-neutral-20" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">10</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-20" class="w-full bg-secondary-20 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">20</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-30" class="w-full bg-secondary-30 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">30</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-40" class="w-full bg-secondary-40 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">40</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-50" class="w-full bg-secondary-50 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">50</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-60" class="w-full bg-secondary-60 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">60</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-70" class="w-full bg-secondary-70 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">70</span></div>
-            <div class="flex-1 flex flex-col gap-1">
-              <div id="sw-secondary-80" class="w-full bg-secondary-80 rounded-sm flex flex-col items-center justify-center gap-0.5" style="height:80px;padding:8px 4px;"></div>
-              <span class="label-xs mono text-center text-secondary-80 font-semibold block">80</span>
-            </div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-90" class="w-full bg-secondary-90 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">90</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-secondary-100" class="w-full bg-secondary-100 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">100</span></div>
-          </div>
-        </div>
-
-        <!-- SUCCESS -->
-        <div>
-          <div class="flex items-baseline gap-3 mb-3">
-            <span class="text-sm font-semibold text-neutral-80">success</span>
-            <span class="label-xs mono text-neutral-50" id="hex-success">—</span>
-          </div>
-          <div class="flex gap-1">
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-10" class="w-full bg-success-10 rounded-sm border border-neutral-20" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">10</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-20" class="w-full bg-success-20 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">20</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-30" class="w-full bg-success-30 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">30</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-40" class="w-full bg-success-40 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">40</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-50" class="w-full bg-success-50 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">50</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-60" class="w-full bg-success-60 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">60</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-70" class="w-full bg-success-70 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">70</span></div>
-            <div class="flex-1 flex flex-col gap-1">
-              <div id="sw-success-80" class="w-full bg-success-80 rounded-sm flex flex-col items-center justify-center gap-0.5" style="height:80px;padding:8px 4px;"></div>
-              <span class="label-xs mono text-center text-success-80 font-semibold block">80</span>
-            </div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-90" class="w-full bg-success-90 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">90</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-success-100" class="w-full bg-success-100 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">100</span></div>
-          </div>
-        </div>
-
-        <!-- WARNING -->
-        <div>
-          <div class="flex items-baseline gap-3 mb-3">
-            <span class="text-sm font-semibold text-neutral-80">warning</span>
-            <span class="label-xs mono text-neutral-50" id="hex-warning">—</span>
-          </div>
-          <div class="flex gap-1">
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-10" class="w-full bg-warning-10 rounded-sm border border-neutral-20" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">10</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-20" class="w-full bg-warning-20 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">20</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-30" class="w-full bg-warning-30 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">30</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-40" class="w-full bg-warning-40 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">40</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-50" class="w-full bg-warning-50 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">50</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-60" class="w-full bg-warning-60 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">60</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-70" class="w-full bg-warning-70 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">70</span></div>
-            <div class="flex-1 flex flex-col gap-1">
-              <div id="sw-warning-80" class="w-full bg-warning-80 rounded-sm flex flex-col items-center justify-center gap-0.5" style="height:80px;padding:8px 4px;"></div>
-              <span class="label-xs mono text-center text-warning-60 font-semibold block">80</span>
-            </div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-90" class="w-full bg-warning-90 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">90</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-warning-100" class="w-full bg-warning-100 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">100</span></div>
-          </div>
-        </div>
-
-        <!-- ERROR -->
-        <div>
-          <div class="flex items-baseline gap-3 mb-3">
-            <span class="text-sm font-semibold text-neutral-80">error</span>
-            <span class="label-xs mono text-neutral-50" id="hex-error">—</span>
-          </div>
-          <div class="flex gap-1">
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-10" class="w-full bg-error-10 rounded-sm border border-neutral-20" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">10</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-20" class="w-full bg-error-20 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">20</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-30" class="w-full bg-error-30 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">30</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-40" class="w-full bg-error-40 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">40</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-50" class="w-full bg-error-50 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">50</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-60" class="w-full bg-error-60 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">60</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-70" class="w-full bg-error-70 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">70</span></div>
-            <div class="flex-1 flex flex-col gap-1">
-              <div id="sw-error-80" class="w-full bg-error-80 rounded-sm flex flex-col items-center justify-center gap-0.5" style="height:80px;padding:8px 4px;"></div>
-              <span class="label-xs mono text-center text-error-80 font-semibold block">80</span>
-            </div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-90" class="w-full bg-error-90 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">90</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-error-100" class="w-full bg-error-100 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">100</span></div>
-          </div>
-        </div>
-
-        <!-- NEUTRAL -->
-        <div>
-          <div class="flex items-baseline gap-3 mb-3">
-            <span class="text-sm font-semibold text-neutral-80">neutral</span>
-            <span class="label-xs mono text-neutral-50" id="hex-neutral">—</span>
-          </div>
-          <div class="flex gap-1">
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-10" class="w-full bg-neutral-10 rounded-sm border border-neutral-20" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">10</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-20" class="w-full bg-neutral-20 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">20</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-30" class="w-full bg-neutral-30 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">30</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-40" class="w-full bg-neutral-40 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">40</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-50" class="w-full bg-neutral-50 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">50</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-60" class="w-full bg-neutral-60 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">60</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-70" class="w-full bg-neutral-70 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">70</span></div>
-            <div class="flex-1 flex flex-col gap-1">
-              <div id="sw-neutral-80" class="w-full bg-neutral-80 rounded-sm flex flex-col items-center justify-center gap-0.5" style="height:80px;padding:8px 4px;"></div>
-              <span class="label-xs mono text-center text-neutral-70 font-semibold block">80</span>
-            </div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-90" class="w-full bg-neutral-90 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">90</span></div>
-            <div class="flex-1 flex flex-col gap-1"><div id="sw-neutral-100" class="w-full bg-neutral-100 rounded-sm" style="height:48px;"></div><span class="label-xs mono text-center text-neutral-50 block">100</span></div>
-          </div>
-        </div>
-
       </div>
-    </div>
-  </div>
-</section>
 
-<!-- ============================================================ -->
-<!-- TYPOGRAPHY                                                    -->
-<!-- ============================================================ -->
-<section id="typography" class="section-anchor py-12 px-6">
-  <div style="max-width:1280px;margin:0 auto;">
-    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden">
-      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
-        <h2 class="text-xl font-semibold text-neutral-90">Typography</h2>
-        <p class="text-sm text-neutral-60 mt-1">Type scale and font weight utilities. Use <span class="mono">text-{size}</span> and <span class="mono">font-{weight}</span>.</p>
+      <div class="hidden md:flex items-center gap-4 text-base font-medium">
+                <a class="text-neutral-80 hover:text-primary-80" href="#colours">Colours</a>
+        <a class="text-neutral-80 hover:text-primary-80" href="#design-tokens">Tokens</a>
+        <a class="text-neutral-80 hover:text-primary-80" href="#buttons">Buttons</a>
+        <a class="text-neutral-80 hover:text-primary-80" href="#forms">Forms</a>
+        <a class="text-neutral-80 hover:text-primary-80" href="#component-library">Components</a>
+        <a class="text-neutral-80 hover:text-primary-80" href="#utility-coverage">Utilities</a>
+        <a class="text-neutral-80 hover:text-primary-80" href="#accessibility-examples">A11y</a>
       </div>
-      <div class="p-6">
-        <h3 class="text-sm font-semibold text-neutral-60 uppercase tracking-wide mb-4">Type Scale</h3>
-        <div class="flex flex-col gap-4 mb-10">
-          <div class="flex items-baseline gap-6 border-b border-neutral-10 pb-4">
-            <span class="mono label-xs text-neutral-50 w-16 shrink-0">text-4xl</span>
-            <span class="mono label-xs text-neutral-40 shrink-0">36px</span>
-            <span class="text-4xl font-semibold text-neutral-90 leading-none">The quick brown fox</span>
-          </div>
-          <div class="flex items-baseline gap-6 border-b border-neutral-10 pb-4">
-            <span class="mono label-xs text-neutral-50 w-16 shrink-0">text-3xl</span>
-            <span class="mono label-xs text-neutral-40 shrink-0">30px</span>
-            <span class="text-3xl font-semibold text-neutral-90 leading-none">The quick brown fox</span>
-          </div>
-          <div class="flex items-baseline gap-6 border-b border-neutral-10 pb-4">
-            <span class="mono label-xs text-neutral-50 w-16 shrink-0">text-2xl</span>
-            <span class="mono label-xs text-neutral-40 shrink-0">24px</span>
-            <span class="text-2xl font-semibold text-neutral-90 leading-none">The quick brown fox jumps over the lazy dog</span>
-          </div>
-          <div class="flex items-baseline gap-6 border-b border-neutral-10 pb-4">
-            <span class="mono label-xs text-neutral-50 w-16 shrink-0">text-xl</span>
-            <span class="mono label-xs text-neutral-40 shrink-0">20px</span>
-            <span class="text-xl text-neutral-90">The quick brown fox jumps over the lazy dog</span>
-          </div>
-          <div class="flex items-baseline gap-6 border-b border-neutral-10 pb-4">
-            <span class="mono label-xs text-neutral-50 w-16 shrink-0">text-lg</span>
-            <span class="mono label-xs text-neutral-40 shrink-0">18px</span>
-            <span class="text-lg text-neutral-90">The quick brown fox jumps over the lazy dog</span>
-          </div>
-          <div class="flex items-baseline gap-6 border-b border-neutral-10 pb-4">
-            <span class="mono label-xs text-neutral-50 w-16 shrink-0">text-base</span>
-            <span class="mono label-xs text-neutral-40 shrink-0">16px</span>
-            <span class="text-base text-neutral-90">The quick brown fox jumps over the lazy dog</span>
-          </div>
-          <div class="flex items-baseline gap-6 border-b border-neutral-10 pb-4">
-            <span class="mono label-xs text-neutral-50 w-16 shrink-0">text-sm</span>
-            <span class="mono label-xs text-neutral-40 shrink-0">14px</span>
-            <span class="text-sm text-neutral-90">The quick brown fox jumps over the lazy dog</span>
-          </div>
-          <div class="flex items-baseline gap-6">
-            <span class="mono label-xs text-neutral-50 w-16 shrink-0">text-xs</span>
-            <span class="mono label-xs text-neutral-40 shrink-0">12px</span>
-            <span class="text-xs text-neutral-90">The quick brown fox jumps over the lazy dog</span>
-          </div>
+    </nav>
+  </header>
+
+  <main id="main-content" class="max-w-7xl mx-auto">
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div class="bg-white rounded-lg shadow-md border border-neutral-20 p-8">
+        <span class="inline-block bg-primary-20 text-primary-90 px-3 py-1 rounded-full text-sm font-bold mb-4">
+          Utility-first CSS
+        </span>
+
+        <h1 class="text-3xl md:text-4xl font-bold mb-4 text-primary-90">
+          Build consistent interfaces without a heavy frontend setup.
+        </h1>
+
+        <p class="text-lg leading-relaxed mb-6 text-neutral-80">
+          This page tests EmilyUI colour, spacing, typography, layout, buttons, forms, alerts, cards, badges and responsive utilities.
+        </p>
+
+        <div class="flex flex-wrap gap-3">
+          <a href="#buttons" class="inline-flex items-center justify-center bg-primary-80 text-white px-5 py-3 rounded-md font-semibold shadow hover:bg-primary-90 focus-visible:ring-2 ring-primary-80">
+            View components
+          </a>
+
+          <a href="#colours" class="inline-flex items-center justify-center bg-white text-primary-90 border border-primary-80 px-5 py-3 rounded-md font-semibold hover:bg-primary-10">
+            View tokens
+          </a>
         </div>
-        <h3 class="text-sm font-semibold text-neutral-60 uppercase tracking-wide mb-4">Font Weights</h3>
-        <div class="flex flex-col gap-3">
-          <div class="flex items-center gap-6">
-            <span class="mono label-xs text-neutral-50 w-24 shrink-0">font-light</span>
-            <span class="mono label-xs text-neutral-40 shrink-0">300</span>
-            <span class="text-xl font-light text-neutral-90">Emily - config-driven design</span>
+      </div>
+
+      <div class="bg-primary-90 text-white rounded-lg shadow-md p-8">
+        <h2 class="text-2xl font-bold mb-4">Quick stats</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-primary-80 rounded-md p-4">
+            <p class="text-sm opacity-75">Components</p>
+            <p class="text-3xl font-bold">12</p>
           </div>
-          <div class="flex items-center gap-6">
-            <span class="mono label-xs text-neutral-50 w-24 shrink-0">font-normal</span>
-            <span class="mono label-xs text-neutral-40 shrink-0">400</span>
-            <span class="text-xl font-normal text-neutral-90">Emily - config-driven design</span>
+
+          <div class="bg-primary-80 rounded-md p-4">
+            <p class="text-sm opacity-75">Token groups</p>
+            <p class="text-3xl font-bold">6</p>
           </div>
-          <div class="flex items-center gap-6">
-            <span class="mono label-xs text-neutral-50 w-24 shrink-0">font-medium</span>
-            <span class="mono label-xs text-neutral-40 shrink-0">500</span>
-            <span class="text-xl font-medium text-neutral-90">Emily - config-driven design</span>
+
+          <div class="bg-primary-80 rounded-md p-4">
+            <p class="text-sm opacity-75">Layouts</p>
+            <p class="text-3xl font-bold">4</p>
           </div>
-          <div class="flex items-center gap-6">
-            <span class="mono label-xs text-neutral-50 w-24 shrink-0">font-semibold</span>
-            <span class="mono label-xs text-neutral-40 shrink-0">600</span>
-            <span class="text-xl font-semibold text-neutral-90">Emily - config-driven design</span>
-          </div>
-          <div class="flex items-center gap-6">
-            <span class="mono label-xs text-neutral-50 w-24 shrink-0">font-bold</span>
-            <span class="mono label-xs text-neutral-40 shrink-0">700</span>
-            <span class="text-xl font-bold text-neutral-90">Emily - config-driven design</span>
+
+          <div class="bg-primary-80 rounded-md p-4">
+            <p class="text-sm opacity-75">Focus states</p>
+            <p class="text-3xl font-bold">Yes</p>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- ============================================================ -->
-<!-- SPACING                                                       -->
-<!-- ============================================================ -->
-<section id="spacing" class="section-anchor py-12 px-6">
-  <div style="max-width:1280px;margin:0 auto;">
-    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden">
-      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
-        <h2 class="text-xl font-semibold text-neutral-90">Spacing</h2>
-        <p class="text-sm text-neutral-60 mt-1">Padding, margin, and gap utilities. Use <span class="mono">p-{n}</span>, <span class="mono">m-{n}</span>, <span class="mono">gap-{n}</span>.</p>
-      </div>
-      <div class="p-6">
-        <h3 class="text-sm font-semibold text-neutral-60 uppercase tracking-wide mb-4">Padding Scale</h3>
-        <div class="flex flex-col gap-2 mb-10">
-          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">p-1</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">0.25rem</span><div class="bg-primary-10 rounded-sm flex items-center justify-center" style="padding:0.25rem 0.5rem;"><div class="bg-primary-30 rounded-sm w-8 h-4"></div></div></div>
-          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">p-2</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">0.5rem</span><div class="bg-primary-10 rounded-sm flex items-center justify-center p-2"><div class="bg-primary-30 rounded-sm w-8 h-4"></div></div></div>
-          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">p-4</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">1rem</span><div class="bg-primary-10 rounded-sm flex items-center justify-center p-4"><div class="bg-primary-30 rounded-sm w-8 h-4"></div></div></div>
-          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">p-6</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">1.5rem</span><div class="bg-primary-10 rounded-sm flex items-center justify-center p-6"><div class="bg-primary-30 rounded-sm w-8 h-4"></div></div></div>
-          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">p-8</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">2rem</span><div class="bg-primary-10 rounded-sm flex items-center justify-center p-8"><div class="bg-primary-30 rounded-sm w-8 h-4"></div></div></div>
-          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">p-12</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">3rem</span><div class="bg-primary-10 rounded-sm flex items-center justify-center p-12"><div class="bg-primary-30 rounded-sm w-8 h-4"></div></div></div>
-        </div>
-        <h3 class="text-sm font-semibold text-neutral-60 uppercase tracking-wide mb-4">Gap Scale</h3>
-        <div class="flex flex-col gap-3">
-          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">gap-1</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">0.25rem</span><div class="flex gap-1"><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div></div></div>
-          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">gap-2</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">0.5rem</span><div class="flex gap-2"><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div></div></div>
-          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">gap-4</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">1rem</span><div class="flex gap-4"><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div></div></div>
-          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">gap-6</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">1.5rem</span><div class="flex gap-6"><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div></div></div>
-          <div class="flex items-center gap-4"><span class="mono label-xs text-neutral-50 w-10 shrink-0">gap-8</span><span class="mono label-xs text-neutral-40 shrink-0 w-14">2rem</span><div class="flex gap-8"><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div><div class="bg-primary-30 rounded-sm w-10 h-6"></div></div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+    <section id="colours" class="bg-white rounded-lg shadow-md border border-neutral-20 p-6 mb-6">
+      <h2 class="text-2xl font-bold mb-4">Colour tokens</h2>
 
-<!-- ============================================================ -->
-<!-- SHADOWS & BORDERS                                             -->
-<!-- ============================================================ -->
-<section id="shadows" class="section-anchor py-12 px-6">
-  <div style="max-width:1280px;margin:0 auto;">
-    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden">
-      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
-        <h2 class="text-xl font-semibold text-neutral-90">Shadows &amp; Borders</h2>
-        <p class="text-sm text-neutral-60 mt-1">Use <span class="mono">shadow-{size}</span> and <span class="mono">rounded-{size}</span>.</p>
-      </div>
-      <div class="p-6">
-        <h3 class="text-sm font-semibold text-neutral-60 uppercase tracking-wide mb-6">Box Shadows</h3>
-        <div class="grid grid-cols-4 gap-6 mb-10">
-          <div class="flex flex-col items-center gap-3"><div class="bg-white shadow-sm w-full h-20 rounded flex items-center justify-center"><span class="mono label-xs text-neutral-50">shadow-sm</span></div><span class="mono label-xs text-neutral-50">Small</span></div>
-          <div class="flex flex-col items-center gap-3"><div class="bg-white shadow w-full h-20 rounded flex items-center justify-center"><span class="mono label-xs text-neutral-50">shadow</span></div><span class="mono label-xs text-neutral-50">Base</span></div>
-          <div class="flex flex-col items-center gap-3"><div class="bg-white shadow-md w-full h-20 rounded flex items-center justify-center"><span class="mono label-xs text-neutral-50">shadow-md</span></div><span class="mono label-xs text-neutral-50">Medium</span></div>
-          <div class="flex flex-col items-center gap-3"><div class="bg-white shadow-lg w-full h-20 rounded flex items-center justify-center"><span class="mono label-xs text-neutral-50">shadow-lg</span></div><span class="mono label-xs text-neutral-50">Large</span></div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="rounded-md overflow-hidden border border-neutral-20">
+          <div class="bg-primary-80 h-20"></div>
+          <div class="p-4">
+            <p class="font-bold">Primary</p>
+            <p class="text-sm text-neutral-70">bg-primary-80</p>
+          </div>
         </div>
-        <h3 class="text-sm font-semibold text-neutral-60 uppercase tracking-wide mb-6">Border Radius</h3>
-        <div class="flex flex-wrap gap-8 items-end mb-10">
-          <div class="flex flex-col items-center gap-2"><div class="bg-primary-20 border-2 border-primary-40 w-16 h-16 rounded-none"></div><span class="mono label-xs text-neutral-50">rounded-none</span><span class="mono label-xs text-neutral-40">0</span></div>
-          <div class="flex flex-col items-center gap-2"><div class="bg-primary-20 border-2 border-primary-40 w-16 h-16 rounded-sm"></div><span class="mono label-xs text-neutral-50">rounded-sm</span><span class="mono label-xs text-neutral-40">4px</span></div>
-          <div class="flex flex-col items-center gap-2"><div class="bg-primary-20 border-2 border-primary-40 w-16 h-16 rounded"></div><span class="mono label-xs text-neutral-50">rounded</span><span class="mono label-xs text-neutral-40">8px</span></div>
-          <div class="flex flex-col items-center gap-2"><div class="bg-primary-20 border-2 border-primary-40 w-16 h-16 rounded-md"></div><span class="mono label-xs text-neutral-50">rounded-md</span><span class="mono label-xs text-neutral-40">12px</span></div>
-          <div class="flex flex-col items-center gap-2"><div class="bg-primary-20 border-2 border-primary-40 w-16 h-16 rounded-lg"></div><span class="mono label-xs text-neutral-50">rounded-lg</span><span class="mono label-xs text-neutral-40">16px</span></div>
-          <div class="flex flex-col items-center gap-2"><div class="bg-primary-20 border-2 border-primary-40 w-16 h-16 rounded-full"></div><span class="mono label-xs text-neutral-50">rounded-full</span><span class="mono label-xs text-neutral-40">9999px</span></div>
-        </div>
-        <h3 class="text-sm font-semibold text-neutral-60 uppercase tracking-wide mb-6">Border Widths</h3>
-        <div class="flex flex-wrap gap-8 items-end">
-          <div class="flex flex-col items-center gap-2"><div class="bg-neutral-10 w-16 h-16 rounded border-0 border-primary-80"></div><span class="mono label-xs text-neutral-50">border-0</span><span class="mono label-xs text-neutral-40">0px</span></div>
-          <div class="flex flex-col items-center gap-2"><div class="bg-neutral-10 w-16 h-16 rounded border border-primary-80"></div><span class="mono label-xs text-neutral-50">border</span><span class="mono label-xs text-neutral-40">1px</span></div>
-          <div class="flex flex-col items-center gap-2"><div class="bg-neutral-10 w-16 h-16 rounded border-2 border-primary-80"></div><span class="mono label-xs text-neutral-50">border-2</span><span class="mono label-xs text-neutral-40">2px</span></div>
-          <div class="flex flex-col items-center gap-2"><div class="bg-neutral-10 w-16 h-16 rounded border-4 border-primary-80"></div><span class="mono label-xs text-neutral-50">border-4</span><span class="mono label-xs text-neutral-40">4px</span></div>
-          <div class="flex flex-col items-center gap-2"><div class="bg-neutral-10 w-16 h-16 rounded border-8 border-primary-80"></div><span class="mono label-xs text-neutral-50">border-8</span><span class="mono label-xs text-neutral-40">8px</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- ============================================================ -->
-<!-- COMPONENTS                                                    -->
-<!-- ============================================================ -->
-<section id="components" class="section-anchor py-12 px-6">
-  <div style="max-width:1280px;margin:0 auto;">
-    <div class="mb-6">
-      <h2 class="font-lexend font-bold text-2xl text-neutral-90">Components</h2>
-      <p class="text-sm text-neutral-60 mt-1">Production-ready. Copy the HTML, paste into your project. All accessibility attributes included.</p>
-    </div>
+        <div class="rounded-md overflow-hidden border border-neutral-20">
+          <div class="bg-secondary-80 h-20"></div>
+          <div class="p-4">
+            <p class="font-bold">Secondary</p>
+            <p class="text-sm text-neutral-70">bg-secondary-80</p>
+          </div>
+        </div>
 
-    <!-- BUTTONS -->
-    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden mb-6">
-      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
-        <h3 class="text-lg font-semibold text-neutral-90">Button</h3>
+        <div class="rounded-md overflow-hidden border border-neutral-20">
+          <div class="bg-success-80 h-20"></div>
+          <div class="p-4">
+            <p class="font-bold">Success</p>
+            <p class="text-sm text-neutral-70">bg-success-80</p>
+          </div>
+        </div>
+
+        <div class="rounded-md overflow-hidden border border-neutral-20">
+          <div class="bg-warning-80 h-20"></div>
+          <div class="p-4">
+            <p class="font-bold">Warning</p>
+            <p class="text-sm text-neutral-70">bg-warning-80</p>
+          </div>
+        </div>
+
+        <div class="rounded-md overflow-hidden border border-neutral-20">
+          <div class="bg-error-80 h-20"></div>
+          <div class="p-4">
+            <p class="font-bold">Error</p>
+            <p class="text-sm text-neutral-70">bg-error-80</p>
+          </div>
+        </div>
+
+        <div class="rounded-md overflow-hidden border border-neutral-20">
+          <div class="bg-neutral-80 h-20"></div>
+          <div class="p-4">
+            <p class="font-bold">Neutral</p>
+            <p class="text-sm text-neutral-70">bg-neutral-80</p>
+          </div>
+        </div>
       </div>
-      <div class="p-6 flex flex-wrap gap-3 items-center">
-        <button class="bg-primary-80 text-white px-5 py-2 rounded font-medium text-sm hover:bg-primary-90 focus-visible:outline-2 focus-visible:outline-primary-80 transition cursor-pointer border-0">Primary</button>
-        <button class="bg-neutral-80 text-white px-5 py-2 rounded font-medium text-sm hover:bg-neutral-90 focus-visible:outline-2 focus-visible:outline-neutral-80 transition cursor-pointer border-0">Secondary</button>
-        <button class="bg-white text-primary-80 px-5 py-2 rounded font-medium text-sm border-2 border-primary-80 hover:bg-primary-10 focus-visible:outline-2 focus-visible:outline-primary-80 transition cursor-pointer">Outline</button>
-        <button class="bg-success-80 text-white px-5 py-2 rounded font-medium text-sm hover:bg-success-90 focus-visible:outline-2 focus-visible:outline-success-80 transition cursor-pointer border-0">Success</button>
-        <button class="bg-error-80 text-white px-5 py-2 rounded font-medium text-sm hover:bg-error-90 focus-visible:outline-2 focus-visible:outline-error-80 transition cursor-pointer border-0">Danger</button>
-        <button class="bg-neutral-20 text-neutral-50 px-5 py-2 rounded font-medium text-sm cursor-not-allowed border-0" disabled aria-disabled="true">Disabled</button>
-        <button class="bg-primary-80 text-white px-4 py-2 rounded font-medium text-sm hover:bg-primary-90 transition cursor-pointer border-0 flex items-center gap-2">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-          With icon
+    </section>
+
+    <section id="buttons" class="bg-white rounded-lg shadow-md border border-neutral-20 p-6 mb-6 background-neutral-100">
+      <h2 class="text-2xl font-bold mb-4">Buttons</h2>
+
+      <div class="flex flex-wrap gap-3">
+        <button class="bg-primary-80 text-white px-5 py-3 rounded-md font-semibold shadow hover:bg-primary-90 focus-visible:ring-2 ring-primary-80">
+          Primary
+        </button>
+
+        <button class="bg-secondary-80 text-white px-5 py-3 rounded-md font-semibold shadow hover:bg-secondary-90 focus-visible:ring-2 ring-secondary-80">
+          Secondary
+        </button>
+
+<button class="bg-white text-primary-90 border border-primary-80 px-5 py-3 rounded-md font-semibold hover:bg-primary-10 focus-visible:ring-2 ring-primary-80">
+  Outline
+</button>
+
+        <button class="bg-neutral-20 text-neutral-90 px-5 py-3 rounded-md font-semibold hover:bg-neutral-30">
+          Neutral
+        </button>
+
+        <button class="bg-error-80 text-white px-5 py-3 rounded-md font-semibold hover:bg-error-90">
+          Destructive
         </button>
       </div>
-      <div class="px-6 pb-6">
-        <div class="code-block">
-          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-          <pre><code>&lt;!-- Primary --&gt;
-&lt;button class="bg-primary-80 text-white px-5 py-2 rounded font-medium text-sm hover:bg-primary-90 focus-visible:outline-2 focus-visible:outline-primary-80 transition cursor-pointer border-0"&gt;
-  Primary
-&lt;/button&gt;
+    </section>
 
-&lt;!-- Outline --&gt;
-&lt;button class="bg-white text-primary-80 px-5 py-2 rounded font-medium text-sm border-2 border-primary-80 hover:bg-primary-10 focus-visible:outline-2 focus-visible:outline-primary-80 transition cursor-pointer"&gt;
-  Outline
-&lt;/button&gt;
+    <section id="cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+      <article class="bg-white rounded-lg shadow-md border border-neutral-20 p-6">
+        <span class="inline-block bg-primary-20 text-primary-90 px-3 py-1 rounded-full text-sm font-bold mb-4">Card</span>
+        <h2 class="text-xl font-bold mb-2">Reusable patterns</h2>
+        <p class="text-neutral-80 mb-4">Use utility classes to build patterns that work across static sites, Nuxt, Drupal and more.</p>
+        <a href="#" class="font-semibold text-primary-80 underline">Read more</a>
+      </article>
 
-&lt;!-- Disabled --&gt;
-&lt;button class="bg-neutral-20 text-neutral-50 px-5 py-2 rounded font-medium text-sm cursor-not-allowed border-0" disabled aria-disabled="true"&gt;
-  Disabled
-&lt;/button&gt;</code></pre>
-        </div>
-      </div>
-    </div>
+      <article class="bg-white rounded-lg shadow-md border border-neutral-20 p-6">
+        <span class="inline-block bg-success-20 text-success-90 px-3 py-1 rounded-full text-sm font-bold mb-4">Accessible</span>
+        <h2 class="text-xl font-bold mb-2">Clear defaults</h2>
+        <p class="text-neutral-80 mb-4">Spacing, contrast and focus utilities make common interface decisions quicker and more consistent.</p>
+        <a href="#" class="font-semibold text-primary-80 underline">View guidance</a>
+      </article>
 
-    <!-- TEXT INPUT -->
-    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden mb-6">
-      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
-        <h3 class="text-lg font-semibold text-neutral-90">Text Input</h3>
-        <p class="text-xs text-success-80 flex items-center gap-1.5 mt-1.5">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-          Includes focus-visible, error state with aria-invalid, and disabled variant.
-        </p>
-      </div>
-      <div class="p-6 flex flex-col gap-4" style="max-width:480px;">
-        <div class="flex flex-col gap-1">
-          <label for="input-default" class="text-sm font-medium text-neutral-80">Email address</label>
-          <input id="input-default" type="email" placeholder="you@example.com" class="w-full px-3 py-2 border-2 border-neutral-30 rounded text-sm text-neutral-90 bg-white focus-visible:outline-2 focus-visible:outline-primary-80 transition" />
-        </div>
-        <div class="flex flex-col gap-1">
-          <label for="input-error" class="text-sm font-medium text-neutral-80">Email address</label>
-          <input id="input-error" type="email" value="not-an-email" class="w-full px-3 py-2 border-2 border-error-80 rounded text-sm text-neutral-90 bg-white focus-visible:outline-2 focus-visible:outline-error-80 transition" aria-describedby="input-error-msg" aria-invalid="true" />
-          <span id="input-error-msg" class="text-xs text-error-80" role="alert">Enter a valid email address.</span>
-        </div>
-        <div class="flex flex-col gap-1">
-          <label for="input-disabled" class="text-sm font-medium text-neutral-50">Read-only field</label>
-          <input id="input-disabled" type="text" value="Northumberland County Council" class="w-full px-3 py-2 border-2 border-neutral-20 rounded text-sm text-neutral-50 bg-neutral-10 cursor-not-allowed" disabled />
-        </div>
-      </div>
-      <div class="px-6 pb-6">
-        <div class="code-block">
-          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-          <pre><code>&lt;div class="flex flex-col gap-1"&gt;
-  &lt;label for="email" class="text-sm font-medium text-neutral-80"&gt;Email address&lt;/label&gt;
-  &lt;input id="email" type="email" placeholder="you@example.com"
-    class="w-full px-3 py-2 border-2 border-neutral-30 rounded text-sm text-neutral-90 bg-white focus-visible:outline-2 focus-visible:outline-primary-80 transition" /&gt;
-&lt;/div&gt;
+      <article class="bg-white rounded-lg shadow-md border border-neutral-20 p-6">
+        <span class="inline-block bg-secondary-20 text-secondary-90 px-3 py-1 rounded-full text-sm font-bold mb-4">Portable</span>
+        <h2 class="text-xl font-bold mb-2">Framework agnostic</h2>
+        <p class="text-neutral-80 mb-4">Generate CSS from one config and use it where build pipelines are awkward or locked down.</p>
+        <a href="#" class="font-semibold text-primary-80 underline">See setup</a>
+      </article>
+    </section>
 
-&lt;!-- Error state --&gt;
-&lt;div class="flex flex-col gap-1"&gt;
-  &lt;label for="email-error" class="text-sm font-medium text-neutral-80"&gt;Email address&lt;/label&gt;
-  &lt;input id="email-error" type="email" aria-invalid="true" aria-describedby="email-error-msg"
-    class="w-full px-3 py-2 border-2 border-error-80 rounded text-sm text-neutral-90 bg-white focus-visible:outline-2 focus-visible:outline-error-80 transition" /&gt;
-  &lt;span id="email-error-msg" class="text-xs text-error-80" role="alert"&gt;Enter a valid email address.&lt;/span&gt;
-&lt;/div&gt;</code></pre>
-        </div>
-      </div>
-    </div>
+    <section id="forms" class="bg-white rounded-lg shadow-md border border-neutral-20 p-6 mb-6 shadow-lg">
+      <h2 class="text-2xl font-bold mb-4">Form elements</h2>
 
-    <!-- CARD -->
-    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden mb-6">
-      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
-        <h3 class="text-lg font-semibold text-neutral-90">Card</h3>
-      </div>
-      <div class="p-6 grid grid-cols-3 gap-6">
-        <div class="bg-white border-2 border-neutral-20 rounded-lg p-5 shadow-sm flex flex-col gap-3">
-          <h4 class="text-base font-semibold text-neutral-90">Basic card</h4>
-          <p class="text-sm text-neutral-60">A simple card with a title, some body text, and an action.</p>
-          <button class="bg-primary-80 text-white px-4 py-2 rounded text-sm font-medium hover:bg-primary-90 transition cursor-pointer border-0 self-start">View details</button>
+      <form class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-semibold mb-2" for="name">Name</label>
+          <input id="name" class="w-full border border-neutral-40 rounded-md p-3 focus-visible:ring-2 ring-primary-80" type="text" value="EmilyUI">
         </div>
-        <div class="bg-primary-80 border-2 border-primary-80 rounded-lg p-5 shadow flex flex-col gap-3">
-          <div class="flex items-center justify-between">
-            <h4 class="text-base font-semibold text-white">Featured</h4>
-            <span class="bg-white text-primary-80 text-xs font-bold px-2 py-1 rounded-full">PRO</span>
+
+        <div>
+          <label class="block font-semibold mb-2" for="type">Project type</label>
+          <select id="type" class="w-full border border-neutral-40 rounded-md p-3 pr-12 focus-visible:ring-2 ring-primary-80">
+            <option>Nuxt</option>
+            <option>Drupal</option>
+            <option>Static</option>
+          </select>
+        </div>
+
+        <div class="col-span-full">
+          <label class="block font-semibold mb-2" for="message">Notes</label>
+          <textarea id="message" class="w-full border border-neutral-40 rounded-md p-3 focus-visible:ring-2 ring-primary-80" rows="4">This tests form spacing, borders and focus states.</textarea>
+        </div>
+
+        <div class="col-span-full flex items-center gap-3">
+          <input id="check" class="w-6 h-6 accent-primary-80" type="checkbox" checked>
+          <label for="check">Use accessible defaults where possible</label>
+        </div>
+      </form>
+    </section>
+
+    <section id="alerts" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="bg-success-20 border border-success-80 rounded-md p-4">
+        <h2 class="text-lg font-bold text-success-90 mb-1">Success alert</h2>
+        <p class="text-success-90">Your CSS has been generated successfully.</p>
+      </div>
+
+      <div class="bg-warning-20 border border-warning-80 rounded-md p-4">
+        <h2 class="text-lg font-bold text-warning-90 mb-1">Warning alert</h2>
+        <p class="text-warning-90">Check your scan paths before publishing.</p>
+      </div>
+
+      <div class="bg-error-20 border border-error-80 rounded-md p-4">
+        <h2 class="text-lg font-bold text-error-90 mb-1">Error alert</h2>
+        <p class="text-error-90">Something failed during the build step.</p>
+      </div>
+
+      <div class="bg-secondary-20 border border-secondary-80 rounded-md p-4">
+        <h2 class="text-lg font-bold text-secondary-90 mb-1">Info alert</h2>
+        <p class="text-secondary-90">EmilyUI works best when config is kept simple.</p>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-lg shadow-md border border-neutral-20 p-6 mb-6">
+      <h2 class="text-2xl font-bold mb-4">Table</h2>
+
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-neutral-20">
+              <th class="text-left p-3 border border-neutral-30">Component</th>
+              <th class="text-left p-3 border border-neutral-30">Classes tested</th>
+              <th class="text-left p-3 border border-neutral-30">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="p-3 border border-neutral-30">Buttons</td>
+              <td class="p-3 border border-neutral-30">bg, text, px, py, rounded, hover</td>
+              <td class="p-3 border border-neutral-30"><span class="bg-success-20 text-success-90 px-2 py-1 rounded-full text-sm font-bold">Pass</span></td>
+            </tr>
+            <tr>
+              <td class="p-3 border border-neutral-30">Cards</td>
+              <td class="p-3 border border-neutral-30">shadow, border, grid, gap</td>
+              <td class="p-3 border border-neutral-30"><span class="bg-success-20 text-success-90 px-2 py-1 rounded-full text-sm font-bold">Pass</span></td>
+            </tr>
+            <tr>
+              <td class="p-3 border border-neutral-30">Forms</td>
+              <td class="p-3 border border-neutral-30">input, border, ring, accent</td>
+              <td class="p-3 border border-neutral-30"><span class="bg-warning-20 text-warning-90 px-2 py-1 rounded-full text-sm font-bold">Check</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+
+    <section id="design-tokens" class="bg-white rounded-lg shadow-md border border-neutral-20 p-6 mb-6">
+      <h2 class="text-2xl font-bold mb-2">Design tokens</h2>
+      <p class="text-neutral-80 mb-6">A quick reference for the core EmilyUI tokens generated from your config.</p>
+
+      <h3 class="text-xl font-bold mb-3">Colour scales</h3>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <div><div class="bg-primary-10 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">primary-10</p></div>
+        <div><div class="bg-primary-20 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">primary-20</p></div>
+        <div><div class="bg-primary-40 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">primary-40</p></div>
+        <div><div class="bg-primary-60 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">primary-60</p></div>
+        <div><div class="bg-primary-80 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">primary-80</p></div>
+        <div><div class="bg-primary-100 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">primary-100</p></div>
+            </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <div><div class="bg-secondary-10 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">secondary-10</p></div>
+        <div><div class="bg-secondary-20 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">secondary-20</p></div>
+        <div><div class="bg-secondary-40 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">secondary-40</p></div>
+        <div><div class="bg-secondary-60 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">secondary-60</p></div>
+        <div><div class="bg-secondary-80 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">secondary-80</p></div>
+        <div><div class="bg-secondary-100 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">secondary-100</p></div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <div><div class="bg-success-10 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">success-10</p></div>
+        <div><div class="bg-success-20 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">success-20</p></div>
+        <div><div class="bg-success-40 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">success-40</p></div>
+        <div><div class="bg-success-60 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">success-60</p></div>
+        <div><div class="bg-success-80 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">success-80</p></div>
+        <div><div class="bg-success-100 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">success-100</p></div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <div><div class="bg-warning-10 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">warning-10</p></div>
+        <div><div class="bg-warning-20 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">warning-20</p></div>
+        <div><div class="bg-warning-40 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">warning-40</p></div>
+        <div><div class="bg-warning-60 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">warning-60</p></div>
+        <div><div class="bg-warning-80 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">warning-80</p></div>
+        <div><div class="bg-warning-100 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">warning-100</p></div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <div><div class="bg-error-10 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">error-10</p></div>
+        <div><div class="bg-error-20 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">error-20</p></div>
+        <div><div class="bg-error-40 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">error-40</p></div>
+        <div><div class="bg-error-60 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">error-60</p></div>
+        <div><div class="bg-error-80 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">error-80</p></div>
+        <div><div class="bg-error-100 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">error-100</p></div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <div><div class="bg-neutral-10 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">neutral-10</p></div>
+        <div><div class="bg-neutral-20 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">neutral-20</p></div>
+        <div><div class="bg-neutral-40 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">neutral-40</p></div>
+        <div><div class="bg-neutral-60 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">neutral-60</p></div>
+        <div><div class="bg-neutral-80 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">neutral-80</p></div>
+        <div><div class="bg-neutral-100 h-12 rounded-md border border-neutral-20"></div><p class="text-sm mt-2">neutral-100</p></div>
+      </div>
+
+      <h3 class="text-xl font-bold mb-3">Spacing</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="border border-neutral-20 rounded-md p-4"><div class="bg-primary-80 h-4 w-4 rounded-sm"></div><p class="text-sm mt-2">space 4</p></div>
+        <div class="border border-neutral-20 rounded-md p-4"><div class="bg-primary-80 h-6 w-6 rounded-sm"></div><p class="text-sm mt-2">space 6</p></div>
+        <div class="border border-neutral-20 rounded-md p-4"><div class="bg-primary-80 h-8 w-8 rounded-sm"></div><p class="text-sm mt-2">space 8</p></div>
+        <div class="border border-neutral-20 rounded-md p-4"><div class="bg-primary-80 h-12 w-12 rounded-sm"></div><p class="text-sm mt-2">space 12</p></div>
+      </div>
+
+      <h3 class="text-xl font-bold mb-3">Typography</h3>
+      <div class="space-y-3">
+        <p class="text-xs">text-xs: Small helper text</p>
+        <p class="text-sm">text-sm: Secondary body text</p>
+        <p class="text-base">text-base: Default body text</p>
+        <p class="text-lg">text-lg: Larger body text</p>
+        <p class="text-xl font-semibold">text-xl: Section heading</p>
+        <p class="text-2xl font-bold">text-2xl: Component heading</p>
+        <p class="text-3xl md:text-4xl font-bold">text-4xl: Page heading</p>
+      </div>
+    </section>
+
+    <section id="component-library" class="bg-white rounded-lg shadow-md border border-neutral-20 p-6 mb-6">
+      <h2 class="text-2xl font-bold mb-2">Component library</h2>
+      <p class="text-neutral-80 mb-6">Common interface components built only with EmilyUI utility classes.</p>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="border border-neutral-20 rounded-lg p-5">
+          <h3 class="text-xl font-bold mb-3">Breadcrumbs</h3>
+          <nav aria-label="Breadcrumb">
+            <ol class="flex gap-2 text-sm text-primary-100">
+              <li><a href="#" class="text-primary-80 underline">Home</a></li>
+              <li>/</li>
+              <li><a href="#" class="text-primary-80 underline">Components</a></li>
+              <li>/</li>
+              <li aria-current="page">Breadcrumbs</li>
+            </ol>
+          </nav>
+        </div>
+
+        <div class="border border-neutral-20 rounded-lg p-5">
+          <h3 class="text-xl font-bold mb-3">Pagination</h3>
+          <nav class="flex gap-2" aria-label="Pagination">
+            <a href="#" class="border border-neutral-30 px-3 py-2 rounded-md">Previous</a>
+            <a href="#" class="bg-primary-80 text-white px-3 py-2 rounded-md">1</a>
+            <a href="#" class="border border-neutral-30 px-3 py-2 rounded-md">2</a>
+            <a href="#" class="border border-neutral-30 px-3 py-2 rounded-md">Next</a>
+          </nav>
+        </div>
+
+        <div class="border border-neutral-20 rounded-lg p-5">
+          <h3 class="text-xl font-bold mb-3">Tabs</h3>
+          <div class="flex gap-2 border-b border-neutral-30">
+            <button class="px-4 py-2 border-b-2 border-primary-80 font-semibold">Overview</button>
+            <button class="px-4 py-2 text-neutral-70">Usage</button>
+            <button class="px-4 py-2 text-neutral-70">Code</button>
           </div>
-          <p class="text-sm text-primary-20">Highlighted card for key features or calls to action.</p>
-          <button class="bg-white text-primary-80 px-4 py-2 rounded text-sm font-semibold hover:bg-primary-10 transition cursor-pointer border-0 self-start">Get started</button>
         </div>
-        <div class="bg-white border-2 border-neutral-20 rounded-lg p-5 shadow-sm flex flex-col gap-2">
-          <span class="text-xs font-medium text-neutral-50 uppercase tracking-wide">Total projects</span>
-          <span class="text-4xl font-bold text-neutral-90">142</span>
-          <span class="text-sm text-success-80 font-medium">&#x2191; 12% this month</span>
-        </div>
-      </div>
-      <div class="px-6 pb-6">
-        <div class="code-block">
-          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-          <pre><code>&lt;div class="bg-white border-2 border-neutral-20 rounded-lg p-5 shadow-sm flex flex-col gap-3"&gt;
-  &lt;h2 class="text-base font-semibold text-neutral-90"&gt;Card title&lt;/h2&gt;
-  &lt;p class="text-sm text-neutral-60"&gt;Card body text goes here.&lt;/p&gt;
-  &lt;button class="bg-primary-80 text-white px-4 py-2 rounded text-sm font-medium hover:bg-primary-90 transition cursor-pointer border-0 self-start"&gt;
-    View details
-  &lt;/button&gt;
-&lt;/div&gt;</code></pre>
-        </div>
-      </div>
-    </div>
 
-    <!-- ALERT -->
-    <div class="bg-white rounded-lg border-2 border-neutral-20 overflow-hidden mb-6">
-      <div class="px-6 py-4 bg-neutral-10 border-b-2 border-neutral-20">
-        <h3 class="text-lg font-semibold text-neutral-90">Alert</h3>
-      </div>
-      <div class="p-6 flex flex-col gap-3">
-        <div class="bg-success-10 border-2 border-success-30 rounded p-4 flex gap-3 items-start" role="alert">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success-80 shrink-0 mt-0.5" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          <div><p class="text-sm font-semibold text-success-90">Changes saved</p><p class="text-sm text-success-80">Your settings have been updated successfully.</p></div>
+        <div class="border border-neutral-20 rounded-lg p-5">
+          <h3 class="text-xl font-bold mb-3">Progress</h3>
+          <div class="bg-neutral-20 rounded-full h-4 overflow-hidden">
+            <div class="bg-primary-80 h-4 w-72"></div>
+          </div>
+          <p class="text-sm text-neutral-70 mt-2">75% complete</p>
         </div>
-        <div class="bg-error-10 border-2 border-error-30 rounded p-4 flex gap-3 items-start" role="alert">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-error-80 shrink-0 mt-0.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-          <div><p class="text-sm font-semibold text-error-90">Something went wrong</p><p class="text-sm text-error-80">We couldn't save your changes. Please try again.</p></div>
-        </div>
-        <div class="bg-warning-10 border-2 border-warning-40 rounded p-4 flex gap-3 items-start" role="alert">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warning-60 shrink-0 mt-0.5" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <div><p class="text-sm font-semibold text-neutral-90">Review required</p><p class="text-sm text-neutral-70">This action will affect 23 connected records.</p></div>
-        </div>
-        <div class="bg-primary-10 border-2 border-primary-30 rounded p-4 flex gap-3 items-start" role="status">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-80 shrink-0 mt-0.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <div><p class="text-sm font-semibold text-primary-90">Heads up</p><p class="text-sm text-primary-80">Scheduled maintenance on Sunday 29 April, 2&ndash;4am.</p></div>
-        </div>
-      </div>
-      <div class="px-6 pb-6">
-        <div class="code-block">
-          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-          <pre><code>&lt;!-- Success alert --&gt;
-&lt;div class="bg-success-10 border-2 border-success-30 rounded p-4 flex gap-3 items-start" role="alert"&gt;
-  &lt;!-- icon --&gt;
-  &lt;div&gt;
-    &lt;p class="text-sm font-semibold text-success-90"&gt;Changes saved&lt;/p&gt;
-    &lt;p class="text-sm text-success-80"&gt;Your settings have been updated successfully.&lt;/p&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
 
-&lt;!-- Error alert --&gt;
-&lt;div class="bg-error-10 border-2 border-error-30 rounded p-4 flex gap-3 items-start" role="alert"&gt;
-  &lt;!-- icon --&gt;
-  &lt;div&gt;
-    &lt;p class="text-sm font-semibold text-error-90"&gt;Something went wrong&lt;/p&gt;
-    &lt;p class="text-sm text-error-80"&gt;We couldn&amp;apos;t save your changes. Please try again.&lt;/p&gt;
-  &lt;/div&gt;
-&lt;/div&gt;</code></pre>
+        <div class="border border-neutral-20 rounded-lg p-5">
+          <h3 class="text-xl font-bold mb-3">Notification banner</h3>
+          <div class="bg-secondary-20 border-l-4 border-secondary-80 p-4">
+            <p class="font-bold text-secondary-90">Information</p>
+            <p class="text-secondary-90">This is a standard notification message.</p>
+          </div>
+        </div>
+
+        <div class="border border-neutral-20 rounded-lg p-5">
+          <h3 class="text-xl font-bold mb-3">Modal preview</h3>
+          <div class="border border-neutral-30 rounded-lg p-5 shadow-lg">
+            <h4 class="text-lg font-bold mb-2">Confirm action</h4>
+            <p class="text-neutral-80 mb-4">This shows modal spacing and button grouping.</p>
+            <div class="flex gap-3">
+              <button class="bg-primary-80 text-white px-4 py-2 rounded-md font-semibold">Confirm</button>
+              <button class="border border-neutral-40 px-4 py-2 rounded-md">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="border border-neutral-20 rounded-lg p-5">
+          <h3 class="text-xl font-bold mb-3">Accordion</h3>
+          <details class="border border-neutral-30 rounded-md p-4">
+            <summary class="font-semibold cursor-pointer">What is EmilyUI?</summary>
+            <p class="text-neutral-80 mt-3">A config-driven CSS utility system for constrained projects.</p>
+          </details>
+        </div>
+
+        <div class="border border-neutral-20 rounded-lg p-5">
+          <h3 class="text-xl font-bold mb-3">Stat card</h3>
+          <div class="bg-primary-10 border border-primary-30 rounded-lg p-5">
+            <p class="text-sm text-primary-90">CSS generated</p>
+            <p class="text-3xl md:text-4xl font-bold text-primary-90">100%</p>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- BADGE -->
-    <div class="bg-white rounded-lg bor
+
+    <section id="utility-coverage" class="bg-white rounded-lg shadow-md border border-neutral-20 p-6 mb-6">
+      <h2 class="text-2xl font-bold mb-2">Utility coverage</h2>
+      <p class="text-neutral-80 mb-6">A practical check that common utility groups are being generated and surviving the production build.</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="border border-neutral-20 rounded-md p-4">
+          <h3 class="font-bold mb-2">Display</h3>
+          <div class="flex gap-2">
+            <span class="inline-block bg-primary-20 px-2 py-1 rounded-sm text-sm">block</span>
+            <span class="inline-flex bg-primary-20 px-2 py-1 rounded-sm text-sm">inline-flex</span>
+          </div>
+        </div>
+
+        <div class="border border-neutral-20 rounded-md p-4">
+          <h3 class="font-bold mb-2">Flex</h3>
+          <div class="flex items-center justify-between gap-2">
+            <span class="bg-secondary-20 p-2 rounded-sm">A</span>
+            <span class="bg-secondary-20 p-2 rounded-sm">B</span>
+            <span class="bg-secondary-20 p-2 rounded-sm">C</span>
+          </div>
+        </div>
+
+        <div class="border border-neutral-20 rounded-md p-4">
+          <h3 class="font-bold mb-2">Grid</h3>
+          <div class="grid grid-cols-3 gap-2">
+            <span class="bg-success-20 h-8 rounded-sm"></span>
+            <span class="bg-success-20 h-8 rounded-sm"></span>
+            <span class="bg-success-20 h-8 rounded-sm"></span>
+          </div>
+        </div>
+
+        <div class="border border-neutral-20 rounded-md p-4 overflow-hidden">
+          <h3 class="font-bold mb-2">Overflow</h3>
+          <p class="truncate text-sm bg-neutral-20 p-2 rounded-sm">This line is intentionally long so truncate can be tested properly.</p>
+        </div>
+
+        <div class="border border-neutral-20 rounded-md p-4">
+          <h3 class="font-bold mb-2">Sizing</h3>
+          <div class="w-full bg-neutral-20 rounded-sm">
+            <div class="w-48 h-6 bg-primary-80 rounded-sm"></div>
+          </div>
+        </div>
+
+        <div class="border border-neutral-20 rounded-md p-4">
+          <h3 class="font-bold mb-2">Borders</h3>
+          <div class="border-4 border-primary-80 rounded-lg p-3 text-sm">border-4 rounded-lg</div>
+        </div>
+
+        <div class="border border-neutral-20 rounded-md p-4">
+          <h3 class="font-bold mb-2">Shadows</h3>
+          <div class="shadow-lg rounded-md p-3 text-sm">shadow-lg</div>
+        </div>
+
+        <div class="border border-neutral-20 rounded-md p-4">
+          <h3 class="font-bold mb-2">Opacity</h3>
+          <div class="flex gap-2">
+            <span class="bg-primary-80 opacity-25 h-8 w-8 rounded-sm"></span>
+            <span class="bg-primary-80 opacity-50 h-8 w-8 rounded-sm"></span>
+            <span class="bg-primary-80 opacity-100 h-8 w-8 rounded-sm"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="responsive-examples" class="bg-white rounded-lg shadow-md border border-neutral-20 p-6 mb-6">
+      <h2 class="text-2xl font-bold mb-2">Responsive examples</h2>
+      <p class="text-neutral-80 mb-6">These cards change layout using responsive variants.</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-primary-10 border border-primary-30 rounded-md p-4">
+          <p class="font-bold">Mobile</p>
+          <p class="text-sm">1 column by default</p>
+        </div>
+        <div class="bg-secondary-10 border border-secondary-30 rounded-md p-4">
+          <p class="font-bold">Small</p>
+          <p class="text-sm">2 columns from sm</p>
+        </div>
+        <div class="bg-success-10 border border-success-30 rounded-md p-4">
+          <p class="font-bold">Large</p>
+          <p class="text-sm">4 columns from lg</p>
+        </div>
+        <div class="bg-warning-10 border border-warning-30 rounded-md p-4">
+          <p class="font-bold">Build check</p>
+          <p class="text-sm">sm: and lg: classes used</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="state-examples" class="bg-white rounded-lg shadow-md border border-neutral-20 p-6 mb-6">
+      <h2 class="text-2xl font-bold mb-2">State examples</h2>
+      <p class="text-neutral-80 mb-6">Tests hover, focus-visible, active and disabled variants.</p>
+
+      <div class="flex flex-wrap gap-3">
+        <button class="bg-primary-80 text-white px-5 py-3 rounded-md font-semibold hover:bg-primary-90 active:bg-primary-100 focus-visible:ring-2 ring-primary-80">
+          Hover and focus
+        </button>
+
+        <button class="bg-secondary-80 text-white px-5 py-3 rounded-md font-semibold hover:bg-secondary-90 active:bg-secondary-100 focus-visible:ring-2 ring-secondary-80">
+          Active state
+        </button>
+
+        <button disabled class="bg-neutral-30 text-neutral-70 px-5 py-3 rounded-md font-semibold disabled:opacity-50">
+          Disabled
+        </button>
+
+        <a href="#" class="inline-flex items-center justify-center text-primary-80 underline hover:text-primary-90 focus-visible:ring-2 ring-primary-80 rounded-sm">
+          Focusable link
+        </a>
+      </div>
+    </section>
+
+    <section id="dark-mode" class="bg-white dark:bg-neutral-90 rounded-lg shadow-md border border-neutral-20 dark:border-neutral-70 p-6 mb-6">
+      <h2 class="text-2xl font-bold mb-2 text-neutral-90 dark:text-neutral-10">Dark mode example</h2>
+      <p class="text-neutral-80 dark:text-neutral-20 mb-6">This section tests dark: colour variants.</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-neutral-10 dark:bg-neutral-80 border border-neutral-20 dark:border-neutral-60 rounded-md p-4">
+          <p class="font-bold text-neutral-90 dark:text-neutral-10">Panel</p>
+          <p class="text-sm text-neutral-70 dark:text-neutral-20">dark:bg-neutral-80</p>
+        </div>
+
+        <div class="bg-primary-10 dark:bg-primary-90 border border-primary-30 dark:border-primary-70 rounded-md p-4">
+          <p class="font-bold text-primary-90 dark:text-primary-10">Brand</p>
+          <p class="text-sm text-primary-90 dark:text-primary-10">dark:bg-primary-90</p>
+        </div>
+
+        <div class="bg-secondary-10 dark:bg-secondary-90 border border-secondary-30 dark:border-secondary-70 rounded-md p-4">
+          <p class="font-bold text-secondary-90 dark:text-secondary-10">Accent</p>
+          <p class="text-sm text-secondary-90 dark:text-secondary-10">dark:text-secondary-10</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="accessibility-examples" class="bg-white rounded-lg shadow-md border border-neutral-20 p-6 mb-6">
+      <h2 class="text-2xl font-bold mb-2">Accessibility examples</h2>
+      <p class="text-neutral-80 mb-6">Examples for focus, labels, errors, hidden text and live messages.</p>
+
+      <a href="#main-content" class="sr-only focus:not-sr-only focus:bg-primary-80 focus:text-white focus:p-3 focus:rounded-md">
+        Skip to main content
+      </a>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <form class="border border-neutral-20 rounded-md p-5">
+          <h3 class="text-xl font-bold mb-4">Form error</h3>
+
+          <label for="email-error" class="block font-semibold mb-2">Email address</label>
+          <p id="email-error-message" class="text-error-90 font-semibold mb-2">Enter an email address in the correct format.</p>
+          <input id="email-error" aria-describedby="email-error-message" aria-invalid="true" class="w-full border-2 border-error-80 rounded-md p-3 focus-visible:ring-2 ring-error-80" type="email" value="andy">
+        </form>
+
+        <div class="border border-neutral-20 rounded-md p-5">
+          <h3 class="text-xl font-bold mb-4">Live region</h3>
+          <div role="status" aria-live="polite" class="bg-success-20 border border-success-80 rounded-md p-4">
+            <p class="font-bold text-success-90">Saved</p>
+            <p class="text-success-90">Your changes have been saved.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-patterns" class="bg-white rounded-lg shadow-md border border-neutral-20 p-6 mb-6">
+      <h2 class="text-2xl font-bold mb-2">Real page patterns</h2>
+      <p class="text-neutral-80 mb-6">Larger patterns you would actually use on a site or app.</p>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <article class="lg:col-span-2 border border-neutral-20 rounded-lg p-6">
+          <p class="text-sm font-bold text-primary-80 mb-2">Article layout</p>
+          <h3 class="text-3xl font-bold mb-3">Design systems work best when they reduce decisions.</h3>
+          <p class="text-neutral-80 leading-relaxed mb-4">A good utility system should help teams move faster without removing judgement. This pattern tests headings, body copy, spacing and readable measure.</p>
+          <a href="#" class="text-primary-80 font-semibold underline">Continue reading</a>
+        </article>
+
+        <aside class="border border-neutral-20 rounded-lg p-6 bg-neutral-10">
+          <p class="text-sm font-bold text-neutral-70 mb-2">Dashboard panel</p>
+          <p class="text-4xl font-bold text-primary-90 mb-2">64%</p>
+          <p class="text-neutral-80">CSS reduction after production build.</p>
+        </aside>
+
+        <div class="border border-primary-30 bg-primary-10 rounded-lg p-6 lg:col-span-3">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h3 class="text-2xl font-bold text-primary-90 mb-2">Ready to ship?</h3>
+              <p class="text-primary-90">Use this section as a call-to-action pattern.</p>
+            </div>
+            <a href="#" class="inline-flex justify-center bg-primary-80 text-white px-5 py-3 rounded-md font-semibold hover:bg-primary-90">
+              Get started
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="code-snippets" class="bg-white rounded-lg shadow-md border border-neutral-20 p-6 mb-6">
+      <h2 class="text-2xl font-bold mb-2">Code snippets</h2>
+      <p class="text-neutral-80 mb-6">Live preview with full copy-ready HTML.</p>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Primary button -->
+        <div>
+          <h3 class="font-bold mb-3">Primary button</h3>
+          <div class="bg-neutral-10 border border-neutral-20 rounded-t-lg p-6 flex items-center justify-center" style="min-height: 80px;">
+            <button class="bg-primary-80 text-white px-5 py-3 rounded-md font-semibold hover:bg-primary-90 focus-visible:ring-2 ring-primary-80">Get started</button>
+          </div>
+          <div class="code-window" style="border-top-left-radius: 0; border-top-right-radius: 0; border-top: none;">
+            <div class="code-title-bar">
+              <span class="code-dot code-dot-red"></span>
+              <span class="code-dot code-dot-yellow"></span>
+              <span class="code-dot code-dot-green"></span>
+              <span class="code-filename">button.html</span>
+            </div>
+            <pre><code><span class="token-line-number"> 1</span><span class="token-tag">&lt;button</span> <span class="token-attr">class</span><span class="token-operator">=</span><span class="token-string">"</span><span class="token-attr">bg-primary-80</span> <span class="token-attr">text-white</span>
+<span class="token-line-number"> 2</span>         <span class="token-attr">px-5</span> <span class="token-attr">py-3</span> <span class="token-utility">rounded-md</span>
+<span class="token-line-number"> 3</span>         <span class="token-utility">font-semibold</span>
+<span class="token-line-number"> 4</span>         <span class="token-variant">hover:</span><span class="token-attr">bg-primary-90</span>
+<span class="token-line-number"> 5</span>         <span class="token-variant">focus-visible:</span><span class="token-attr">ring-2</span>
+<span class="token-line-number"> 6</span>         <span class="token-attr">ring-primary-80</span><span class="token-string">"</span><span class="token-tag">&gt;</span>
+<span class="token-line-number"> 7</span>  Get started
+<span class="token-line-number"> 8</span><span class="token-tag">&lt;/button&gt;</span></code></pre>
+          </div>
+        </div>
+
+        <!-- Responsive card grid -->
+        <div>
+          <h3 class="font-bold mb-3">Responsive card grid</h3>
+          <div class="bg-neutral-10 border border-neutral-20 rounded-t-lg p-4" style="min-height: 80px;">
+            <div class="grid grid-cols-3 gap-3">
+              <div class="bg-white border border-neutral-20 rounded-md p-3 text-sm text-neutral-70">Card one</div>
+              <div class="bg-white border border-neutral-20 rounded-md p-3 text-sm text-neutral-70">Card two</div>
+              <div class="bg-white border border-neutral-20 rounded-md p-3 text-sm text-neutral-70">Card three</div>
+            </div>
+          </div>
+          <div class="code-window" style="border-top-left-radius: 0; border-top-right-radius: 0; border-top: none;">
+            <div class="code-title-bar">
+              <span class="code-dot code-dot-red"></span>
+              <span class="code-dot code-dot-yellow"></span>
+              <span class="code-dot code-dot-green"></span>
+              <span class="code-filename">grid.html</span>
+            </div>
+            <pre><code><span class="token-line-number"> 1</span><span class="token-tag">&lt;div</span> <span class="token-attr">class</span><span class="token-operator">=</span><span class="token-string">"</span><span class="token-attr">grid</span> <span class="token-attr">grid-cols-1</span>
+<span class="token-line-number"> 2</span>      <span class="token-variant">md:</span><span class="token-attr">grid-cols-2</span>
+<span class="token-line-number"> 3</span>      <span class="token-variant">lg:</span><span class="token-attr">grid-cols-3</span>
+<span class="token-line-number"> 4</span>      <span class="token-attr">gap-6</span><span class="token-string">"</span><span class="token-tag">&gt;</span>
+<span class="token-line-number"> 5</span>  <span class="token-tag">&lt;div</span> <span class="token-attr">class</span><span class="token-operator">=</span><span class="token-string">"</span><span class="token-attr">bg-white</span> <span class="token-attr">border</span>
+<span class="token-line-number"> 6</span>       <span class="token-attr">border-neutral-20</span> <span class="token-utility">rounded-md</span>
+<span class="token-line-number"> 7</span>       <span class="token-attr">p-4</span><span class="token-string">"</span><span class="token-tag">&gt;</span>Card one<span class="token-tag">&lt;/div&gt;</span>
+<span class="token-line-number"> 8</span>  <span class="token-comment">&lt;!-- repeat for each card --&gt;</span>
+<span class="token-line-number"> 9</span><span class="token-tag">&lt;/div&gt;</span></code></pre>
+          </div>
+        </div>
+
+        <!-- Alert -->
+        <div>
+          <h3 class="font-bold mb-3">Alert</h3>
+          <div class="bg-neutral-10 border border-neutral-20 rounded-t-lg p-6 flex items-center" style="min-height: 80px;">
+            <div class="bg-success-20 border border-success-80 rounded-md p-4 text-success-90 w-full"><strong>Success:</strong> Your changes have been saved.</div>
+          </div>
+          <div class="code-window" style="border-top-left-radius: 0; border-top-right-radius: 0; border-top: none;">
+            <div class="code-title-bar">
+              <span class="code-dot code-dot-red"></span>
+              <span class="code-dot code-dot-yellow"></span>
+              <span class="code-dot code-dot-green"></span>
+              <span class="code-filename">alert.html</span>
+            </div>
+            <pre><code><span class="token-line-number"> 1</span><span class="token-tag">&lt;div</span> <span class="token-attr">class</span><span class="token-operator">=</span><span class="token-string">"</span><span class="token-colour">bg-success-20</span>
+<span class="token-line-number"> 2</span>      <span class="token-attr">border</span> <span class="token-colour">border-success-80</span>
+<span class="token-line-number"> 3</span>      <span class="token-utility">rounded-md</span> <span class="token-attr">p-4</span>
+<span class="token-line-number"> 4</span>      <span class="token-colour">text-success-90</span><span class="token-string">"</span><span class="token-tag">&gt;</span>
+<span class="token-line-number"> 5</span>  <span class="token-tag">&lt;strong&gt;</span>Success:<span class="token-tag">&lt;/strong&gt;</span>
+<span class="token-line-number"> 6</span>  Your changes have been saved.
+<span class="token-line-number"> 7</span><span class="token-tag">&lt;/div&gt;</span></code></pre>
+          </div>
+        </div>
+
+        <!-- Dark panel -->
+        <div>
+          <h3 class="font-bold mb-3">Dark mode panel</h3>
+          <div class="bg-neutral-80 border border-neutral-20 rounded-t-lg p-6 flex items-center" style="min-height: 80px;">
+            <div class="bg-neutral-90 text-neutral-10 rounded-lg p-5 w-full">
+              <p class="font-semibold mb-1">Dark panel</p>
+              <p class="text-sm text-neutral-30">Content adapts to dark mode automatically.</p>
+            </div>
+          </div>
+          <div class="code-window" style="border-top-left-radius: 0; border-top-right-radius: 0; border-top: none;">
+            <div class="code-title-bar">
+              <span class="code-dot code-dot-red"></span>
+              <span class="code-dot code-dot-yellow"></span>
+              <span class="code-dot code-dot-green"></span>
+              <span class="code-filename">dark-panel.html</span>
+            </div>
+            <pre><code><span class="token-line-number"> 1</span><span class="token-tag">&lt;div</span> <span class="token-attr">class</span><span class="token-operator">=</span><span class="token-string">"</span><span class="token-attr">bg-white</span>
+<span class="token-line-number"> 2</span>      <span class="token-variant">dark:</span><span class="token-attr">bg-neutral-90</span>
+<span class="token-line-number"> 3</span>      <span class="token-attr">text-neutral-90</span>
+<span class="token-line-number"> 4</span>      <span class="token-variant">dark:</span><span class="token-attr">text-neutral-10</span>
+<span class="token-line-number"> 5</span>      <span class="token-utility">rounded-lg</span> <span class="token-attr">p-5</span><span class="token-string">"</span><span class="token-tag">&gt;</span>
+<span class="token-line-number"> 6</span>  <span class="token-tag">&lt;p</span> <span class="token-attr">class</span><span class="token-operator">=</span><span class="token-string">"</span><span class="token-utility">font-semibold</span><span class="token-string">"</span><span class="token-tag">&gt;</span>Dark panel<span class="token-tag">&lt;/p&gt;</span>
+<span class="token-line-number"> 7</span>  <span class="token-tag">&lt;p</span> <span class="token-attr">class</span><span class="token-operator">=</span><span class="token-string">"</span><span class="token-attr">text-sm</span> <span class="token-attr">text-neutral-30</span><span class="token-string">"</span><span class="token-tag">&gt;</span>
+<span class="token-line-number"> 8</span>    Content adapts to dark mode.
+<span class="token-line-number"> 9</span>  <span class="token-tag">&lt;/p&gt;</span>
+<span class="token-line-number">10</span><span class="token-tag">&lt;/div&gt;</span></code></pre>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <section id="install" class="bg-white rounded-lg shadow-md border border-neutral-20 p-6 mb-6">
+      <h2 class="text-2xl font-bold mb-2">Install and setup</h2>
+      <p class="text-neutral-80 mb-6">Basic commands for getting EmilyCSS running in a project.</p>
+
+      <div class="flex flex-col gap-3">
+
+        <div class="code-window">
+          <div class="code-title-bar">
+            <span class="code-dot code-dot-red"></span>
+            <span class="code-dot code-dot-yellow"></span>
+            <span class="code-dot code-dot-green"></span>
+            <span class="code-filename">terminal</span>
+          </div>
+          <pre><code><span class="token-keyword">npm</span> install <span class="token-string">emily-css</span></code></pre>
+        </div>
+
+        <div class="code-window">
+          <div class="code-title-bar">
+            <span class="code-dot code-dot-red"></span>
+            <span class="code-dot code-dot-yellow"></span>
+            <span class="code-dot code-dot-green"></span>
+            <span class="code-filename">terminal</span>
+          </div>
+          <pre><code><span class="token-keyword">npx</span> <span class="token-string">emily-css</span> init</code></pre>
+        </div>
+
+        <div class="code-window">
+          <div class="code-title-bar">
+            <span class="code-dot code-dot-red"></span>
+            <span class="code-dot code-dot-yellow"></span>
+            <span class="code-dot code-dot-green"></span>
+            <span class="code-filename">terminal</span>
+          </div>
+          <pre><code><span class="token-keyword">npm</span> run <span class="token-string">emily:watch</span></code></pre>
+        </div>
+
+        <div class="code-window">
+          <div class="code-title-bar">
+            <span class="code-dot code-dot-red"></span>
+            <span class="code-dot code-dot-yellow"></span>
+            <span class="code-dot code-dot-green"></span>
+            <span class="code-filename">terminal</span>
+          </div>
+          <pre><code><span class="token-keyword">npm</span> run <span class="token-string">emily:build</span></code></pre>
+        </div>
+
+        <div class="code-window">
+          <div class="code-title-bar">
+            <span class="code-dot code-dot-red"></span>
+            <span class="code-dot code-dot-yellow"></span>
+            <span class="code-dot code-dot-green"></span>
+            <span class="code-filename">index.html</span>
+          </div>
+          <pre><code><span class="token-tag">&lt;link</span> <span class="token-attr">rel</span><span class="token-operator">=</span><span class="token-string">"stylesheet"</span> <span class="token-attr">href</span><span class="token-operator">=</span><span class="token-string">"./dist/emily.min.css"</span><span class="token-tag">&gt;</span></code></pre>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="build-output" class="bg-white rounded-lg shadow-md border border-neutral-20 p-6 mb-6">
+      <h2 class="text-2xl font-bold mb-2">Build output</h2>
+      <p class="text-neutral-80 mb-6">How EmilyCSS handles local development and production output.</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="border border-neutral-20 rounded-md p-4">
+          <p class="font-bold">dist/emily.min.css</p>
+          <p class="text-sm text-neutral-70">Production-ready CSS. This is the file you link to in your project.</p>
+        </div>
+
+        <div class="border border-neutral-20 rounded-md p-4">
+          <p class="font-bold">dist/emily.css</p>
+          <p class="text-sm text-neutral-70">Temporary local framework source. Watch keeps it available when needed.</p>
+        </div>
+
+        <div class="border border-neutral-20 rounded-md p-4">
+          <p class="font-bold">emily-css build</p>
+          <p class="text-sm text-neutral-70">Outputs dist/emily.min.css and removes dist/emily.css by default.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div class="border border-neutral-20 rounded-md p-4">
+          <p class="font-bold">Development</p>
+          <p class="text-sm text-neutral-70">Run npm run emily:watch. It keeps a full local emily.css available when needed and regenerates emily.min.css as classes change.</p>
+        </div>
+
+        <div class="border border-neutral-20 rounded-md p-4">
+          <p class="font-bold">Production</p>
+          <p class="text-sm text-neutral-70">Run npm run emily:build. Production should only ship dist/emily.min.css.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="text-center text-sm text-neutral-70 py-6">
+      Built with EmilyUI utility classes.
+    </footer>
+  </main>
+</body>
+</html>
+
+
+
+
+
+
+

@@ -277,7 +277,7 @@ npx emily-css purge
 
 ## Fonts
 
-EmilyUI includes built-in support for **Inter** and **Lexend** via Google Fonts CDN. No font files to download or host. The generated CSS handles the import automatically.
+emilyCSS applies font-family stacks but does not load font files for you. This keeps the generated CSS self-contained and offline-capable.
 
 Set `fontFamily` as an object to use different fonts for headings and body:
 
@@ -296,7 +296,26 @@ Or as a string if you want one font throughout:
 
 Supported values: `inter`, `lexend`, `system` (system-ui stack), `georgia`, `mono`.
 
-To use a custom font, set `fontFamily` to any other value and add your own `@import` or `<link>` to your HTML before loading `emily.css`.
+**Loading the font files** is your responsibility. The easiest options:
+
+- **Self-host via @fontsource** (recommended — no external requests):
+  ```bash
+  npm install @fontsource/inter @fontsource/lexend
+  ```
+  Then import in your entry file or CSS:
+  ```js
+  import '@fontsource/inter/400.css'
+  import '@fontsource/inter/500.css'
+  import '@fontsource/lexend/700.css'
+  ```
+
+- **Google Fonts CDN** (external request — simpler for prototyping):
+  ```html
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lexend:wght@400;600;700&display=swap" rel="stylesheet">
+  ```
+
+- **Custom font**: add your own `@font-face` or `<link>` to your HTML before loading `emily.css`.
 
 ## Support
 

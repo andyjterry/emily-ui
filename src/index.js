@@ -142,8 +142,9 @@ function generateAllColours(colourConfig) {
 // ============================================================================
 
 function generateSpacing(baseUnit, scale) {
-  // scale is now a key-value object from config
-  // Just return it as-is since values are already defined (e.g., "1rem", "4px")
+  // Spacing values are defined explicitly in emily.config.json under spacing.scale.
+  // The baseUnit key in config is informational only — it documents the design intent
+  // (e.g. "this system is based on 8px") but does not drive generation.
   return scale;
 }
 
@@ -151,30 +152,28 @@ function generateSpacing(baseUnit, scale) {
 // FONT PRESETS
 // ============================================================================
 
+// Font presets define the CSS font-family stack only.
+// Loading the actual font files is the user's responsibility — link them in your HTML
+// or use @fontsource packages in your build. emily-css does not generate @import rules
+// for external CDNs so it stays self-contained and works offline.
+// See docs: https://emilyui.com/docs/getting-started
 const FONT_PRESETS = {
   'system': {
     stack: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    googleFont: false,
   },
   'inter': {
     name: 'Inter',
     stack: '"Inter", system-ui, sans-serif',
-    googleFont: true,
-    importUrl: 'https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap',
   },
   'lexend': {
     name: 'Lexend',
     stack: '"Lexend", system-ui, sans-serif',
-    googleFont: true,
-    importUrl: 'https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap',
   },
   'georgia': {
     stack: 'Georgia, "Times New Roman", serif',
-    googleFont: false,
   },
   'mono': {
     stack: '"Menlo", "Monaco", "Courier New", monospace',
-    googleFont: false,
   },
 };
 
@@ -196,14 +195,6 @@ function generateFontCSS(config) {
 
   let fontFace = '';
   let bodyFont = '';
-
-  // Import Google Fonts — dedupe if heading and body use the same font
-  const imports = new Set();
-  if (headingPreset.googleFont) imports.add(headingPreset.importUrl);
-  if (bodyPreset.googleFont) imports.add(bodyPreset.importUrl);
-  imports.forEach(url => {
-    fontFace += `@import url("${url}");\n`;
-  });
 
   bodyFont += `  body {\n    font-family: ${bodyPreset.stack};\n    font-synthesis: style;\n  }\n`;
   bodyFont += `  h1, h2, h3, h4, h5, h6 {\n    font-family: ${headingPreset.stack};\n  }\n`;
@@ -284,7 +275,8 @@ const {
   blendUtilities,
   cursorUtilities,
   accessibilityUtilities,
-  containerUtilities
+  containerUtilities,
+  codeUtilities
 } = require('./generators');
 
 // ============================================================================
@@ -471,8 +463,7 @@ function generateTypographyUtilities(config) {
   css += `.text-right { text-align: right; }\n`;
   css += `.text-justify { text-align: justify; }\n`;
 
-  // Text wrapping
-  css += `.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n`;
+  // Text wrapping (.truncate lives in overflowUtilities in generators.js — not duplicated here)
   css += `.whitespace-nowrap { white-space: nowrap; }\n`;
   css += `.whitespace-normal { white-space: normal; }\n`;
   css += `.break-words { word-break: break-word; }\n`;
@@ -582,7 +573,7 @@ function generateBaseStyles(config) {
   // Build a lookup map from font size name → CSS variable
   const fontSizeMap = {};
   (config.typography?.fontSizes || []).forEach(({ name }) => {
-    fontSizeMap[name] = `var(--emily-text-${name})`;
+    fontSizeMap[name] = `var(--text-${name})`;
   });
 
   // Line height hints per size — keeps headings tighter than body text
@@ -827,6 +818,7 @@ function buildFullFramework() {
   utilityCss += cursorUtilities();
   utilityCss += accessibilityUtilities();
   utilityCss += containerUtilities();
+  utilityCss += codeUtilities();
 
   // Add state, dark mode, and responsive variants to utilities
   utilityCss = addStateVariants(utilityCss);
@@ -886,6 +878,38 @@ function buildFullFramework() {
   /* Avoid overflow on long words */
   p, h1, h2, h3, h4, h5, h6 {
     overflow-wrap: break-word;
+  }
+
+  /* Code blocks — VSCode Dark+ style by default */
+  pre {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    padding: 1.25rem;
+    border-radius: 0 0 6px;
+    overflow-x: auto;
+    font-family: "Menlo", "Monaco", "Courier New", monospace;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    border: 1px solid #333;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+  }
+
+  /* Inline code */
+  code {
+    font-family: "Menlo", "Monaco", "Courier New", monospace;
+    font-size: 0.875em;
+    background-color: #2d2d2d;
+    color: #d4d4d4;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
   }
 ${bodyFont}`;
 
@@ -989,8 +1013,12 @@ function build(options = {}) {
   console.log('✓ File size: ' + (result.outputSize / 1024).toFixed(2) + ' KB');
 
   if (!options.keepFull && fs.existsSync(cssPath)) {
-    fs.unlinkSync(cssPath);
-    console.log('Removed dist/emily.css for production build.');
+    try {
+      fs.unlinkSync(cssPath);
+      console.log('Removed dist/emily.css for production build.');
+    } catch (e) {
+      // Windows FUSE: can't delete, non-fatal
+    }
   }
 
   console.log('Build complete');
@@ -1018,4 +1046,5 @@ module.exports = {
   addStateVariants,
   addResponsiveVariants,
   generateFontCSS,
+  codeUtilities,
 };

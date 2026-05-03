@@ -529,16 +529,15 @@ section('11. Font CSS Generation');
 
 const { generateFontCSS } = require('../src/index.js');
 
-test('object format: imports both Google Fonts when heading and body differ', () => {
+test('object format: no @import generated — font loading is the user\'s responsibility', () => {
   const { fontFace } = generateFontCSS({ fontFamily: { heading: 'lexend', body: 'inter' } });
-  assert.ok(fontFace.includes('Lexend'), 'Missing Lexend import');
-  assert.ok(fontFace.includes('Inter'), 'Missing Inter import');
+  assert.strictEqual(fontFace, '', 'Should produce no @import — emilyCSS does not load font files');
 });
 
-test('object format: dedupes import when heading and body use the same font', () => {
+test('object format: no @import even when heading and body use the same font', () => {
   const { fontFace } = generateFontCSS({ fontFamily: { heading: 'inter', body: 'inter' } });
   const count = (fontFace.match(/@import/g) || []).length;
-  assert.strictEqual(count, 1, 'Should only have one @import for same font');
+  assert.strictEqual(count, 0, 'Should have no @import');
 });
 
 test('object format: sets body font-family on body element', () => {
@@ -555,14 +554,14 @@ test('object format: sets heading font-family on h1-h6', () => {
 
 test('string format: backwards compat — single font applied to both body and headings', () => {
   const { fontFace, bodyFont } = generateFontCSS({ fontFamily: 'inter' });
-  assert.ok(fontFace.includes('Inter'), 'Missing Inter import');
-  assert.ok(bodyFont.includes('"Inter"'), 'Body should use Inter');
+  assert.strictEqual(fontFace, '', 'Should produce no @import');
+  assert.ok(bodyFont.includes('"Inter"'), 'Body should use Inter font stack');
   assert.ok(bodyFont.includes('h1, h2, h3, h4, h5, h6'), 'Missing heading rule');
 });
 
-test('non-Google font produces no @import', () => {
+test('no @import for any font preset', () => {
   const { fontFace } = generateFontCSS({ fontFamily: { heading: 'georgia', body: 'system' } });
-  assert.strictEqual(fontFace, '', 'Should have no @import for non-Google fonts');
+  assert.strictEqual(fontFace, '', 'Should have no @import for any font preset');
 });
 
 // ─── 12. Build Output (integration) ──────────────────────────────────────────
