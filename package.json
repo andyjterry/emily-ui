@@ -17,7 +17,8 @@
     "dev": "nodemon src/index.js",
     "init": "node src/init.js",
     "test": "node tests/test.js",
-    "emily:showcase": "node src/showcase.js"
+    "emily:showcase": "node src/showcase.js",
+    "release": "node src/release.js"
   },
   "keywords": [
     "css",
