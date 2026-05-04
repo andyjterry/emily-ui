@@ -131,8 +131,49 @@ async function main() {
     console.log(chalk.dim(`    git add package.json CHANGELOG.md && git commit -m "chore: release v${newVersion}" && git tag v${newVersion}`))
   }
 
-  console.log(chalk.dim(`\n  Push when ready:`))
-  console.log(chalk.dim(`    git push && git push --tags\n`))
+  // Push to GitHub
+  const { pushNow } = await prompt({
+    type: 'confirm',
+    name: 'pushNow',
+    message: 'Push to GitHub now? (git push + tags)',
+    initial: true,
+  })
+
+  if (pushNow) {
+    try {
+      execSync('git push', { cwd: ROOT, stdio: 'inherit' })
+      execSync('git push --tags', { cwd: ROOT, stdio: 'inherit' })
+      console.log(chalk.green('  ✓ Pushed to GitHub'))
+    } catch (err) {
+      console.log(chalk.yellow('  ⚠ Push failed — run manually:'))
+      console.log(chalk.dim('    git push && git push --tags'))
+    }
+  } else {
+    console.log(chalk.dim('  Push manually when ready: git push && git push --tags'))
+  }
+
+  // npm publish
+  const { publishNow } = await prompt({
+    type: 'confirm',
+    name: 'publishNow',
+    message: `Publish v${newVersion} to npm?`,
+    initial: true,
+  })
+
+  if (publishNow) {
+    try {
+      execSync('npm publish', { cwd: ROOT, stdio: 'inherit' })
+      console.log(chalk.green(`  ✓ Published emily-css@${newVersion} to npm`))
+    } catch (err) {
+      console.log(chalk.yellow('  ⚠ npm publish failed'))
+      console.log(chalk.dim('  Make sure you are logged in: npm login'))
+      console.log(chalk.dim(`  Then run: npm publish`))
+    }
+  } else {
+    console.log(chalk.dim(`  Publish manually when ready: npm publish`))
+  }
+
+  console.log(chalk.bold(`\n  v${newVersion} shipped.\n`))
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────

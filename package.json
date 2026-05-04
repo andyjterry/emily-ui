@@ -20,7 +20,8 @@
     "test": "node tests/test.js",
     "emily:showcase": "node src/showcase.js",
     "commit": "node scripts/commit.js",
-    "release": "node scripts/release.js"
+    "release": "node scripts/release.js",
+    "ship": "node scripts/ship.js"
   },
   "keywords": [
     "css",
