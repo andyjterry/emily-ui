@@ -4,6 +4,11 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.0.12 — May 2026
+
+****
+
+---
 ## v1.0.11 — May 2026
 
 ****
