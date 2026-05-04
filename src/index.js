@@ -172,6 +172,18 @@ const FONT_PRESETS = {
   'georgia': {
     stack: 'Georgia, "Times New Roman", serif',
   },
+  'dm-sans': {
+    name: 'DM Sans',
+    stack: '"DM Sans", system-ui, sans-serif',
+  },
+  'nunito': {
+    name: 'Nunito',
+    stack: '"Nunito", system-ui, sans-serif',
+  },
+  'atkinson': {
+    name: 'Atkinson Hyperlegible',
+    stack: '"Atkinson Hyperlegible", system-ui, sans-serif',
+  },
   'mono': {
     stack: '"Menlo", "Monaco", "Courier New", monospace',
   },

@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const crossSpawn = require("cross-spawn");
-const { Form, Select, Input } = require("enquirer");
+const { Select, Input, Confirm } = require("enquirer");
 const chalk = require("chalk");
 const ora = require("ora");
 const boxen = require("boxen");
@@ -23,62 +23,50 @@ const DEFAULT_PURGE_IGNORE = [
   ".vite",
 ];
 
-const DEFAULT_COLOURS = {
-  primary: "#DB2777",
-  secondary: "#2563EB",
-  success: "#017F65",
-  warning: "#FFC107",
-  error: "#B20000",
-  neutral: "#57534E",
-};
-
 const COLOUR_PRESETS = {
   primary: [
+    { value: "custom", label: "Enter your own hex" },
     { value: "#DB2777", label: "Emily Pink" },
-    { value: "#114B5F", label: "Deep Teal" },
     { value: "#2563EB", label: "Blue" },
-    { value: "#017F65", label: "Green" },
-    { value: "custom", label: "Custom hex" },
+    { value: "#028090", label: "Teal" },
+    { value: "#114B5F", label: "Deep Teal" },
+    { value: "#15803D", label: "Green" },
+    { value: "#7C3AED", label: "Purple" },
+    { value: "#E05C00", label: "Burnt Orange" },
   ],
   secondary: [
+    { value: "custom", label: "Enter your own hex" },
     { value: "#2563EB", label: "Blue" },
     { value: "#028090", label: "Teal" },
     { value: "#7C3AED", label: "Purple" },
     { value: "#DB2777", label: "Emily Pink" },
-    { value: "custom", label: "Custom hex" },
+    { value: "#F59E0B", label: "Amber" },
+    { value: "#57534E", label: "Warm Grey" },
   ],
   success: [
-    { value: "#017F65", label: "Accessible Green" },
+    { value: "#017F65", label: "Accessible Green (recommended)" },
     { value: "#15803D", label: "Forest Green" },
-    { value: "#50C878", label: "Emerald" },
-    { value: "custom", label: "Custom hex" },
+    { value: "custom", label: "Enter your own hex" },
   ],
   warning: [
-    { value: "#FFC107", label: "Amber" },
-    { value: "#F59E0B", label: "Orange" },
-    { value: "#FFBF00", label: "Yellow" },
-    { value: "custom", label: "Custom hex" },
+    { value: "#FFC107", label: "Amber (recommended)" },
+    { value: "#F59E0B", label: "Orange Amber" },
+    { value: "custom", label: "Enter your own hex" },
   ],
   error: [
-    { value: "#B20000", label: "Accessible Red" },
+    { value: "#B20000", label: "Accessible Red (recommended)" },
     { value: "#DC2626", label: "Red" },
-    { value: "#F45B69", label: "Coral" },
-    { value: "custom", label: "Custom hex" },
-  ],
-  neutral: [
-    { value: "#57534E", label: "Warm Grey" },
-    { value: "#334155", label: "Slate" },
-    { value: "#111827", label: "Near Black" },
-    { value: "custom", label: "Custom hex" },
+    { value: "custom", label: "Enter your own hex" },
   ],
 };
 
 const FONT_OPTIONS = [
-  { name: "lexend", message: "Lexend" },
-  { name: "inter", message: "Inter" },
-  { name: "system", message: "System sans" },
-  { name: "georgia", message: "Georgia" },
-  { name: "mono", message: "Monospace" },
+  { name: "lexend", message: "Lexend (clear, accessible - recommended)" },
+  { name: "inter", message: "Inter (clean, widely used)" },
+  { name: "dm-sans", message: "DM Sans (modern, geometric)" },
+  { name: "nunito", message: "Nunito (friendly, rounded)" },
+  { name: "atkinson", message: "Atkinson Hyperlegible (maximum legibility)" },
+  { name: "system", message: "System sans-serif (no download required)" },
 ];
 
 const PURGE_EXTENSIONS = [
@@ -109,47 +97,69 @@ function isValidHex(hex) {
   return /^#[0-9A-F]{6}$/i.test(hex);
 }
 
-function colourChoice(hex, label) {
-  if (hex === "custom") {
-    return {
-      name: "custom",
-      message: "Custom hex",
-    };
-  }
-
-  return {
-    name: hex,
-    message: `${chalk.hex(hex)("■")} ${label} ${chalk.gray(hex)}`,
-  };
+function colourSwatch(hex) {
+  return chalk.hex(hex)("■");
 }
 
-async function askColour(colourName) {
-  const choices = COLOUR_PRESETS[colourName].map((option) =>
-    colourChoice(option.value, option.label),
-  );
-
-  const selected = await new Select({
-    name: colourName,
-    message: `${colourName} colour`,
-    choices,
-  }).run();
-
-  if (selected !== "custom") {
-    return selected.toUpperCase();
-  }
-
-  const custom = await new Input({
-    name: `${colourName}Custom`,
-    message: `Enter custom ${colourName} hex`,
-    initial: DEFAULT_COLOURS[colourName],
+async function askHex(promptName, message, initial) {
+  const value = await new Input({
+    name: promptName,
+    message,
+    initial: initial || "#000000",
     validate(value) {
-      return isValidHex(value)
-        ? true
-        : "Enter a valid hex colour, for example #0077B6";
+      return isValidHex(value) ? true : "Enter a valid hex colour, e.g. #0077B6";
     },
   }).run();
+  return value.toUpperCase();
+}
 
-  return custom.toUpperCase();
+async function askColourFromPresets(label, presets, defaultHex) {
+  const choices = presets.map(function(opt) {
+    if (opt.value === "custom") {
+      return { name: "custom", message: "Enter your own hex" };
+    }
+    return {
+      name: opt.value,
+      message: colourSwatch(opt.value) + " " + opt.label + " " + chalk.gray(opt.value),
+    };
+  });
+
+  const selected = await new Select({
+    name: label,
+    message: label + " colour",
+    choices: choices,
+  }).run();
+
+  if (selected !== "custom") return selected.toUpperCase();
+  return askHex(label + "Custom", "Enter " + label + " hex", defaultHex);
+}
+
+async function askBtnColour(label, matchLabel, matchHex, presets) {
+  const sameChoice = {
+    name: matchHex,
+    message: colourSwatch(matchHex) + " Same as " + matchLabel + " " + chalk.gray(matchHex),
+  };
+
+  const otherChoices = presets
+    .filter(function(opt) { return opt.value !== matchHex; })
+    .map(function(opt) {
+      if (opt.value === "custom") {
+        return { name: "custom", message: "Enter your own hex" };
+      }
+      return {
+        name: opt.value,
+        message: colourSwatch(opt.value) + " " + opt.label + " " + chalk.gray(opt.value),
+      };
+    });
+
+  const selected = await new Select({
+    name: label,
+    message: label + " colour",
+    choices: [sameChoice].concat(otherChoices),
+  }).run();
+
+  if (selected !== "custom") return selected.toUpperCase();
+  return askHex(label + "Custom", "Enter " + label + " hex", matchHex);
 }
 
 function hasFile(fileName) {
@@ -158,11 +168,7 @@ function hasFile(fileName) {
 
 function readPackageJson() {
   const packagePath = path.join(process.cwd(), "package.json");
-
-  if (!fs.existsSync(packagePath)) {
-    return null;
-  }
-
+  if (!fs.existsSync(packagePath)) return null;
   try {
     return JSON.parse(fs.readFileSync(packagePath, "utf8"));
   } catch {
@@ -172,7 +178,6 @@ function readPackageJson() {
 
 function hasDependency(packageJson, dependencyName) {
   if (!packageJson) return false;
-
   return Boolean(
     packageJson.dependencies?.[dependencyName] ||
     packageJson.devDependencies?.[dependencyName],
@@ -181,35 +186,26 @@ function hasDependency(packageJson, dependencyName) {
 
 function addEmilyScriptsToPackageJson() {
   const packagePath = path.join(process.cwd(), "package.json");
-
-  if (!fs.existsSync(packagePath)) {
-    return false;
-  }
-
+  if (!fs.existsSync(packagePath)) return false;
   try {
     const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
-
     packageJson.scripts = packageJson.scripts || {};
-
     let changed = false;
-
-    if (!packageJson.scripts["emily:build"]) {
-      packageJson.scripts["emily:build"] = "emily-css build";
-      changed = true;
+    const scripts = {
+      "emily:build": "emily-css build",
+      "emily:watch": "emily-css watch",
+      "emily:help": "emily-css help",
+      "emily:showcase": "emily-css showcase",
+    };
+    for (const [key, val] of Object.entries(scripts)) {
+      if (!packageJson.scripts[key]) {
+        packageJson.scripts[key] = val;
+        changed = true;
+      }
     }
-
-    if (!packageJson.scripts["emily:watch"]) {
-      packageJson.scripts["emily:watch"] = "emily-css watch";
-      changed = true;
-    }
-
     if (changed) {
-      fs.writeFileSync(
-        packagePath,
-        JSON.stringify(packageJson, null, 2) + "\n",
-      );
+      fs.writeFileSync(packagePath, JSON.stringify(packageJson, null, 2) + "\n");
     }
-
     return true;
   } catch {
     return false;
@@ -323,22 +319,20 @@ function createDefaultConfig({
   colours,
   headingFont,
   bodyFont,
-  monoFont,
   baseUnit,
   detectedProject,
   sourceDir,
 }) {
   return {
     name,
-    description: `${name} design system`,
+    description: name + " design system",
 
-    baseUnit: `${baseUnit}px`,
+    baseUnit: baseUnit + "px",
     baseFontSize: "16px",
 
     fontFamily: {
       heading: headingFont,
       body: bodyFont,
-      mono: monoFont,
     },
 
     customFonts: [],
@@ -475,29 +469,26 @@ function createDefaultConfig({
 // ============================================================================
 
 async function init() {
-  console.log(
-    chalk.bold.magenta("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"),
-  );
+  console.log(chalk.bold.magenta("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"));
   console.log(chalk.bold.magenta("  EmilyUI Setup"));
-  console.log(
-    chalk.bold.magenta("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"),
-  );
+  console.log(chalk.bold.magenta("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"));
 
   try {
     const spinner = ora("Analysing project structure...").start();
     const detectedProject = detectProject();
-    spinner.succeed(`Detected project: ${chalk.cyan(detectedProject.name)}`);
+    spinner.succeed("Detected project: " + chalk.cyan(detectedProject.name));
 
-    const { projectName } = await new Form({
-      name: "project",
-      message: "Project details",
-      choices: [
-        {
-          name: "projectName",
-          message: "Project name",
-          initial: "My Design System",
-        },
-      ],
+    // Derive a sensible default name from package.json if available
+    const packageJsonData = readPackageJson();
+    const pkgName = packageJsonData && packageJsonData.name
+      ? packageJsonData.name.replace(/-/g, " ").replace(/\b\w/g, function(c) { return c.toUpperCase(); })
+      : "My Design System";
+
+    const projectName = await new Input({
+      name: "projectName",
+      message: "Project name",
+      initial: pkgName,
+      validate: function(v) { return v.trim() ? true : "Project name is required"; },
     }).run();
 
     if (!projectName || !projectName.trim()) {
@@ -505,15 +496,69 @@ async function init() {
       process.exit(1);
     }
 
-    console.log(chalk.bold(`\n${chalk.magenta("→")} Brand colours`));
+    // =========================================================================
+    // COLOURS
+    // =========================================================================
 
-    const normalisedColours = {};
+    console.log(chalk.bold("\n" + chalk.magenta("→") + " Brand colours"));
 
-    for (const colourName of Object.keys(DEFAULT_COLOURS)) {
-      normalisedColours[colourName] = await askColour(colourName);
+    const primary = await askColourFromPresets("primary", COLOUR_PRESETS.primary, "#DB2777");
+    const secondary = await askColourFromPresets("secondary", COLOUR_PRESETS.secondary, "#2563EB");
+    const btnPrimary = await askBtnColour("btn-primary", "primary", primary, COLOUR_PRESETS.primary);
+    const btnSecondary = await askBtnColour("btn-secondary", "secondary", secondary, COLOUR_PRESETS.secondary);
+
+    console.log(chalk.bold("\n" + chalk.magenta("→") + " Utility colours"));
+    console.log(chalk.gray("  Defaults shown. Press enter to accept or pick an alternative.\n"));
+
+    const success = await askColourFromPresets("success", COLOUR_PRESETS.success, "#017F65");
+    const warning = await askColourFromPresets("warning", COLOUR_PRESETS.warning, "#FFC107");
+    const error = await askColourFromPresets("error", COLOUR_PRESETS.error, "#B20000");
+
+    const colours = {
+      primary: primary,
+      secondary: secondary,
+      "btn-primary": btnPrimary,
+      "btn-secondary": btnSecondary,
+      success: success,
+      warning: warning,
+      error: error,
+      neutral: "#57534E",
+    };
+
+    // Additional utility colours
+    let addingMore = true;
+    while (addingMore) {
+      const wantsMore = await new Confirm({
+        name: "addMore",
+        message: "Add another utility colour?",
+        initial: false,
+      }).run();
+
+      if (!wantsMore) {
+        addingMore = false;
+        break;
+      }
+
+      const customName = await new Input({
+        name: "customName",
+        message: "Colour name (e.g. accent, highlight, brand-dark)",
+        validate: function(value) {
+          const trimmed = value.trim();
+          if (!trimmed) return "Name is required";
+          if (!/^[a-z][a-z0-9-]*$/.test(trimmed)) return "Use lowercase letters, numbers, and hyphens only";
+          if (colours[trimmed]) return '"' + trimmed + '" is already defined';
+          return true;
+        },
+      }).run();
+
+      colours[customName.trim()] = await askHex("hex-" + customName, "Hex for " + customName, "#000000");
     }
 
-    console.log(chalk.bold(`\n${chalk.magenta("→")} Typography`));
+    // =========================================================================
+    // TYPOGRAPHY
+    // =========================================================================
+
+    console.log(chalk.bold("\n" + chalk.magenta("→") + " Typography"));
 
     const headingFont = await new Select({
       name: "headingFont",
@@ -529,59 +574,47 @@ async function init() {
       initial: 1,
     }).run();
 
-    const monoFont = await new Select({
-      name: "monoFont",
-      message: "Monospace font",
-      choices: FONT_OPTIONS,
-      initial: 4,
-    }).run();
+    // =========================================================================
+    // SPACING
+    // =========================================================================
 
-    const { baseUnitInput } = await new Form({
-      name: "spacing",
-      message: "Spacing",
-      choices: [
-        {
-          name: "baseUnitInput",
-          message: "Base spacing unit in px",
-          initial: "8",
-        },
-      ],
-      validate(values) {
-        const parsed = Number.parseInt(values.baseUnitInput, 10);
-
-        if (Number.isNaN(parsed) || parsed <= 0) {
-          return "Base spacing unit must be a positive number.";
-        }
-
+    const baseUnitRaw = await new Input({
+      name: "baseUnit",
+      message: "Base spacing unit in px (18px = 1.125rem)",
+      initial: "18",
+      validate: function(value) {
+        const parsed = Number.parseInt(value, 10);
+        if (Number.isNaN(parsed) || parsed <= 0) return "Must be a positive number.";
         return true;
       },
     }).run();
 
-    const baseUnit = Number.parseInt(baseUnitInput, 10);
+    const baseUnit = Number.parseInt(baseUnitRaw, 10);
 
-    console.log(chalk.bold(`\n${chalk.magenta("→")} Purge settings`));
+    // =========================================================================
+    // PURGE
+    // =========================================================================
 
-    const { sourceDir } = await new Form({
-      name: "paths",
-      message: `Detected ${detectedProject.name} project`,
-      choices: [
-        {
-          name: "sourceDir",
-          message: "Scan directory",
-          initial: detectedProject.sourceDir,
-        },
-      ],
+    console.log(chalk.bold("\n" + chalk.magenta("→") + " Purge settings"));
+
+    const sourceDirRaw = await new Input({
+      name: "sourceDir",
+      message: "Detected " + detectedProject.name + " — scan directory",
+      initial: detectedProject.sourceDir,
     }).run();
+
+    // =========================================================================
+    // BUILD
+    // =========================================================================
 
     const config = createDefaultConfig({
       name: projectName.trim(),
-      colours: normalisedColours,
-      headingFont,
-      bodyFont,
-      monoFont,
-      baseUnit,
-      detectedProject,
-      sourceDir: sourceDir.trim() || detectedProject.sourceDir,
+      colours: colours,
+      headingFont: headingFont,
+      bodyFont: bodyFont,
+      baseUnit: baseUnit,
+      detectedProject: detectedProject,
+      sourceDir: sourceDirRaw.trim() || detectedProject.sourceDir,
     });
 
     const configPath = path.join(process.cwd(), "emily.config.json");
@@ -597,12 +630,9 @@ async function init() {
     });
 
     let stderr = "";
+    build.stderr.on("data", function(data) { stderr += data.toString(); });
 
-    build.stderr.on("data", (data) => {
-      stderr += data.toString();
-    });
-
-    build.on("close", (code) => {
+    build.on("close", async function(code) {
       if (code === 0) {
         buildSpinner.succeed("EmilyUI CSS built successfully.");
 
@@ -610,57 +640,69 @@ async function init() {
 
         console.log(
           "\n" +
-            boxen(
-              chalk.green.bold("Setup complete") +
-                `\n\nConfig: ${chalk.cyan("emily.config.json")}` +
-                `\nOutput: ${chalk.cyan("dist/emily.min.css")}` +
-                `\nProject: ${chalk.cyan(detectedProject.name)}` +
-                `\nScan: ${chalk.cyan(config.purge.sourceDir)}` +
-                `\n\nNext: add ${chalk.yellow("dist/emily.min.css")} to your project.` +
-                (scriptsAdded
-                  ? `\n\nScripts:\n${chalk.cyan("npm run emily:build")}\n${chalk.cyan("npm run emily:watch")}`
-                  : ""),
-              {
-                padding: 1,
-                margin: 1,
-                borderStyle: "round",
-                borderColor: "magenta",
-              },
-            ),
+          boxen(
+            chalk.green.bold("Setup complete") +
+            "\n\nConfig:   " + chalk.cyan("emily.config.json") +
+            "\nOutput:   " + chalk.cyan("dist/emily.min.css") +
+            "\nProject:  " + chalk.cyan(detectedProject.name) +
+            "\nScan:     " + chalk.cyan(config.purge.sourceDir) +
+            "\n\nNext: link " + chalk.yellow("dist/emily.min.css") + " in your project." +
+            (scriptsAdded
+              ? "\n\nScripts added:\n" +
+                chalk.cyan("  npm run emily:build\n") +
+                chalk.cyan("  npm run emily:watch\n") +
+                chalk.cyan("  npm run emily:showcase\n") +
+                chalk.cyan("  npm run emily:help")
+              : ""),
+            { padding: 1, margin: 1, borderStyle: "round", borderColor: "magenta" },
+          ),
         );
+
+        const startWatch = await new Confirm({
+          name: "startWatch",
+          message: "Start the file watcher now?",
+          initial: true,
+        }).run();
+
+        if (startWatch) {
+          console.log(chalk.cyan("\nStarting watcher — press Ctrl+C to stop.\n"));
+          const watcher = crossSpawn("npx", ["emily-css", "watch"], {
+            cwd: process.cwd(),
+            stdio: "inherit",
+            shell: process.platform === "win32",
+          });
+          watcher.on("close", function(c) { process.exit(c || 0); });
+        } else {
+          console.log(chalk.gray("\nRun the watcher any time with: npm run emily:watch\n"));
+          process.exit(0);
+        }
       } else {
         buildSpinner.fail("Automatic build failed.");
-
         console.log("\nYour config was created, but CSS was not built.");
-        console.log("\nRun this manually:\n");
+        console.log("\nRun manually:\n");
         console.log(chalk.cyan("  npx emily-css build"));
-
         if (stderr.trim()) {
           console.log(chalk.gray("\nBuild error:\n"));
           console.log(stderr.trim());
         }
+        process.exit(1);
       }
-
-      process.exit(code === 0 ? 0 : 1);
     });
 
-    build.on("error", (error) => {
+    build.on("error", function(error) {
       buildSpinner.fail("Automatic build failed.");
-
       console.log("\nYour config was created, but CSS was not built.");
-      console.log(`Reason: ${error.message}`);
-      console.log("\nRun this manually:\n");
+      console.log("Reason: " + error.message);
+      console.log("\nRun manually:\n");
       console.log(chalk.cyan("  npx emily-css build\n"));
-
       process.exit(1);
     });
+
   } catch (error) {
     console.log(chalk.red("\nSetup cancelled or failed."));
-
     if (error && error.message) {
       console.log(chalk.gray(error.message));
     }
-
     process.exit(1);
   }
 }
