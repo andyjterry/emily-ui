@@ -10,7 +10,8 @@
     "bin/",
     "src/",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "node src/index.js",
@@ -18,8 +19,8 @@
     "init": "node src/init.js",
     "test": "node tests/test.js",
     "emily:showcase": "node src/showcase.js",
-    "commit": "node src/commit.js",
-    "release": "node src/release.js"
+    "commit": "node scripts/commit.js",
+    "release": "node scripts/release.js"
   },
   "keywords": [
     "css",
