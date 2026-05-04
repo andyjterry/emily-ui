@@ -8,7 +8,7 @@ const fs = require('fs')
 const path = require('path')
 
 const ROOT = path.join(__dirname, '..')
-const CHANGELOG_PATH = path.join(ROOT, '../emilyui-site/data/changelog.ts')
+const CHANGELOG_PATH = path.join(ROOT, 'CHANGELOG.md')
 const PACKAGE_PATH = path.join(ROOT, 'package.json')
 
 async function main() {
@@ -115,29 +115,20 @@ async function main() {
   execSync(`npm version ${bumpType} --no-git-tag-version`, { cwd: ROOT, stdio: 'inherit' })
   console.log(chalk.green(`\n  ✓ package.json → v${newVersion}`))
 
-  // Write to changelog.ts if it exists
-  const changelogExists = fs.existsSync(CHANGELOG_PATH)
-  if (changelogExists) {
-    const entry = buildEntry(newVersion, bumpType, title, parsed)
-    prependToChangelog(CHANGELOG_PATH, entry)
-    console.log(chalk.green(`  ✓ changelog.ts updated`))
-  } else {
-    console.log(chalk.yellow(`  ⚠ changelog.ts not found at expected path — skipping`))
-    console.log(chalk.dim(`    Expected: ${CHANGELOG_PATH}`))
-  }
+  // Write CHANGELOG.md in the package root
+  const entry = buildMarkdownEntry(newVersion, title, parsed)
+  prependToChangelog(CHANGELOG_PATH, entry)
+  console.log(chalk.green(`  ✓ CHANGELOG.md updated`))
 
-  // Git commit + tag
+  // Commit package.json + CHANGELOG.md, then tag
   try {
-    execSync(`git add "${PACKAGE_PATH}"`, { cwd: ROOT })
-    if (changelogExists) {
-      execSync(`git add "${CHANGELOG_PATH}"`, { cwd: ROOT })
-    }
+    execSync(`git add package.json CHANGELOG.md`, { cwd: ROOT })
     execSync(`git commit -m "chore: release v${newVersion}"`, { cwd: ROOT, stdio: 'inherit' })
     execSync(`git tag v${newVersion}`, { cwd: ROOT })
     console.log(chalk.green(`  ✓ Committed and tagged v${newVersion}`))
   } catch (err) {
     console.log(chalk.yellow(`  ⚠ Git commit/tag failed — do it manually`))
-    console.log(chalk.dim(`    git commit -m "chore: release v${newVersion}" && git tag v${newVersion}`))
+    console.log(chalk.dim(`    git add package.json CHANGELOG.md && git commit -m "chore: release v${newVersion}" && git tag v${newVersion}`))
   }
 
   console.log(chalk.dim(`\n  Push when ready:`))
@@ -184,47 +175,54 @@ function clean(msg, prefix) {
   return msg.replace(new RegExp(`^${prefix}(\\([^)]+\\))?!?:\\s*`), '').trim()
 }
 
-function buildEntry(version, type, title, { added, fixed, changed, breaking }) {
-  const lines = ['  {']
-  lines.push(`    version: 'v${version}',`)
-  lines.push(`    date: '${monthYear()}',`)
-  lines.push(`    title: ${JSON.stringify(title)},`)
-  lines.push(`    type: '${type}',`)
+function buildMarkdownEntry(version, title, { added, fixed, changed, breaking }) {
+  const lines = []
+  lines.push(`## v${version} — ${monthYear()}`)
+  lines.push(``)
+  lines.push(`**${title}**`)
+  lines.push(``)
 
+  if (breaking.length) {
+    lines.push(`### Breaking changes`)
+    breaking.forEach(i => lines.push(`- ${i}`))
+    lines.push(``)
+  }
   if (added.length) {
-    lines.push(`    added: [`)
-    added.forEach(i => lines.push(`      ${JSON.stringify(i)},`))
-    lines.push(`    ],`)
+    lines.push(`### Added`)
+    added.forEach(i => lines.push(`- ${i}`))
+    lines.push(``)
   }
   if (fixed.length) {
-    lines.push(`    fixed: [`)
-    fixed.forEach(i => lines.push(`      ${JSON.stringify(i)},`))
-    lines.push(`    ],`)
+    lines.push(`### Fixed`)
+    fixed.forEach(i => lines.push(`- ${i}`))
+    lines.push(``)
   }
   if (changed.length) {
-    lines.push(`    changed: [`)
-    changed.forEach(i => lines.push(`      ${JSON.stringify(i)},`))
-    lines.push(`    ],`)
-  }
-  if (breaking.length) {
-    lines.push(`    breaking: [`)
-    breaking.forEach(i => lines.push(`      ${JSON.stringify(i)},`))
-    lines.push(`    ],`)
+    lines.push(`### Changed`)
+    changed.forEach(i => lines.push(`- ${i}`))
+    lines.push(``)
   }
 
-  lines.push(`  },`)
+  lines.push(`---`)
+  lines.push(``)
   return lines.join('\n')
 }
 
 function prependToChangelog(filePath, entry) {
-  let content = fs.readFileSync(filePath, 'utf8')
-  const marker = 'export const changelog: ChangelogEntry[] = ['
-  const idx = content.indexOf(marker)
-  if (idx === -1) {
-    throw new Error('Could not find changelog array in changelog.ts — check the file structure')
+  const header = `# Changelog\n\nAll notable changes to \`emily-css\` are documented here.\n\n---\n\n`
+  if (!fs.existsSync(filePath)) {
+    fs.writeFileSync(filePath, header + entry, 'utf8')
+    return
   }
-  const insertAt = idx + marker.length
-  content = content.slice(0, insertAt) + '\n' + entry + '\n' + content.slice(insertAt)
+  let content = fs.readFileSync(filePath, 'utf8')
+  // Insert after the header block (first --- separator)
+  const marker = '---\n\n'
+  const idx = content.indexOf(marker)
+  if (idx !== -1) {
+    content = content.slice(0, idx + marker.length) + entry + content.slice(idx + marker.length)
+  } else {
+    content = header + entry + content
+  }
   fs.writeFileSync(filePath, content, 'utf8')
 }
 

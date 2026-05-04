@@ -1,6 +1,6 @@
 {
   "name": "emily-css",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "A config-driven utility CSS framework. Define your brand once, generate the CSS.",
   "main": "src/index.js",
   "bin": {
@@ -18,6 +18,7 @@
     "init": "node src/init.js",
     "test": "node tests/test.js",
     "emily:showcase": "node src/showcase.js",
+    "commit": "node src/commit.js",
     "release": "node src/release.js"
   },
   "keywords": [
