@@ -509,6 +509,11 @@ function generateTypographyUtilities(config) {
   css += `.underline-offset-2 { text-underline-offset: 2px; }\n`;
   css += `.underline-offset-4 { text-underline-offset: 4px; }\n`;
   css += `.underline-offset-8 { text-underline-offset: 8px; }\n`;
+  css += `.decoration-auto { text-decoration-thickness: auto; }\n`;
+  css += `.decoration-from-font { text-decoration-thickness: from-font; }\n`;
+  css += `.decoration-1 { text-decoration-thickness: 1px; }\n`;
+  css += `.decoration-2 { text-decoration-thickness: 2px; }\n`;
+  css += `.decoration-4 { text-decoration-thickness: 4px; }\n`;
 
   // Font variant numeric
   css += `.normal-nums { font-variant-numeric: normal; }\n`;
@@ -761,6 +766,7 @@ function addStateVariants(css) {
   const states = [
     { name: 'hover', selector: ':hover' },
     { name: 'focus', selector: ':focus' },
+    { name: 'focus-within', selector: ':focus-within' },
     { name: 'focus-visible', selector: ':focus-visible' },
     { name: 'active', selector: ':active' },
     { name: 'disabled', selector: ':disabled' }
@@ -794,6 +800,63 @@ function addStateVariants(css) {
   });
 
   return variantCss;
+}
+
+
+// ============================================================================
+// PATTERN COMPONENTS
+// ============================================================================
+// Composite classes that combine multiple utilities into named patterns.
+// These live in @layer components so utilities always take precedence in the cascade.
+// Gap values reference spacing variables generated from emily.config.json,
+// with pixel fallbacks so they work even without the variables in scope.
+
+function generatePatternComponents() {
+  return `
+  /* ---- Centering ---- */
+
+  /* Full-viewport overlay centering — use for modals, lightboxes, toasts */
+  .center-screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Transform-based centering within a relative/absolute parent */
+  .center-absolute {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  /* ---- Reading / Prose ---- */
+
+  /* Comfortable reading column — limits line length, centers the block */
+  .prose {
+    max-width: 65ch;
+    margin-inline: auto;
+  }
+
+  /* ---- Composition ---- */
+
+  /* Vertical stack with consistent gap — replaces manual margin chains */
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4, 1rem);
+  }
+
+  /* Horizontal grouping with wrapping — for tags, button rows, icon lists */
+  .cluster {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4, 1rem);
+    align-items: center;
+  }
+`;
 }
 
 // ============================================================================
@@ -959,7 +1022,7 @@ ${bodyFont}`;
   css += `@layer theme {\n${variablesCss}}\n\n`;
   const baseStylesCss = generateBaseStyles(config);
   css += `@layer base {${baseCss}${baseStylesCss}}\n\n`;
-  css += `@layer components {\n  /* Reserved for component styles in a future release. */\n}\n\n`;
+  css += `@layer components {\n${generatePatternComponents()}}\n\n`;
   css += `@layer utilities {\n${utilityCss}}\n`;
 
   // Write output

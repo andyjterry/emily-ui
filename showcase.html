@@ -37,6 +37,7 @@
         <a class="text-neutral-80 hover:text-primary-80" href="#component-library">Components</a>
         <a class="text-neutral-80 hover:text-primary-80" href="#utility-coverage">Utilities</a>
         <a class="text-neutral-80 hover:text-primary-80" href="#accessibility-examples">A11y</a>
+        <a class="text-neutral-80 hover:text-primary-80" href="#patterns">Patterns</a>
       </div>
     </nav>
   </header>
@@ -583,7 +584,7 @@
       <h2 class="text-2xl font-bold mb-2">Accessibility examples</h2>
       <p class="text-neutral-80 mb-6">Examples for focus, labels, errors, hidden text and live messages.</p>
 
-      <a href="#main-content" class="sr-only focus:not-sr-only focus:bg-primary-80 focus:text-white focus:p-3 focus:rounded-md">
+      <a href="#main-content" class="skip-link">
         Skip to main content
       </a>
 
@@ -843,6 +844,140 @@
           <p class="font-bold">Production</p>
           <p class="text-sm text-neutral-70">Run npm run emily:build. Production should only ship dist/emily.min.css.</p>
         </div>
+      </div>
+    </section>
+
+
+    <section id="patterns" class="bg-white rounded-lg shadow-md border border-neutral-20 p-6 mb-6">
+      <h2 class="text-2xl font-bold mb-2">Pattern components</h2>
+      <p class="text-neutral-80 mb-6">Single classes that combine multiple utilities into named patterns. They live in <code class="text-sm bg-neutral-20 px-1 rounded">@layer components</code> so utility classes always override them.</p>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <div>
+          <h3 class="font-bold mb-3">.prose</h3>
+          <div class="bg-neutral-10 border border-neutral-20 rounded-t-lg p-6" style="min-height: 100px;">
+            <div class="prose">
+              <p class="text-neutral-80 leading-relaxed">Inside <code>.prose</code>. Line length is capped at 65 characters and the block centres itself — ideal for article copy and documentation.</p>
+            </div>
+          </div>
+          <div class="code-window" style="border-top-left-radius: 0; border-top-right-radius: 0; border-top: none;">
+            <div class="code-title-bar">
+              <span class="code-dot code-dot-red"></span><span class="code-dot code-dot-yellow"></span><span class="code-dot code-dot-green"></span>
+              <span class="code-filename">prose.html</span>
+            </div>
+            <pre><code><span class="token-tag">&lt;div</span> <span class="token-attr">class</span><span class="token-operator">=</span><span class="token-string">"prose"</span><span class="token-tag">&gt;</span>
+  <span class="token-tag">&lt;p&gt;</span>Article copy here.<span class="token-tag">&lt;/p&gt;</span>
+<span class="token-tag">&lt;/div&gt;</span>
+<span class="token-comment">&lt;!-- max-width: 65ch; margin-inline: auto --&gt;</span></code></pre>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="font-bold mb-3">.stack</h3>
+          <div class="bg-neutral-10 border border-neutral-20 rounded-t-lg p-6" style="min-height: 100px;">
+            <div class="stack">
+              <div class="bg-primary-20 text-primary-90 rounded-md p-3 text-sm font-medium">First item</div>
+              <div class="bg-primary-20 text-primary-90 rounded-md p-3 text-sm font-medium">Second item</div>
+              <div class="bg-primary-20 text-primary-90 rounded-md p-3 text-sm font-medium">Third item</div>
+            </div>
+          </div>
+          <div class="code-window" style="border-top-left-radius: 0; border-top-right-radius: 0; border-top: none;">
+            <div class="code-title-bar">
+              <span class="code-dot code-dot-red"></span><span class="code-dot code-dot-yellow"></span><span class="code-dot code-dot-green"></span>
+              <span class="code-filename">stack.html</span>
+            </div>
+            <pre><code><span class="token-tag">&lt;div</span> <span class="token-attr">class</span><span class="token-operator">=</span><span class="token-string">"stack"</span><span class="token-tag">&gt;</span>
+  <span class="token-tag">&lt;div&gt;</span>Item one<span class="token-tag">&lt;/div&gt;</span>
+  <span class="token-tag">&lt;div&gt;</span>Item two<span class="token-tag">&lt;/div&gt;</span>
+<span class="token-tag">&lt;/div&gt;</span>
+<span class="token-comment">&lt;!-- flex-direction: column; gap: var(--space-4) --&gt;</span></code></pre>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="font-bold mb-3">.cluster</h3>
+          <div class="bg-neutral-10 border border-neutral-20 rounded-t-lg p-6" style="min-height: 100px;">
+            <div class="cluster">
+              <span class="bg-primary-20 text-primary-90 px-3 py-1 rounded-full text-sm font-medium">Design systems</span>
+              <span class="bg-secondary-20 text-secondary-90 px-3 py-1 rounded-full text-sm font-medium">Accessible</span>
+              <span class="bg-success-20 text-success-90 px-3 py-1 rounded-full text-sm font-medium">No build step</span>
+              <span class="bg-warning-20 text-warning-90 px-3 py-1 rounded-full text-sm font-medium">Config-driven</span>
+            </div>
+          </div>
+          <div class="code-window" style="border-top-left-radius: 0; border-top-right-radius: 0; border-top: none;">
+            <div class="code-title-bar">
+              <span class="code-dot code-dot-red"></span><span class="code-dot code-dot-yellow"></span><span class="code-dot code-dot-green"></span>
+              <span class="code-filename">cluster.html</span>
+            </div>
+            <pre><code><span class="token-tag">&lt;div</span> <span class="token-attr">class</span><span class="token-operator">=</span><span class="token-string">"cluster"</span><span class="token-tag">&gt;</span>
+  <span class="token-tag">&lt;span&gt;</span>Tag one<span class="token-tag">&lt;/span&gt;</span>
+  <span class="token-tag">&lt;span&gt;</span>Tag two<span class="token-tag">&lt;/span&gt;</span>
+<span class="token-tag">&lt;/div&gt;</span>
+<span class="token-comment">&lt;!-- flex-wrap: wrap; gap: var(--space-4);
+     align-items: center --&gt;</span></code></pre>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="font-bold mb-3">.center-absolute</h3>
+          <div class="bg-neutral-10 border border-neutral-20 rounded-t-lg p-6" style="min-height: 160px;">
+            <div class="relative bg-neutral-20 rounded-md" style="height: 140px;">
+              <div class="center-absolute bg-white rounded-md shadow-md border border-neutral-30 p-4 text-sm text-center" style="width: max-content;">
+                <p class="font-semibold">Centred content</p>
+                <p class="text-neutral-70 text-xs mt-1">via .center-absolute</p>
+              </div>
+            </div>
+          </div>
+          <div class="code-window" style="border-top-left-radius: 0; border-top-right-radius: 0; border-top: none;">
+            <div class="code-title-bar">
+              <span class="code-dot code-dot-red"></span><span class="code-dot code-dot-yellow"></span><span class="code-dot code-dot-green"></span>
+              <span class="code-filename">center-absolute.html</span>
+            </div>
+            <pre><code><span class="token-tag">&lt;div</span> <span class="token-attr">class</span><span class="token-operator">=</span><span class="token-string">"relative"</span><span class="token-tag">&gt;</span>
+  <span class="token-tag">&lt;div</span> <span class="token-attr">class</span><span class="token-operator">=</span><span class="token-string">"center-absolute"</span><span class="token-tag">&gt;</span>
+    Centred content
+  <span class="token-tag">&lt;/div&gt;</span>
+<span class="token-tag">&lt;/div&gt;</span>
+<span class="token-comment">&lt;!-- position: absolute; top: 50%; left: 50%;
+     transform: translate(-50%, -50%) --&gt;</span></code></pre>
+          </div>
+        </div>
+
+        <div class="lg:col-span-2">
+          <h3 class="font-bold mb-3">.center-screen</h3>
+          <div class="border border-neutral-20 rounded-t-lg overflow-hidden bg-neutral-80" style="min-height: 200px; position: relative;">
+            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
+              <div class="bg-white rounded-lg shadow-lg border border-neutral-20 p-6 text-center" style="max-width: 340px; width: 90%;">
+                <h4 class="text-lg font-bold mb-2">Confirm action</h4>
+                <p class="text-neutral-80 text-sm mb-4">This is how center-screen looks. In production it uses position: fixed and covers the full viewport.</p>
+                <div class="flex gap-3" style="justify-content: center;">
+                  <button class="bg-primary-80 text-white px-4 py-2 rounded-md font-semibold text-sm">Confirm</button>
+                  <button class="border border-neutral-40 px-4 py-2 rounded-md text-sm">Cancel</button>
+                </div>
+              </div>
+            </div>
+            <p class="absolute top-3 right-3 text-xs text-neutral-40 font-medium">Simulated preview</p>
+          </div>
+          <div class="code-window" style="border-top-left-radius: 0; border-top-right-radius: 0; border-top: none;">
+            <div class="code-title-bar">
+              <span class="code-dot code-dot-red"></span><span class="code-dot code-dot-yellow"></span><span class="code-dot code-dot-green"></span>
+              <span class="code-filename">center-screen.html</span>
+            </div>
+            <pre><code><span class="token-comment">&lt;!-- Backdrop --&gt;</span>
+<span class="token-tag">&lt;div</span> <span class="token-attr">class</span><span class="token-operator">=</span><span class="token-string">"center-screen bg-neutral-90 opacity-50"</span><span class="token-tag">&gt;&lt;/div&gt;</span>
+
+<span class="token-comment">&lt;!-- Modal --&gt;</span>
+<span class="token-tag">&lt;div</span> <span class="token-attr">class</span><span class="token-operator">=</span><span class="token-string">"center-screen"</span><span class="token-tag">&gt;</span>
+  <span class="token-tag">&lt;div</span> <span class="token-attr">class</span><span class="token-operator">=</span><span class="token-string">"bg-white rounded-lg p-6 shadow-lg z-modal"</span><span class="token-tag">&gt;</span>
+    Modal content
+  <span class="token-tag">&lt;/div&gt;</span>
+<span class="token-tag">&lt;/div&gt;</span>
+<span class="token-comment">&lt;!-- position: fixed; inset: 0; display: flex;
+     align-items: center; justify-content: center --&gt;</span></code></pre>
+          </div>
+        </div>
+
       </div>
     </section>
 
