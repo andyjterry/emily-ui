@@ -16,6 +16,7 @@
   "scripts": {
     "build": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "dev:full": "nodemon src/index.js -- --keep-full",
     "init": "node src/init.js",
     "test": "node tests/test.js",
     "emily:showcase": "node src/showcase.js",
