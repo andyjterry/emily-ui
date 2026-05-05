@@ -1,326 +1,149 @@
-# EmilyUI
+# emilyCSS
 
-A config-driven utility CSS framework. Define your brand once, generate the CSS.
+**A config-driven design system generator for developers working in constrained or legacy environments.**
 
-**EmilyUI** is the ecosystem name. `emily-css` is the utility layer published on npm. It's both the package you install and the CLI you use to generate and purge CSS. More packages coming.
+Define your brand in one JSON file and generate a production-ready, accessibility-first stylesheet in seconds.
 
-## Features
+## The Mental Model
 
-- **Works anywhere** - Generate static CSS and drop it into any project, no build pipeline required.
-- **Config-driven** - Entire framework configured via `emily.config.json`
-- **Utility-first** - Composable utilities for layout, spacing, typography and colour
-- **Responsive ready** - All utilities work with responsive prefixes (`sm:`, `md:`, `lg:`, `xl:`, `2xl:`)
-- **State variants** - `hover:`, `focus-visible:`, `active:`, `disabled:` built-in
-- **Accessibility first** - WCAG 2.2 AA compliance in core utilities (focus rings, contrast, motion)
-- **Purge system** - Remove unused CSS automatically for production
+emilyCSS is built for real-world systems like **Drupal, Power Pages, WordPress, static HTML**, and other environments where modern build pipelines often don't exist.
+
+1. **Configure** — Define your brand colours, fonts, and spacing in `emily.config.json`
+2. **Generate** — Run one command to produce a clean, optimized CSS file
+3. **Deploy** — Link the stylesheet and copy production-ready components from the showcase
 
 ## Quick Start
 
-### 1. Install
-
-```bash
-npm install emily-css
-```
-
-### 2. Create your config
+### 1. Initialize
 
 ```bash
 npx emily-css init
 ```
 
-This walks you through:
+This creates your `emily.config.json`, walks you through your brand settings, and runs your first build.
 
-- Project name
-- Brand colours (primary, secondary, success, warning, error, neutral)
-- Font families
-- Base spacing unit
-- Source directory (used by the purge command)
-
-It then generates `emily.config.json` and runs your first build automatically.
-
-### 3. Link the CSS in your project
+### 2. Link the CSS
 
 ```html
-<link rel="stylesheet" href="./dist/emily.css">
+<link rel="stylesheet" href="./dist/emily.min.css">
 ```
 
-### 4. Use the utility classes
-
-```html
-<button class="px-4 py-2 rounded-md bg-primary-80 text-white hover:bg-primary-90 focus-visible:ring-2 focus-visible:ring-primary-50">
-  Button
-</button>
-```
-
-Colours, spacing and typography all come from your config.
-
-### 5. Purge unused CSS for production
+### 3. Development
 
 ```bash
-npx emily-css purge
+npx emily-css watch     # Rebuilds automatically on config/template changes
+npx emily-css build     # Manual rebuild
 ```
 
-Scans your template files, keeps only the utilities you actually use.
+Open the showcase:
 
-Output:
-- `dist/emily.purged.css` - Purged CSS
-- `dist/emily.purged.min.css` - Minified version
-
-Use the purged file in production:
-
-```html
-<link rel="stylesheet" href="./dist/emily.purged.min.css">
+```bash
+npm run emily:showcase   # Serves at http://localhost:3456
 ```
+
+## Core Features
+
+- **Token-Driven Colours** — One hex per colour → balanced 10-shade scale using OKLCH
+- **Predictable Spacing** — Everything scales from your baseUnit
+- **Accessibility First** — Focus-visible rings, motion utilities, WCAG 2.2 AA colours
+- **No Build Pipeline Required** — Just a static CSS file
+- **Smart Purge** — Remove unused utilities for tiny production files
+- **UI Starter Kit** — Copy-paste accessible components from the showcase
 
 ## Commands
 
 ```bash
-npx emily-css init     # Create emily.config.json and run first build
-npx emily-css build    # Regenerate CSS after config changes
-npx emily-css purge    # Remove unused utilities for production
-npm test              # Run test suite (if working on EmilyUI itself)
+npx emily-css init      # Setup + first build
+npx emily-css build     # Regenerate CSS
+npx emily-css watch     # Development watch mode
+npx emily-css purge     # Remove unused styles for production
 ```
 
 ## How Purge Works
 
-EmilyUI scans your template files for class names and removes any utilities you are not using.
+emilyCSS scans your templates for used class names and removes everything else.
 
-For example:
+Configure it in `emily.config.json`:
 
-```html
-<div class="p-4 bg-primary-80 rounded-lg">Content</div>
+```json
+"purge": {
+  "extensions": [".html", ".php", ".twig", ".liquid", ".jsx", ".vue", ".astro"]
+}
 ```
 
-EmilyUI keeps `.p-4`, `.bg-primary-80`, `.rounded-lg` and removes everything else.
+**Important:** Dynamically constructed classes (e.g. `bg-${colour}`) are not detected. Use static strings or add them to your safelist.
 
-Supported file types: `.html`, `.twig`, `.njk`, `.liquid`, `.hbs`, `.jsx`, `.tsx`, `.vue`, `.php`, `.astro`, `.svelte`, `.blade.php` (configurable via `extensions` in `emily.config.json`)
+## File Size (Typical)
 
-**Note:** Class names must exist as plain text in your files. Dynamically constructed class names will not be detected:
+| State | Size |
+|-------|------|
+| Full build | ~1.1 MB |
+| After purge | 10–50 KB |
 
-```js
-// This will be missed by purge:
-const colour = 'primary-80'
-const cls = `bg-${colour}`
-
-// This will be detected:
-const cls = 'bg-primary-80'
-```
-
-If you use dynamic classes, either keep them as plain strings or manually safelist them in your config.
-
-## File Size
-
-EmilyUI uses a purge-based approach (generate all utilities, then remove unused).
-
-| | Unpurged | Purged |
-|---|---|---|
-| Tailwind v2 | 2.4-8MB | under 10KB |
-| EmilyUI v1 | 1.1MB | 10-50KB |
-| Tailwind v3/v4 (JIT) | generates on demand | - |
-
-EmilyUI's unpurged file is roughly half the size of Tailwind v2. Post-purge sizes are comparable. JIT-style generation is planned for v2.
-
-## File Structure
-
-```
-emily-css/
-  ├── src/
-  │   ├── index.js          - Main build script
-  │   ├── generators.js     - Utility generation functions
-  │   ├── purge.js          - Purge system
-  │   ├── purge-cmd.js      - Purge CLI command
-  │   └── init.js           - Interactive setup
-  ├── dist/
-  │   ├── emily.css         - Generated CSS
-  │   ├── emily.min.css     - Minified CSS
-  │   ├── emily.purged.css  - Purged CSS
-  │   └── emily.purged.min.css
-  ├── showcase.html         - Example components
-  ├── emily.config.json     - Your config
-  ├── package.json
-  └── README.md
-```
-
-## Configuration
-
-Edit `emily.config.json` to customise:
+## Configuration Example
 
 ```json
 {
   "name": "My Brand",
-  "description": "Design system",
-
   "baseUnit": "8px",
-  "baseFontSize": "16px",
   "fontFamily": {
     "heading": "lexend",
     "body": "inter"
   },
-
   "colours": {
-    "primary": "#0077b6",
-    "secondary": "#006d9e",
-    "success": "#017f65",
-    "warning": "#ffc107",
-    "error": "#b20000",
-    "neutral": "#6b7280"
+    "primary": "#2563EB",
+    "neutral": "#57534E"
   },
-
-  "breakpoints": {
-    "sm": "640px",
-    "md": "768px",
-    "lg": "1024px",
-    "xl": "1280px",
-    "2xl": "1536px"
-  },
-
   "purge": {
-    "extensions": [".html", ".jsx", ".tsx", ".vue"]
+    "extensions": [".html", ".php", ".jsx", ".vue"]
   }
 }
 ```
 
-After editing, rebuild:
+After changes: `npx emily-css build`
 
-```bash
-npx emily-css build
-```
+## Component Showcase
 
-## Utilities
+After building, run `npm run emily:showcase` and visit `http://localhost:3456`. It contains production-ready, accessible components built with your exact brand.
 
-EmilyUI generates utilities across these categories:
+## EmilyUI vs emilyCSS
 
-- **Display** - block, inline, flex, grid, hidden
-- **Spacing** - margin (`m-`), padding (`p-`), gap (`gap-`)
-- **Sizing** - width (`w-`), height (`h-`), max-width, min-height
-- **Positioning** - absolute, relative, fixed, sticky, top, right, bottom, left
-- **Flexbox** - flex, flex-direction, justify-content, align-items, flex-wrap
-- **Grid** - grid, grid-cols, grid-rows, grid-gap
-- **Colours** - background (`bg-`), text, borders, accent for form controls
-- **Typography** - font-size, font-weight, line-height, text-align
-- **Borders** - border-width, border-style, border-colour, border-radius
-- **Shadows** - box-shadow, text-shadow
-- **Opacity** - opacity levels
-- **Accessibility** - sr-only, focus-visible, motion-safe, forced-colors
-- **State variants** - `hover:`, `focus-visible:`, `active:`, `disabled:`
-- **Responsive variants** - `sm:`, `md:`, `lg:`, `xl:`, `2xl:`
+- **EmilyUI** — The broader brand / ecosystem
+- **emilyCSS** — The current product (`emily-css` npm package + CLI)
 
-## Examples
+## Example Components
 
 ### Button
 
 ```html
-<button class="px-4 py-2 rounded-md bg-primary-80 text-white hover:bg-primary-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-50">
-  Click me
+<button class="px-6 py-3 rounded-lg bg-primary-80 text-white hover:bg-primary-90 focus-visible:ring-2 focus-visible:ring-primary-50 font-medium">
+  Submit
 </button>
 ```
 
 ### Responsive Card
 
 ```html
-<div class="w-full md:w-96 p-4 md:p-6 rounded-lg bg-neutral-10 border-1 border-neutral-30 shadow-md">
-  <h2 class="text-lg font-semibold text-neutral-90">Title</h2>
-  <p class="mt-2 text-sm text-neutral-70">Content</p>
+<div class="w-full md:w-96 p-6 rounded-lg bg-white border border-neutral-30 shadow-sm">
+  <h2 class="text-2xl font-semibold text-neutral-90">Card Title</h2>
+  <p class="mt-3 text-neutral-70">Content goes here.</p>
 </div>
 ```
 
-### Accessible Form Input
-
-```html
-<label for="email" class="block text-sm font-medium text-neutral-80">
-  Email
-</label>
-<input
-  id="email"
-  type="email"
-  class="mt-1 w-full px-3 py-2 border-1 border-neutral-40 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-50"
-/>
-```
-
-## Accessibility
-
-All utilities are built with WCAG 2.2 AA in mind:
-
-- **Focus rings** - Focus-visible states include proper colour contrast
-- **Colour contrast** - All colour scales meet AA contrast ratios
-- **Motion** - `motion-safe` and `motion-reduce` utilities for users with vestibular disorders
-- **Screen reader support** - `.sr-only` utility for screen-reader-only content
-- **Forced colours** - Utilities respect Windows High Contrast mode
-
-## Testing
-
-```bash
-npm test
-```
-
-72 automated tests covering colour generation, utilities, variants, config integrity, and build output. All passing.
-
-## Troubleshooting
-
-### Styles not applying?
-
-1. Check the responsive prefix: `.md\:flex` not `.md:flex`
-2. Verify class name spelling
-3. Clear browser cache and rebuild: `npx emily-css build`
-
-### File size too large?
-
-```bash
-npx emily-css purge
-```
-
-### Config not applying?
-
-1. Edit `emily.config.json`
-2. Run `npx emily-css build`
-3. No cache invalidation needed
-
 ## Fonts
 
-emilyCSS applies font-family stacks but does not load font files for you. This keeps the generated CSS self-contained and offline-capable.
+emilyCSS applies font stacks but does not include font files. Use `@fontsource` (recommended):
 
-Set `fontFamily` as an object to use different fonts for headings and body:
-
-```json
-"fontFamily": {
-  "heading": "lexend",
-  "body": "inter"
-}
+```bash
+npm install @fontsource/inter @fontsource/lexend
 ```
 
-Or as a string if you want one font throughout:
-
-```json
-"fontFamily": "inter"
-```
-
-Supported values: `inter`, `lexend`, `system` (system-ui stack), `georgia`, `mono`.
-
-**Loading the font files** is your responsibility. The easiest options:
-
-- **Self-host via @fontsource** (recommended — no external requests):
-  ```bash
-  npm install @fontsource/inter @fontsource/lexend
-  ```
-  Then import in your entry file or CSS:
-  ```js
-  import '@fontsource/inter/400.css'
-  import '@fontsource/inter/500.css'
-  import '@fontsource/lexend/700.css'
-  ```
-
-- **Google Fonts CDN** (external request — simpler for prototyping):
-  ```html
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lexend:wght@400;600;700&display=swap" rel="stylesheet">
-  ```
-
-- **Custom font**: add your own `@font-face` or `<link>` to your HTML before loading `emily.css`.
+Then import the weights you need.
 
 ## Support
 
-- Website: https://www.emilyui.com
-- GitHub: https://github.com/andyjterry/emily-ui
+- **Website:** https://www.emilyui.com
+- **GitHub:** https://github.com/andyjterry/emily-ui
 
 ## License
 
