@@ -4,6 +4,14 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.0.14 — May 2026
+
+**updated readme**
+
+### Changed
+- updated readme
+
+---
 ## v1.0.13 — May 2026
 
 **added functionality to commit to github and then push to npm release**
