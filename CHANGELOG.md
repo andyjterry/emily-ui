@@ -4,6 +4,14 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.0.16 — May 2026
+
+**feat: add Round 2 utility set — 156/156 tests passing**
+
+### Added
+- feat: add Round 2 utility set — 156/156 tests passing
+
+---
 ## v1.0.15 — May 2026
 
 **updated readme**
