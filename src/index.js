@@ -288,7 +288,13 @@ const {
   cursorUtilities,
   accessibilityUtilities,
   containerUtilities,
-  codeUtilities
+  codeUtilities,
+  animationUtilities,
+  backdropUtilities,
+  spaceUtilities,
+  divideUtilities,
+  backgroundUtilities,
+  filterUtilities,
 } = require('./generators');
 
 // ============================================================================
@@ -498,6 +504,22 @@ function generateTypographyUtilities(config) {
   css += `.underline { text-decoration: underline; }\n`;
   css += `.no-underline { text-decoration: none; }\n`;
   css += `.line-through { text-decoration: line-through; }\n`;
+  css += `.underline-offset-auto { text-underline-offset: auto; }\n`;
+  css += `.underline-offset-1 { text-underline-offset: 1px; }\n`;
+  css += `.underline-offset-2 { text-underline-offset: 2px; }\n`;
+  css += `.underline-offset-4 { text-underline-offset: 4px; }\n`;
+  css += `.underline-offset-8 { text-underline-offset: 8px; }\n`;
+
+  // Font variant numeric
+  css += `.normal-nums { font-variant-numeric: normal; }\n`;
+  css += `.ordinal { font-variant-numeric: ordinal; }\n`;
+  css += `.slashed-zero { font-variant-numeric: slashed-zero; }\n`;
+  css += `.lining-nums { font-variant-numeric: lining-nums; }\n`;
+  css += `.oldstyle-nums { font-variant-numeric: oldstyle-nums; }\n`;
+  css += `.proportional-nums { font-variant-numeric: proportional-nums; }\n`;
+  css += `.tabular-nums { font-variant-numeric: tabular-nums; }\n`;
+  css += `.diagonal-fractions { font-variant-numeric: diagonal-fractions; }\n`;
+  css += `.stacked-fractions { font-variant-numeric: stacked-fractions; }\n`;
 
   // Text transform
   css += `.uppercase { text-transform: uppercase; }\n`;
@@ -831,6 +853,12 @@ function buildFullFramework() {
   utilityCss += accessibilityUtilities();
   utilityCss += containerUtilities();
   utilityCss += codeUtilities();
+  utilityCss += animationUtilities();
+  utilityCss += backdropUtilities();
+  utilityCss += spaceUtilities(spacing);
+  utilityCss += divideUtilities(spacing, colours);
+  utilityCss += backgroundUtilities();
+  utilityCss += filterUtilities();
 
   // Add state, dark mode, and responsive variants to utilities
   utilityCss = addStateVariants(utilityCss);

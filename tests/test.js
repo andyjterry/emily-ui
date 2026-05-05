@@ -640,6 +640,493 @@ requireBuild('all 6 colour backgrounds exist in built CSS', () => {
   });
 });
 
+// ─── 13. New Utilities ────────────────────────────────────────────────────────
+
+// animationUtilities and backdropUtilities imported below via generators.js
+const { overflowUtilities, sizingUtilities, contentScrollUtilities, spaceUtilities, divideUtilities, backgroundUtilities, filterUtilities, opacityUtilities, cursorUtilities, ringUtilities, animationUtilities, backdropUtilities } = require('../src/generators.js');
+
+section('13. New Utilities');
+
+// Animations
+test('animationUtilities includes @keyframes spin', () => {
+  const css = animationUtilities();
+  assert.ok(css.includes('@keyframes spin'), 'Missing @keyframes spin');
+});
+
+test('animationUtilities includes @keyframes ping', () => {
+  const css = animationUtilities();
+  assert.ok(css.includes('@keyframes ping'), 'Missing @keyframes ping');
+});
+
+test('animationUtilities includes @keyframes pulse', () => {
+  const css = animationUtilities();
+  assert.ok(css.includes('@keyframes pulse'), 'Missing @keyframes pulse');
+});
+
+test('animationUtilities includes @keyframes bounce', () => {
+  const css = animationUtilities();
+  assert.ok(css.includes('@keyframes bounce'), 'Missing @keyframes bounce');
+});
+
+test('animationUtilities includes .animate-spin', () => {
+  const css = animationUtilities();
+  assert.ok(css.includes('.animate-spin {'), 'Missing .animate-spin');
+});
+
+test('animationUtilities includes .animate-pulse', () => {
+  const css = animationUtilities();
+  assert.ok(css.includes('.animate-pulse {'), 'Missing .animate-pulse');
+});
+
+test('animationUtilities includes .animate-ping', () => {
+  const css = animationUtilities();
+  assert.ok(css.includes('.animate-ping {'), 'Missing .animate-ping');
+});
+
+test('animationUtilities includes .animate-bounce', () => {
+  const css = animationUtilities();
+  assert.ok(css.includes('.animate-bounce {'), 'Missing .animate-bounce');
+});
+
+test('animationUtilities includes .animate-none', () => {
+  const css = animationUtilities();
+  assert.ok(css.includes('.animate-none {'), 'Missing .animate-none');
+});
+
+// Backdrop filters
+test('backdropUtilities includes .backdrop-blur-sm', () => {
+  const css = backdropUtilities();
+  assert.ok(css.includes('.backdrop-blur-sm {'), 'Missing .backdrop-blur-sm');
+});
+
+test('backdropUtilities includes .backdrop-blur-md', () => {
+  const css = backdropUtilities();
+  assert.ok(css.includes('.backdrop-blur-md {'), 'Missing .backdrop-blur-md');
+});
+
+test('backdropUtilities includes .backdrop-blur-xl', () => {
+  const css = backdropUtilities();
+  assert.ok(css.includes('.backdrop-blur-xl {'), 'Missing .backdrop-blur-xl');
+});
+
+test('backdropUtilities .backdrop-blur-md uses blur(12px)', () => {
+  const css = backdropUtilities();
+  assert.ok(
+    css.includes('.backdrop-blur-md { backdrop-filter: blur(12px); }'),
+    'backdrop-blur-md should use blur(12px)'
+  );
+});
+
+// line-clamp-1
+test('overflowUtilities includes .line-clamp-1', () => {
+  const css = overflowUtilities();
+  assert.ok(css.includes('.line-clamp-1 {'), 'Missing .line-clamp-1');
+});
+
+test('overflowUtilities line-clamp-1 uses -webkit-line-clamp: 1', () => {
+  const css = overflowUtilities();
+  assert.ok(
+    css.includes('-webkit-line-clamp: 1;'),
+    'line-clamp-1 should set -webkit-line-clamp: 1'
+  );
+});
+
+// max-w-prose
+test('sizingUtilities includes .max-w-prose', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const css = sizingUtilities(spacing);
+  assert.ok(css.includes('.max-w-prose {'), 'Missing .max-w-prose');
+});
+
+test('sizingUtilities .max-w-prose uses 65ch', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const css = sizingUtilities(spacing);
+  assert.ok(
+    css.includes('.max-w-prose { max-width: 65ch; }'),
+    'max-w-prose should be max-width: 65ch'
+  );
+});
+
+// Scroll snap align
+test('contentScrollUtilities includes .snap-start', () => {
+  const css = contentScrollUtilities();
+  assert.ok(css.includes('.snap-start {'), 'Missing .snap-start');
+});
+
+test('contentScrollUtilities includes .snap-center', () => {
+  const css = contentScrollUtilities();
+  assert.ok(css.includes('.snap-center {'), 'Missing .snap-center');
+});
+
+test('contentScrollUtilities includes .snap-end', () => {
+  const css = contentScrollUtilities();
+  assert.ok(css.includes('.snap-end {'), 'Missing .snap-end');
+});
+
+test('contentScrollUtilities snap-center uses scroll-snap-align: center', () => {
+  const css = contentScrollUtilities();
+  assert.ok(
+    css.includes('.snap-center { scroll-snap-align: center; }'),
+    'snap-center should use scroll-snap-align: center'
+  );
+});
+
+// Build output checks for new utilities
+requireBuild('.animate-spin exists in built CSS', () => {
+  assert.ok(builtCss.includes('.animate-spin {'), 'Missing .animate-spin in built CSS');
+});
+
+requireBuild('@keyframes spin exists in built CSS', () => {
+  assert.ok(builtCss.includes('@keyframes spin'), 'Missing @keyframes spin in built CSS');
+});
+
+requireBuild('.backdrop-blur-md exists in built CSS', () => {
+  assert.ok(builtCss.includes('.backdrop-blur-md {'), 'Missing .backdrop-blur-md in built CSS');
+});
+
+requireBuild('.line-clamp-1 exists in built CSS', () => {
+  assert.ok(builtCss.includes('.line-clamp-1 {'), 'Missing .line-clamp-1 in built CSS');
+});
+
+requireBuild('.max-w-prose exists in built CSS', () => {
+  assert.ok(builtCss.includes('.max-w-prose {'), 'Missing .max-w-prose in built CSS');
+});
+
+requireBuild('.snap-center exists in built CSS', () => {
+  assert.ok(builtCss.includes('.snap-center {'), 'Missing .snap-center in built CSS');
+});
+
+
+// ─── Section 14: Round 2 Utilities ───────────────────────────────────────────
+
+
+
+// --- Opacity expanded scale ---
+test('opacityUtilities includes .opacity-5', () => {
+  const css = opacityUtilities();
+  assert.ok(css.includes('.opacity-5 {'), 'Missing .opacity-5');
+});
+
+test('opacityUtilities includes .opacity-25', () => {
+  const css = opacityUtilities();
+  assert.ok(css.includes('.opacity-25 {'), 'Missing .opacity-25');
+});
+
+test('opacityUtilities includes .opacity-75', () => {
+  const css = opacityUtilities();
+  assert.ok(css.includes('.opacity-75 {'), 'Missing .opacity-75');
+});
+
+test('opacityUtilities includes .opacity-95', () => {
+  const css = opacityUtilities();
+  assert.ok(css.includes('.opacity-95 {'), 'Missing .opacity-95');
+});
+
+// --- Resize ---
+test('cursorUtilities includes .resize-none', () => {
+  const css = cursorUtilities();
+  assert.ok(css.includes('.resize-none {'), 'Missing .resize-none');
+});
+
+test('cursorUtilities includes .resize-x', () => {
+  const css = cursorUtilities();
+  assert.ok(css.includes('.resize-x {'), 'Missing .resize-x');
+});
+
+test('cursorUtilities includes .resize-y', () => {
+  const css = cursorUtilities();
+  assert.ok(css.includes('.resize-y {'), 'Missing .resize-y');
+});
+
+test('cursorUtilities .resize-x uses resize: horizontal', () => {
+  const css = cursorUtilities();
+  assert.ok(
+    css.includes('.resize-x { resize: horizontal; }'),
+    'resize-x should use resize: horizontal'
+  );
+});
+
+// --- Isolation ---
+test('cursorUtilities includes .isolate', () => {
+  const css = cursorUtilities();
+  assert.ok(css.includes('.isolate {'), 'Missing .isolate');
+});
+
+test('cursorUtilities includes .isolation-auto', () => {
+  const css = cursorUtilities();
+  assert.ok(css.includes('.isolation-auto {'), 'Missing .isolation-auto');
+});
+
+// --- Will-change ---
+test('cursorUtilities includes .will-change-auto', () => {
+  const css = cursorUtilities();
+  assert.ok(css.includes('.will-change-auto {'), 'Missing .will-change-auto');
+});
+
+test('cursorUtilities includes .will-change-transform', () => {
+  const css = cursorUtilities();
+  assert.ok(css.includes('.will-change-transform {'), 'Missing .will-change-transform');
+});
+
+// --- Outline offset ---
+test('ringUtilities includes .outline-offset-2', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const colours = generateAllColours(config.colours);
+  const css = ringUtilities(colours);
+  assert.ok(css.includes('.outline-offset-2 {'), 'Missing .outline-offset-2');
+});
+
+test('ringUtilities includes .outline-offset-8', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const colours = generateAllColours(config.colours);
+  const css = ringUtilities(colours);
+  assert.ok(css.includes('.outline-offset-8 {'), 'Missing .outline-offset-8');
+});
+
+test('ringUtilities .outline-offset-4 uses 4px', () => {
+  const colours = generateAllColours(config.colours);
+  const css = ringUtilities(colours);
+  assert.ok(
+    css.includes('.outline-offset-4 { outline-offset: 4px; }'),
+    'outline-offset-4 should use 4px'
+  );
+});
+
+// --- Caret color ---
+test('formUtilities includes .caret-transparent', () => {
+  const { formUtilities: fu } = require('../src/generators.js');
+  const css = fu();
+  assert.ok(css.includes('.caret-transparent {'), 'Missing .caret-transparent');
+});
+
+test('formUtilities includes .caret-current', () => {
+  const { formUtilities: fu } = require('../src/generators.js');
+  const css = fu();
+  assert.ok(css.includes('.caret-current {'), 'Missing .caret-current');
+});
+
+// --- Font variant numeric ---
+test('generateTypographyUtilities includes .tabular-nums', () => {
+  const css = generateTypographyUtilities(config);
+  assert.ok(css.includes('.tabular-nums {'), 'Missing .tabular-nums');
+});
+
+test('generateTypographyUtilities includes .ordinal', () => {
+  const css = generateTypographyUtilities(config);
+  assert.ok(css.includes('.ordinal {'), 'Missing .ordinal');
+});
+
+test('generateTypographyUtilities includes .slashed-zero', () => {
+  const css = generateTypographyUtilities(config);
+  assert.ok(css.includes('.slashed-zero {'), 'Missing .slashed-zero');
+});
+
+test('generateTypographyUtilities .tabular-nums uses font-variant-numeric: tabular-nums', () => {
+  const css = generateTypographyUtilities(config);
+  assert.ok(
+    css.includes('.tabular-nums { font-variant-numeric: tabular-nums; }'),
+    'tabular-nums should use font-variant-numeric: tabular-nums'
+  );
+});
+
+// --- Text underline offset ---
+test('generateTypographyUtilities includes .underline-offset-2', () => {
+  const css = generateTypographyUtilities(config);
+  assert.ok(css.includes('.underline-offset-2 {'), 'Missing .underline-offset-2');
+});
+
+test('generateTypographyUtilities includes .underline-offset-auto', () => {
+  const css = generateTypographyUtilities(config);
+  assert.ok(css.includes('.underline-offset-auto {'), 'Missing .underline-offset-auto');
+});
+
+test('generateTypographyUtilities .underline-offset-4 uses text-underline-offset: 4px', () => {
+  const css = generateTypographyUtilities(config);
+  assert.ok(
+    css.includes('.underline-offset-4 { text-underline-offset: 4px; }'),
+    'underline-offset-4 should use text-underline-offset: 4px'
+  );
+});
+
+// --- Space between ---
+test('spaceUtilities generates .space-x-1', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const css = spaceUtilities(spacing);
+  assert.ok(css.includes('.space-x-1 >'), 'Missing .space-x-1');
+});
+
+test('spaceUtilities generates .space-y-1', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const css = spaceUtilities(spacing);
+  assert.ok(css.includes('.space-y-1 >'), 'Missing .space-y-1');
+});
+
+test('spaceUtilities includes .space-x-auto', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const css = spaceUtilities(spacing);
+  assert.ok(css.includes('.space-x-auto >'), 'Missing .space-x-auto');
+});
+
+test('spaceUtilities uses > * + * selector', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const css = spaceUtilities(spacing);
+  assert.ok(css.includes('> * + *'), 'space utilities should use > * + * selector');
+});
+
+test('spaceUtilities includes negative variant', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const css = spaceUtilities(spacing);
+  assert.ok(css.includes('.-space-x-'), 'Missing negative space-x variant');
+});
+
+// --- Divide ---
+test('divideUtilities includes .divide-x', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const colours = generateAllColours(config.colours);
+  const css = divideUtilities(spacing, colours);
+  assert.ok(css.includes('.divide-x >'), 'Missing .divide-x');
+});
+
+test('divideUtilities includes .divide-y', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const colours = generateAllColours(config.colours);
+  const css = divideUtilities(spacing, colours);
+  assert.ok(css.includes('.divide-y >'), 'Missing .divide-y');
+});
+
+test('divideUtilities includes .divide-x-2', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const colours = generateAllColours(config.colours);
+  const css = divideUtilities(spacing, colours);
+  assert.ok(css.includes('.divide-x-2 >'), 'Missing .divide-x-2');
+});
+
+test('divideUtilities includes .divide-solid', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const colours = generateAllColours(config.colours);
+  const css = divideUtilities(spacing, colours);
+  assert.ok(css.includes('.divide-solid >'), 'Missing .divide-solid');
+});
+
+test('divideUtilities includes colour variants', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const colours = generateAllColours(config.colours);
+  const css = divideUtilities(spacing, colours);
+  assert.ok(css.includes('.divide-primary-'), 'Missing .divide-primary-* colour variants');
+});
+
+// --- Background utilities ---
+test('backgroundUtilities includes .bg-cover', () => {
+  const css = backgroundUtilities();
+  assert.ok(css.includes('.bg-cover {'), 'Missing .bg-cover');
+});
+
+test('backgroundUtilities includes .bg-contain', () => {
+  const css = backgroundUtilities();
+  assert.ok(css.includes('.bg-contain {'), 'Missing .bg-contain');
+});
+
+test('backgroundUtilities includes .bg-no-repeat', () => {
+  const css = backgroundUtilities();
+  assert.ok(css.includes('.bg-no-repeat {'), 'Missing .bg-no-repeat');
+});
+
+test('backgroundUtilities includes .bg-center', () => {
+  const css = backgroundUtilities();
+  assert.ok(css.includes('.bg-center {'), 'Missing .bg-center');
+});
+
+test('backgroundUtilities includes .bg-clip-text', () => {
+  const css = backgroundUtilities();
+  assert.ok(css.includes('.bg-clip-text {'), 'Missing .bg-clip-text');
+});
+
+test('backgroundUtilities includes .bg-fixed', () => {
+  const css = backgroundUtilities();
+  assert.ok(css.includes('.bg-fixed {'), 'Missing .bg-fixed');
+});
+
+// --- CSS Filters ---
+test('filterUtilities includes .filter-none', () => {
+  const css = filterUtilities();
+  assert.ok(css.includes('.filter-none {'), 'Missing .filter-none');
+});
+
+test('filterUtilities includes .blur-sm', () => {
+  const css = filterUtilities();
+  assert.ok(css.includes('.blur-sm {'), 'Missing .blur-sm');
+});
+
+test('filterUtilities includes .brightness-100', () => {
+  const css = filterUtilities();
+  assert.ok(css.includes('.brightness-100 {'), 'Missing .brightness-100');
+});
+
+test('filterUtilities includes .grayscale', () => {
+  const css = filterUtilities();
+  assert.ok(css.includes('.grayscale {'), 'Missing .grayscale');
+});
+
+test('filterUtilities includes .invert', () => {
+  const css = filterUtilities();
+  assert.ok(css.includes('.invert {'), 'Missing .invert');
+});
+
+test('filterUtilities .blur-sm uses blur(4px)', () => {
+  const css = filterUtilities();
+  assert.ok(
+    css.includes('.blur-sm { filter: blur(4px); }'),
+    'blur-sm should use blur(4px)'
+  );
+});
+
+test('filterUtilities includes .hue-rotate-90', () => {
+  const css = filterUtilities();
+  assert.ok(css.includes('.hue-rotate-90 {'), 'Missing .hue-rotate-90');
+});
+
+// Build output checks for Round 2 utilities
+requireBuild('.space-x-4 exists in built CSS', () => {
+  assert.ok(builtCss.includes('.space-x-4 >'), 'Missing .space-x-4 in built CSS');
+});
+
+requireBuild('.divide-x exists in built CSS', () => {
+  assert.ok(builtCss.includes('.divide-x >'), 'Missing .divide-x in built CSS');
+});
+
+requireBuild('.bg-cover exists in built CSS', () => {
+  assert.ok(builtCss.includes('.bg-cover {'), 'Missing .bg-cover in built CSS');
+});
+
+requireBuild('.blur-sm exists in built CSS', () => {
+  assert.ok(builtCss.includes('.blur-sm {'), 'Missing .blur-sm in built CSS');
+});
+
+requireBuild('.tabular-nums exists in built CSS', () => {
+  assert.ok(builtCss.includes('.tabular-nums {'), 'Missing .tabular-nums in built CSS');
+});
+
+requireBuild('.underline-offset-2 exists in built CSS', () => {
+  assert.ok(builtCss.includes('.underline-offset-2 {'), 'Missing .underline-offset-2 in built CSS');
+});
+
+requireBuild('.opacity-25 exists in built CSS', () => {
+  assert.ok(builtCss.includes('.opacity-25 {'), 'Missing .opacity-25 in built CSS');
+});
+
+requireBuild('.resize-x exists in built CSS', () => {
+  assert.ok(builtCss.includes('.resize-x {'), 'Missing .resize-x in built CSS');
+});
+
+requireBuild('.will-change-transform exists in built CSS', () => {
+  assert.ok(builtCss.includes('.will-change-transform {'), 'Missing .will-change-transform in built CSS');
+});
+
+requireBuild('.outline-offset-4 exists in built CSS', () => {
+  assert.ok(builtCss.includes('.outline-offset-4 {'), 'Missing .outline-offset-4 in built CSS');
+});
+
+
 // ─── Results ──────────────────────────────────────────────────────────────────
 
 const total = passed + failed;
