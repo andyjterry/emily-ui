@@ -11,7 +11,7 @@ const PORT = 3456;
 const ROOT = process.cwd();
 const PACKAGE_ROOT = path.join(__dirname, "..");
 
-const TEMPLATE_SHOWCASE = path.join(PACKAGE_ROOT, "template", "showcase.html");
+const TEMPLATE_SHOWCASE = path.join(PACKAGE_ROOT, "templates", "showcase.html");
 const PROJECT_SHOWCASE = path.join(ROOT, "showcase.html");
 
 const MIME = {
