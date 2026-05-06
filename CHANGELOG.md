@@ -4,6 +4,14 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.0.18 — May 2026
+
+****
+
+### Changed
+- added more utitlies as a code block
+
+---
 ## v1.0.17 — May 2026
 
 **added new utilties, and added component patterns**
