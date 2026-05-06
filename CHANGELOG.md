@@ -4,6 +4,11 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.0.19 — May 2026
+
+**Add framework-aware output paths and bundled showcase template**
+
+---
 ## v1.0.18 — May 2026
 
 ****

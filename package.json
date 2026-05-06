@@ -1,19 +1,19 @@
 {
   "name": "emily-css",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "description": "A config-driven utility CSS framework. Define your brand once, generate the CSS.",
   "main": "src/index.js",
   "bin": {
     "emily-css": "bin/emilyui.js"
   },
-"files": [
-  "bin/",
-  "src/",
-  "templates/",
-  "README.md",
-  "LICENSE",
-  "CHANGELOG.md"
-],
+  "files": [
+    "bin/",
+    "src/",
+    "templates/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "build": "node src/index.js",
     "dev": "nodemon src/index.js",
