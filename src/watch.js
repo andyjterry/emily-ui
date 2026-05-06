@@ -21,7 +21,9 @@ function readConfig() {
   const configPath = path.join(process.cwd(), "emily.config.json");
 
   if (!fs.existsSync(configPath)) {
-    console.error('\n  emily-css: No config found. Run "emily-css init" first.\n');
+    console.error(
+      '\n  emily-css: No config found. Run "emily-css init" first.\n',
+    );
     process.exit(1);
   }
 
@@ -46,7 +48,9 @@ function shouldIgnore(filePath) {
     "coverage/",
     ".cache/",
     ".vite/",
-  ].some((part) => normalised.includes("/" + part) || normalised.startsWith(part));
+  ].some(
+    (part) => normalised.includes("/" + part) || normalised.startsWith(part),
+  );
 }
 
 function runQuietly(fn) {
@@ -83,7 +87,9 @@ function getScanFiles(config) {
     ".njk",
     ".liquid",
     ".hbs",
+    ".js",
     ".jsx",
+    ".ts",
     ".tsx",
     ".vue",
     ".php",
@@ -124,7 +130,9 @@ function collectUsedClasses(config) {
 
 function getClassDiff(currentClasses) {
   const added = [...currentClasses].filter((cls) => !previousClasses.has(cls));
-  const removed = [...previousClasses].filter((cls) => !currentClasses.has(cls));
+  const removed = [...previousClasses].filter(
+    (cls) => !currentClasses.has(cls),
+  );
 
   previousClasses = new Set(currentClasses);
 
@@ -141,17 +149,41 @@ function formatClassList(classes) {
 }
 
 function printSummary({ currentClasses, result, added, removed }) {
-  const reduction = (
-    ((result.originalSize - result.outputSize) / result.originalSize) *
-    100
-  ).toFixed(1);
+  const reduction =
+    currentClasses.size === 0
+      ? "100.0"
+      : (
+          ((result.originalSize - result.outputSize) / result.originalSize) *
+          100
+        ).toFixed(1);
 
-  const sizeKb = (result.outputSize / 1024).toFixed(1);
+  const sizeKb =
+    currentClasses.size === 0 ? "0.0" : (result.outputSize / 1024).toFixed(1);
+
   const outputPath = result.outputPath
     ? path.relative(process.cwd(), result.outputPath)
     : "emily.min.css";
 
   const time = new Date().toLocaleTimeString();
+
+  if (hasRunOnce && removed.length > 0) {
+    console.log(
+      chalk.red(
+        "− removed " +
+          removed.length +
+          " class" +
+          (removed.length === 1 ? "" : "es"),
+      ) + chalk.gray(" (" + formatClassList(removed) + ")"),
+    );
+  }
+
+  if (hasRunOnce && added.length > 0) {
+    console.log(
+      chalk.green(
+        "+ added " + added.length + " class" + (added.length === 1 ? "" : "es"),
+      ) + chalk.gray(" (" + formatClassList(added) + ")"),
+    );
+  }
 
   console.log(
     chalk.green("✓ " + time + " updated") +
@@ -166,30 +198,6 @@ function printSummary({ currentClasses, result, added, removed }) {
           outputPath,
       ),
   );
-
-  if (!hasRunOnce) return;
-
-  if (removed.length > 0) {
-    console.log(
-      chalk.red(
-        "− removed " +
-          removed.length +
-          " class" +
-          (removed.length === 1 ? "" : "es"),
-      ) + chalk.gray(" (" + formatClassList(removed) + ")"),
-    );
-  }
-
-  if (added.length > 0) {
-    console.log(
-      chalk.green(
-        "+ added " +
-          added.length +
-          " class" +
-          (added.length === 1 ? "" : "es"),
-      ) + chalk.gray(" (" + formatClassList(added) + ")"),
-    );
-  }
 }
 
 function runProductionUpdate(filePath) {
@@ -232,10 +240,7 @@ function runProductionUpdate(filePath) {
 }
 
 function getWatchPaths(config) {
-  return [
-    config.purge?.sourceDir || ".",
-    "emily.config.json",
-  ];
+  return [config.purge?.sourceDir || ".", "emily.config.json"];
 }
 
 function queueUpdate(filePath) {
@@ -247,14 +252,19 @@ function runWatch() {
   const config = readConfig();
   const watchPaths = getWatchPaths(config);
 
-  console.log("\n👀 EmilyUI is watching...");
-console.log(chalk.gray("   Project: " + (config.purge?.projectType || "Unknown")));
-console.log(chalk.gray("   Output:  " + (config.output?.css || "dist/emily.min.css")));
-console.log(chalk.gray("   Watching:"));
+  console.log("");
+  console.log(chalk.cyan("👀 EmilyUI is watching..."));
+  console.log(
+    chalk.gray("   Project: " + (config.purge?.projectType || "Unknown")),
+  );
+  console.log(
+    chalk.gray("   Output:  " + (config.output?.css || "dist/emily.min.css")),
+  );
+  console.log(chalk.gray("   Watching:"));
 
-watchPaths.forEach((item) => {
-  console.log(chalk.gray("   - " + item));
-});
+  watchPaths.forEach((item) => {
+    console.log(chalk.gray("   - " + item));
+  });
 
   runQuietly(() => ensureFullFramework());
   runProductionUpdate();

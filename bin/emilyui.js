@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
+const path = require("path");
+
 const command = process.argv[2];
+const packageJson = require(path.join(__dirname, "..", "package.json"));
 
 if (command === "init") {
   require("../src/init.js");
@@ -11,6 +14,8 @@ if (command === "init") {
   require("../src/watch.js");
 } else if (command === "showcase") {
   require("../src/showcase.js");
+} else if (command === "version" || command === "--version" || command === "-v") {
+  console.log(packageJson.version);
 } else if (command === "help") {
   console.log(`
   emily-css — Config-driven CSS framework generator
@@ -20,6 +25,7 @@ if (command === "init") {
     emily-css build       Generate production CSS to the configured output path
     emily-css watch       Dev mode: watch for changes and rebuild
     emily-css showcase    Launch the component showcase in your browser
+    emily-css version     Show installed version
     emily-css help        Show this help text
   
   npm scripts (added by init):

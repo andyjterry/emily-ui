@@ -8,6 +8,7 @@ const assert = require('assert');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const { execSync, spawnSync } = require('child_process');
 
 // ─── Load modules ─────────────────────────────────────────────────────────────
 
@@ -53,6 +54,57 @@ function test(name, fn) {
 function section(title) {
   console.log(`\n${title}`);
   console.log('─'.repeat(title.length));
+}
+
+function createTempProject() {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'emily-cli-test-'));
+  fs.writeFileSync(
+    path.join(tmpDir, 'package.json'),
+    JSON.stringify(
+      {
+        name: 'emily-cli-test',
+        version: '1.0.0',
+        type: 'commonjs',
+      },
+      null,
+      2,
+    ),
+  );
+
+  return tmpDir;
+}
+
+function removeTempProject(tmpDir) {
+  if (tmpDir && fs.existsSync(tmpDir)) {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+}
+
+function getPackedFiles() {
+  const packageRoot = path.join(__dirname, '..');
+
+  const result = spawnSync('npm', ['pack', '--json', '--dry-run'], {
+    cwd: packageRoot,
+    encoding: 'utf8',
+    shell: process.platform === 'win32',
+  });
+
+  assert.strictEqual(result.status, 0, result.stderr);
+
+  const parsed = JSON.parse(result.stdout);
+  return parsed[0].files.map((file) => file.path);
+}
+
+function isolatedPurgeConfig(tmpDir) {
+  return {
+    ...config,
+    purge: {
+      sourceDir: tmpDir,
+      sourceGlobs: [path.join(tmpDir, '**/*.{html,js,ts,jsx,tsx,vue}').replace(/\\/g, '/')],
+      ignore: [],
+      extensions: ['.html', '.js', '.ts', '.jsx', '.tsx', '.vue'],
+    },
+  };
 }
 
 // ─── 1. Colour Generation ─────────────────────────────────────────────────────
@@ -431,7 +483,7 @@ test('purgeCSS keeps rules for classes that are used', () => {
   const css = '.flex { display: flex; }\n.hidden { display: none; }\n';
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'emily-test-'));
   fs.writeFileSync(path.join(tmpDir, 'test.html'), '<div class="flex">test</div>');
-  const result = purgeCSS(css, tmpDir, config);
+  const result = purgeCSS(css, tmpDir, isolatedPurgeConfig(tmpDir));
   assert.ok(result.includes('.flex {'), 'Should keep .flex (it is used)');
   assert.ok(!result.includes('.hidden {'), 'Should remove .hidden (not used)');
   fs.rmSync(tmpDir, { recursive: true });
@@ -1126,6 +1178,179 @@ requireBuild('.outline-offset-4 exists in built CSS', () => {
   assert.ok(builtCss.includes('.outline-offset-4 {'), 'Missing .outline-offset-4 in built CSS');
 });
 
+
+// ─── 15. CLI / Package Robustness ─────────────────────────────────────────────
+
+section('15. CLI / Package Robustness');
+
+test('CLI version command returns package version', () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
+  const output = execSync('node bin/emilyui.js version', {
+    cwd: path.join(__dirname, '..'),
+  }).toString().trim();
+
+  assert.strictEqual(output, pkg.version);
+});
+
+test('CLI --version returns package version', () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
+  const output = execSync('node bin/emilyui.js --version', {
+    cwd: path.join(__dirname, '..'),
+  }).toString().trim();
+
+  assert.strictEqual(output, pkg.version);
+});
+
+test('CLI -v returns package version', () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
+  const output = execSync('node bin/emilyui.js -v', {
+    cwd: path.join(__dirname, '..'),
+  }).toString().trim();
+
+  assert.strictEqual(output, pkg.version);
+});
+
+test('unknown CLI command shows usage without crashing', () => {
+  const result = spawnSync('node', ['bin/emilyui.js', 'buidl'], {
+    cwd: path.join(__dirname, '..'),
+    encoding: 'utf8',
+  });
+
+  assert.strictEqual(result.status, 0);
+  assert.ok(result.stdout.includes('Usage:'), 'Expected usage text for unknown command');
+});
+
+test('npm pack includes bundled showcase template', () => {
+  const files = getPackedFiles();
+
+  assert.ok(
+    files.includes('templates/showcase.html'),
+    'npm package should include templates/showcase.html',
+  );
+});
+
+test('npm pack does not include node_modules', () => {
+  const files = getPackedFiles();
+
+  assert.ok(
+    !files.some((file) => file.startsWith('node_modules/')),
+    'npm package should not include node_modules',
+  );
+});
+
+test('npm pack does not include old tarballs', () => {
+  const files = getPackedFiles();
+
+  assert.ok(
+    !files.some((file) => /^emily-css-\d+\.\d+\.\d+\.tgz$/.test(file)),
+    'npm package should not include old .tgz files',
+  );
+});
+
+test('showcase template exists locally', () => {
+  const showcasePath = path.join(__dirname, '../templates/showcase.html');
+  assert.ok(fs.existsSync(showcasePath), 'Missing templates/showcase.html');
+});
+
+test('showcase template links to emily.min.css', () => {
+  const showcasePath = path.join(__dirname, '../templates/showcase.html');
+  const html = fs.readFileSync(showcasePath, 'utf8');
+
+  assert.ok(
+    html.includes('emily.min.css'),
+    'showcase.html should reference emily.min.css',
+  );
+});
+
+test('missing emily.config.json gives useful build error', () => {
+  const tmpDir = createTempProject();
+
+  try {
+    const result = spawnSync('node', [path.join(__dirname, '../bin/emilyui.js'), 'build'], {
+      cwd: tmpDir,
+      encoding: 'utf8',
+    });
+
+    const combinedOutput = `${result.stdout}\n${result.stderr}`;
+
+    assert.notStrictEqual(result.status, 0, 'Build should fail without emily.config.json');
+    assert.ok(
+      combinedOutput.includes('No config found') ||
+        combinedOutput.includes('emily-css init'),
+      'Expected useful missing config message',
+    );
+  } finally {
+    removeTempProject(tmpDir);
+  }
+});
+
+test('purgeCSS uses isolated temp sourceGlobs for used classes', () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'emily-purge-test-'));
+
+  try {
+    fs.writeFileSync(path.join(tmpDir, 'test.html'), '<div class="flex">test</div>');
+
+    const css = '.flex { display: flex; }\n.hidden { display: none; }\n';
+    const result = purgeCSS(css, tmpDir, isolatedPurgeConfig(tmpDir));
+
+    assert.ok(result.includes('.flex {'), 'Should keep .flex from temp fixture');
+    assert.ok(!result.includes('.hidden {'), 'Should remove .hidden from temp fixture');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('purgeCSS returns full CSS when isolated sourceGlobs find no files', () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'emily-purge-empty-'));
+
+  try {
+    const css = '.flex { display: flex; }\n';
+    const result = purgeCSS(css, tmpDir, isolatedPurgeConfig(tmpDir));
+
+    assert.ok(result.includes('.flex {'), 'Should return full CSS when no source files found');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('extractClassNames extracts React className attributes', () => {
+  const jsx = '<div className="flex items-center gap-4">test</div>';
+  const classes = extractClassNames(jsx);
+
+  assert.ok(classes.has('flex'), 'Missing flex from className');
+  assert.ok(classes.has('items-center'), 'Missing items-center from className');
+  assert.ok(classes.has('gap-4'), 'Missing gap-4 from className');
+});
+
+test('extractClassNames extracts simple template string classes', () => {
+  const js = 'const button = `px-4 py-2 bg-primary-80 text-white`;';
+  const classes = extractClassNames(js);
+
+  assert.ok(classes.has('px-4'), 'Missing px-4 from template string');
+  assert.ok(classes.has('py-2'), 'Missing py-2 from template string');
+  assert.ok(classes.has('bg-primary-80'), 'Missing bg-primary-80 from template string');
+  assert.ok(classes.has('text-white'), 'Missing text-white from template string');
+});
+
+test('shipped JS files contain no null bytes', () => {
+  const filesToCheck = [
+    '../src/index.js',
+    '../src/init.js',
+    '../src/purge.js',
+    '../src/watch.js',
+    '../src/showcase.js',
+    '../src/generators.js',
+    '../bin/emilyui.js',
+  ];
+
+  filesToCheck.forEach((relativeFile) => {
+    const filePath = path.join(__dirname, relativeFile);
+    const content = fs.readFileSync(filePath);
+    const nullByteCount = content.filter((byte) => byte === 0).length;
+
+    assert.strictEqual(nullByteCount, 0, `${relativeFile} contains null bytes`);
+  });
+});
 
 // ─── Results ──────────────────────────────────────────────────────────────────
 

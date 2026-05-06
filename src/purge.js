@@ -57,7 +57,7 @@ function getAllFiles(dir, extensions = DEFAULT_EXTENSIONS) {
 
 function extractClassNames(content) {
   const classNames = new Set();
-  const classRegex = /class\s*=\s*["']([^"']+)["']/g;
+  const classRegex = /(?:class|className)\s*=\s*["']([^"']+)["']/g;
   let match;
 
   while ((match = classRegex.exec(content)) !== null) {
@@ -73,6 +73,24 @@ function extractClassNames(content) {
     classes.forEach((cls) => {
       const cleaned = cls.replace(/['"`{}"]/g, "").trim();
       if (cleaned) classNames.add(cleaned);
+    });
+  }
+
+  const templateStringRegex = /`([^`]+)`/g;
+
+  while ((match = templateStringRegex.exec(content)) !== null) {
+    const possibleClasses = match[1].split(/\s+/);
+
+    possibleClasses.forEach((cls) => {
+      const cleaned = cls.trim();
+
+      if (
+        cleaned &&
+        /^[a-zA-Z0-9:_./-]+$/.test(cleaned) &&
+        /[-:]/.test(cleaned)
+      ) {
+        classNames.add(cleaned);
+      }
     });
   }
 
