@@ -20,7 +20,7 @@ emilyCSS is built for real-world systems like **Drupal, Power Pages, WordPress, 
 npx emily-css init
 ```
 
-This creates your `emily.config.json`, walks you through your brand settings, and runs your first build.
+This creates your `emily.config.json`, walks you through your brand settings (colours, fonts, spacing, etc.), and runs your first build.
 
 ### 2. Link the CSS
 
@@ -28,17 +28,13 @@ This creates your `emily.config.json`, walks you through your brand settings, an
 <link rel="stylesheet" href="./dist/emily.min.css">
 ```
 
-### 3. Development
+### 3. Start Building
+
+Use the generated utilities and browse the showcase for ready-to-copy components.
 
 ```bash
-npx emily-css watch     # Rebuilds automatically on config/template changes
-npx emily-css build     # Manual rebuild
-```
-
-Open the showcase:
-
-```bash
-npm run emily:showcase   # Serves at http://localhost:3456
+npx emily-css build     # Rebuild after config changes
+npx emily-css watch     # Watch mode for development
 ```
 
 ## Core Features
@@ -48,30 +44,24 @@ npm run emily:showcase   # Serves at http://localhost:3456
 - **Accessibility First** — Focus-visible rings, motion utilities, WCAG 2.2 AA colours
 - **No Build Pipeline Required** — Just a static CSS file
 - **Smart Purge** — Remove unused utilities for tiny production files
-- **UI Starter Kit** — Copy-paste accessible components from the showcase
+- **UI Starter Kit** — Copy-paste accessible components from showcase.html
 
 ## Commands
 
 ```bash
-npx emily-css init      # Setup + first build
-npx emily-css build     # Regenerate CSS
-npx emily-css watch     # Development watch mode
-npx emily-css purge     # Remove unused styles for production
+npx emily-css init     # Setup config + first build
+npx emily-css build    # Regenerate CSS
+npx emily-css watch    # Development watch mode
+npx emily-css purge    # Remove unused styles for production
 ```
 
 ## How Purge Works
 
 emilyCSS scans your templates for used class names and removes everything else.
 
-Configure it in `emily.config.json`:
+Supported files: `.html`, `.php`, `.twig`, `.liquid`, `.jsx`, `.vue`, `.astro`, etc. (configurable).
 
-```json
-"purge": {
-  "extensions": [".html", ".php", ".twig", ".liquid", ".jsx", ".vue", ".astro"]
-}
-```
-
-**Important:** Dynamically constructed classes (e.g. `bg-${colour}`) are not detected. Use static strings or add them to your safelist.
+**Important:** Dynamically constructed classes like `bg-${colour}` are not detected. Use static strings or add them to the safelist.
 
 ## File Size (Typical)
 
@@ -80,7 +70,9 @@ Configure it in `emily.config.json`:
 | Full build | ~1.1 MB |
 | After purge | 10–50 KB |
 
-## Configuration Example
+## Configuration
+
+Edit `emily.config.json`:
 
 ```json
 {
@@ -95,7 +87,7 @@ Configure it in `emily.config.json`:
     "neutral": "#57534E"
   },
   "purge": {
-    "extensions": [".html", ".php", ".jsx", ".vue"]
+    "content": ["./**/*.{html,php,jsx,tsx,vue}"]
   }
 }
 ```
@@ -104,12 +96,12 @@ After changes: `npx emily-css build`
 
 ## Component Showcase
 
-After building, run `npm run emily:showcase` and visit `http://localhost:3456`. It contains production-ready, accessible components built with your exact brand.
+After your first build, open `showcase.html` in your browser. It contains production-ready, accessible components (buttons, forms, alerts, cards, etc.) built with your brand.
 
 ## EmilyUI vs emilyCSS
 
 - **EmilyUI** — The broader brand / ecosystem
-- **emilyCSS** — The current product (`emily-css` npm package + CLI)
+- **emilyCSS** — The current product (the emily-css npm package + CLI)
 
 ## Example Components
 
@@ -124,7 +116,7 @@ After building, run `npm run emily:showcase` and visit `http://localhost:3456`. 
 ### Responsive Card
 
 ```html
-<div class="w-full md:w-96 p-6 rounded-lg bg-white border border-neutral-30 shadow-sm">
+<div class="w-full md:w-96 p-6 rounded-xl bg-white border border-neutral-20 shadow-sm">
   <h2 class="text-2xl font-semibold text-neutral-90">Card Title</h2>
   <p class="mt-3 text-neutral-70">Content goes here.</p>
 </div>
@@ -132,7 +124,7 @@ After building, run `npm run emily:showcase` and visit `http://localhost:3456`. 
 
 ## Fonts
 
-emilyCSS applies font stacks but does not include font files. Use `@fontsource` (recommended):
+emilyCSS applies font stacks but does not include font files. Recommended approach:
 
 ```bash
 npm install @fontsource/inter @fontsource/lexend

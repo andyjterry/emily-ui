@@ -983,19 +983,40 @@ function buildFullFramework() {
     overflow-wrap: break-word;
   }
 
-  /* Code blocks — VSCode Dark+ style by default */
+  /* Code — terminal style by default */
+  code {
+    font-family: "Menlo", "Monaco", "Courier New", monospace;
+    font-size: 0.875em;
+    background-color: #0d0c0b;
+    color: #a3c986;
+    padding: 0.125rem 0.4rem;
+    border-radius: 4px;
+    display: inline;
+  }
+
+  /* Block code — terminal command style, no extra classes needed */
+  code.block {
+    display: block;
+    padding: 0.625rem 1rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+  }
+
+  /* Pre — wraps multi-line code, consistent terminal look */
   pre {
-    background-color: #1e1e1e;
-    color: #d4d4d4;
+    background-color: #0d0c0b;
+    color: #e4e0db;
     padding: 1.25rem;
-    border-radius: 0 0 6px;
+    border-radius: 6px;
     overflow-x: auto;
     font-family: "Menlo", "Monaco", "Courier New", monospace;
     font-size: 0.875rem;
     line-height: 1.7;
-    border: 1px solid #333;
+    border: 1px solid #2a2520;
   }
 
+  /* Reset code inside pre — inherits pre's colours */
   pre code {
     background: none;
     padding: 0;
@@ -1003,16 +1024,7 @@ function buildFullFramework() {
     color: inherit;
     font-size: inherit;
     font-family: inherit;
-  }
-
-  /* Inline code */
-  code {
-    font-family: "Menlo", "Monaco", "Courier New", monospace;
-    font-size: 0.875em;
-    background-color: #2d2d2d;
-    color: #d4d4d4;
-    padding: 0.125rem 0.375rem;
-    border-radius: 4px;
+    display: inline;
   }
 ${bodyFont}`;
 

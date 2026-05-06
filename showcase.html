@@ -552,7 +552,7 @@
           Disabled
         </button>
 
-        <a href="#" class="inline-flex items-center justify-center text-primary-80 underline hover:text-primary-90 focus-visible:ring-2 ring-primary-80 rounded-sm">
+        <a href="#" class="inline-flex items-center justify-center text-primary-80 underline decoration-2 hover:text-primary-90 focus-visible:ring-2 ring-primary-80 rounded-sm">
           Focusable link
         </a>
       </div>
@@ -599,9 +599,12 @@
 
         <div class="border border-neutral-20 rounded-md p-5">
           <h3 class="text-xl font-bold mb-4">Live region</h3>
-          <div role="status" aria-live="polite" class="bg-success-20 border border-success-80 rounded-md p-4">
-            <p class="font-bold text-success-90">Saved</p>
-            <p class="text-success-90">Your changes have been saved.</p>
+          <div role="status" aria-live="polite" class="bg-success-20 border border-success-80 rounded-md p-4 flex items-start justify-between">
+            <div>
+              <p class="font-bold text-success-90">Saved</p>
+              <p class="text-success-90">Your changes have been saved.</p>
+            </div>
+            <button aria-label="Dismiss" class="touch-target text-success-80 hover:text-success-90 ml-2 text-lg leading-none">&times;</button>
           </div>
         </div>
       </div>
@@ -947,7 +950,7 @@
         <div class="lg:col-span-2">
           <h3 class="font-bold mb-3">.center-screen</h3>
           <div class="border border-neutral-20 rounded-t-lg overflow-hidden bg-neutral-80" style="min-height: 200px; position: relative;">
-            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
+            <div class="center-screen" style="position: absolute;">
               <div class="bg-white rounded-lg shadow-lg border border-neutral-20 p-6 text-center" style="max-width: 340px; width: 90%;">
                 <h4 class="text-lg font-bold mb-2">Confirm action</h4>
                 <p class="text-neutral-80 text-sm mb-4">This is how center-screen looks. In production it uses position: fixed and covers the full viewport.</p>
