@@ -867,28 +867,54 @@ function generatePatternComponents() {
 // BUILD FUNCTION
 // ============================================================================
 
-function buildFullFramework() {
-  const configPath = path.join(process.cwd(), 'emily.config.json');
+function getConfigPath() {
+  return path.join(process.cwd(), 'emily.config.json');
+}
+
+function getConfig() {
+  const configPath = getConfigPath();
+
   if (!fs.existsSync(configPath)) {
-    console.error(`\n  emily-css: No config found.\n  Expected: ${configPath}\n  Run "emily-css init" to create one.\n`);
+    console.error('\n  emily-css: No config found. Run "emily-css init" first.\n');
     process.exit(1);
   }
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+
+  return JSON.parse(fs.readFileSync(configPath, 'utf8'));
+}
+
+function getFullCssPath(config) {
+  return path.join(process.cwd(), config.output?.fullCss || 'dist/emily.css');
+}
+
+function getProductionCssPath(config) {
+  return path.join(process.cwd(), config.output?.css || 'dist/emily.min.css');
+}
+
+function ensureDirectoryForFile(filePath) {
+  const dir = path.dirname(filePath);
+
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+}
+
+function getSourceDir(config) {
+  return config.purge?.sourceDir || '.';
+}
+
+function buildFullFramework() {
+  const config = getConfig();
 
   console.log('Building EmilyCSS full framework...');
 
-  // Generate colours
   const colours = generateAllColours(config.colours);
   console.log(`✓ Generated ${Object.keys(colours).length} colour scales`);
 
-  // Generate spacing
   const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
   console.log(`✓ Generated ${Object.keys(spacing).length} spacing values`);
 
-  // 1. Generate Variables (Theme Layer)
   const variablesCss = generateCSSVariables(colours, spacing, config);
 
-  // 2. Generate Utilities (Utilities Layer)
   let utilityCss = '';
   utilityCss += displayUtilities();
   utilityCss += generateSpacingUtilities(spacing);
@@ -923,21 +949,16 @@ function buildFullFramework() {
   utilityCss += backgroundUtilities();
   utilityCss += filterUtilities();
 
-  // Add state, dark mode, and responsive variants to utilities
   utilityCss = addStateVariants(utilityCss);
   utilityCss = addDarkModeVariants(utilityCss);
   utilityCss = addResponsiveVariants(utilityCss, config);
 
-  // 3. Assemble Final CSS with Layers
-  // Layer order matters: later layers win over earlier ones.
-  // theme  → CSS custom properties / design tokens
-  // base   → box-sizing reset, font-face, body defaults
-  // components → reserved for future component styles
-  // utilities  → generated utility classes (highest priority)
   const { fontFace, bodyFont } = generateFontCSS(config);
+
   const fontLabel = typeof config.fontFamily === 'object'
     ? 'heading: ' + (config.fontFamily.heading || 'system') + ', body: ' + (config.fontFamily.body || 'system')
     : (config.fontFamily || 'system');
+
   console.log('✓ Font: ' + fontLabel);
 
   const baseCss = `
@@ -946,7 +967,6 @@ function buildFullFramework() {
     box-sizing: border-box;
   }
 
-  /* Remove default margin/padding on common elements */
   body, h1, h2, h3, h4, h5, h6, p,
   ul, ol, dl, dd, figure, blockquote,
   fieldset, textarea, pre {
@@ -954,23 +974,19 @@ function buildFullFramework() {
     padding: 0;
   }
 
-  /* Lists: remove bullets/numbers when unstyled */
   ul, ol {
     list-style: none;
   }
 
-  /* Inherit fonts for form elements */
   input, button, textarea, select {
     font: inherit;
   }
 
-  /* Sensible media defaults */
   img, picture, video, canvas, svg {
     display: block;
     max-width: 100%;
   }
 
-  /* Remove default button styles */
   button {
     background: none;
     border: none;
@@ -978,12 +994,10 @@ function buildFullFramework() {
     padding: 0;
   }
 
-  /* Avoid overflow on long words */
   p, h1, h2, h3, h4, h5, h6 {
     overflow-wrap: break-word;
   }
 
-  /* Code — terminal style by default */
   code {
     font-family: "Menlo", "Monaco", "Courier New", monospace;
     font-size: 0.875em;
@@ -994,7 +1008,6 @@ function buildFullFramework() {
     display: inline;
   }
 
-  /* Block code — terminal command style, no extra classes needed */
   code.block {
     display: block;
     padding: 0.625rem 1rem;
@@ -1003,7 +1016,6 @@ function buildFullFramework() {
     line-height: 1.6;
   }
 
-  /* Pre — wraps multi-line code, consistent terminal look */
   pre {
     background-color: #0d0c0b;
     color: #e4e0db;
@@ -1016,7 +1028,6 @@ function buildFullFramework() {
     border: 1px solid #2a2520;
   }
 
-  /* Reset code inside pre — inherits pre's colours */
   pre code {
     background: none;
     padding: 0;
@@ -1028,25 +1039,21 @@ function buildFullFramework() {
   }
 ${bodyFont}`;
 
-  // @font-face must sit outside @layer for broadest browser compatibility
   let css = fontFace ? `${fontFace}\n` : '';
   css += `@layer theme, base, components, utilities;\n\n`;
   css += `@layer theme {\n${variablesCss}}\n\n`;
+
   const baseStylesCss = generateBaseStyles(config);
   css += `@layer base {${baseCss}${baseStylesCss}}\n\n`;
   css += `@layer components {\n${generatePatternComponents()}}\n\n`;
   css += `@layer utilities {\n${utilityCss}}\n`;
 
-  // Write output
-  const outputPath = path.join(process.cwd(), 'dist/emily.css');
-  const outputDir = path.dirname(outputPath);
+  const fullCssPath = getFullCssPath(config);
 
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
+  ensureDirectoryForFile(fullCssPath);
+  fs.writeFileSync(fullCssPath, css);
 
-  fs.writeFileSync(outputPath, css);
-  console.log(`✓ Generated CSS: ${outputPath}`);
+  console.log(`✓ Generated CSS: ${fullCssPath}`);
   console.log(`✓ File size: ${(css.length / 1024).toFixed(2)} KB (unminified)`);
   console.log('Full framework build complete');
 }
@@ -1061,55 +1068,44 @@ function minify(css) {
     .trim();
 }
 
-function getConfig() {
-  const configPath = path.join(process.cwd(), 'emily.config.json');
-
-  if (!fs.existsSync(configPath)) {
-    console.error('\n  emily-css: No config found. Run "emily-css init" first.\n');
-    process.exit(1);
-  }
-
-  return JSON.parse(fs.readFileSync(configPath, 'utf8'));
-}
-
-function getSourceDir(config) {
-  return config.purge && config.purge.sourceDir ? config.purge.sourceDir : '.';
-}
-
 function buildProductionCss() {
   const config = getConfig();
   const sourceDir = getSourceDir(config);
-  const cssPath = path.join(process.cwd(), 'dist/emily.css');
-  const minPath = path.join(process.cwd(), 'dist/emily.min.css');
+  const fullCssPath = getFullCssPath(config);
+  const productionCssPath = getProductionCssPath(config);
 
-  if (!fs.existsSync(cssPath)) {
+  if (!fs.existsSync(fullCssPath)) {
     buildFullFramework();
   }
 
   const { purgeCSS } = require('./purge.js');
-  const css = fs.readFileSync(cssPath, 'utf8');
+  const css = fs.readFileSync(fullCssPath, 'utf8');
   const purged = purgeCSS(css, sourceDir, config);
   const minified = minify(purged);
 
-  fs.writeFileSync(minPath, minified);
+  ensureDirectoryForFile(productionCssPath);
+  fs.writeFileSync(productionCssPath, minified);
 
   return {
     css,
     purged,
     minified,
     originalSize: Buffer.byteLength(css, 'utf8'),
-    outputSize: Buffer.byteLength(minified, 'utf8')
+    outputSize: Buffer.byteLength(minified, 'utf8'),
+    outputPath: productionCssPath,
+    fullCssPath,
   };
 }
 
 function isFrameworkStale() {
-  const configPath = path.join(process.cwd(), 'emily.config.json');
-  const cssPath = path.join(process.cwd(), 'dist/emily.css');
+  const config = getConfig();
+  const configPath = getConfigPath();
+  const fullCssPath = getFullCssPath(config);
 
-  if (!fs.existsSync(cssPath)) return true;
+  if (!fs.existsSync(fullCssPath)) return true;
   if (!fs.existsSync(configPath)) return true;
 
-  return fs.statSync(configPath).mtimeMs > fs.statSync(cssPath).mtimeMs;
+  return fs.statSync(configPath).mtimeMs > fs.statSync(fullCssPath).mtimeMs;
 }
 
 function ensureFullFramework() {
@@ -1121,18 +1117,19 @@ function ensureFullFramework() {
 function build(options = {}) {
   ensureFullFramework();
 
+  const config = getConfig();
+  const fullCssPath = getFullCssPath(config);
   const result = buildProductionCss();
-  const cssPath = path.join(process.cwd(), 'dist/emily.css');
 
-  console.log('✓ Generated production CSS: dist/emily.min.css');
+  console.log('✓ Generated production CSS: ' + path.relative(process.cwd(), result.outputPath));
   console.log('✓ File size: ' + (result.outputSize / 1024).toFixed(2) + ' KB');
 
-  if (!options.keepFull && fs.existsSync(cssPath)) {
+  if (!options.keepFull && fs.existsSync(fullCssPath)) {
     try {
-      fs.unlinkSync(cssPath);
-      console.log('Removed dist/emily.css for production build.');
-    } catch (e) {
-      // Windows FUSE: can't delete, non-fatal
+      fs.unlinkSync(fullCssPath);
+      console.log('Removed ' + path.relative(process.cwd(), fullCssPath) + ' for production build.');
+    } catch (error) {
+      // Windows FUSE: cannot always delete files cleanly, non-fatal.
     }
   }
 

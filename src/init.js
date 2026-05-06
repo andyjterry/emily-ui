@@ -76,7 +76,9 @@ const PURGE_EXTENSIONS = [
   ".njk",
   ".liquid",
   ".hbs",
+  ".js",
   ".jsx",
+  ".ts",
   ".tsx",
   ".vue",
   ".php",
@@ -107,59 +109,37 @@ async function askHex(promptName, message, initial) {
     message,
     initial: initial || "#000000",
     validate(value) {
-      return isValidHex(value) ? true : "Enter a valid hex colour, e.g. #0077B6";
+      return isValidHex(value)
+        ? true
+        : "Enter a valid hex colour, e.g. #0077B6";
     },
   }).run();
+
   return value.toUpperCase();
 }
 
 async function askColourFromPresets(label, presets, defaultHex) {
-  const choices = presets.map(function(opt) {
+  const choices = presets.map(function (opt) {
     if (opt.value === "custom") {
       return { name: "custom", message: "Enter your own hex" };
     }
+
     return {
       name: opt.value,
-      message: colourSwatch(opt.value) + " " + opt.label + " " + chalk.gray(opt.value),
+      message:
+        colourSwatch(opt.value) + " " + opt.label + " " + chalk.gray(opt.value),
     };
   });
 
   const selected = await new Select({
     name: label,
     message: label + " colour",
-    choices: choices,
+    choices,
   }).run();
 
   if (selected !== "custom") return selected.toUpperCase();
+
   return askHex(label + "Custom", "Enter " + label + " hex", defaultHex);
-}
-
-async function askBtnColour(label, matchLabel, matchHex, presets) {
-  const sameChoice = {
-    name: matchHex,
-    message: colourSwatch(matchHex) + " Same as " + matchLabel + " " + chalk.gray(matchHex),
-  };
-
-  const otherChoices = presets
-    .filter(function(opt) { return opt.value !== matchHex; })
-    .map(function(opt) {
-      if (opt.value === "custom") {
-        return { name: "custom", message: "Enter your own hex" };
-      }
-      return {
-        name: opt.value,
-        message: colourSwatch(opt.value) + " " + opt.label + " " + chalk.gray(opt.value),
-      };
-    });
-
-  const selected = await new Select({
-    name: label,
-    message: label + " colour",
-    choices: [sameChoice].concat(otherChoices),
-  }).run();
-
-  if (selected !== "custom") return selected.toUpperCase();
-  return askHex(label + "Custom", "Enter " + label + " hex", matchHex);
 }
 
 function hasFile(fileName) {
@@ -168,7 +148,9 @@ function hasFile(fileName) {
 
 function readPackageJson() {
   const packagePath = path.join(process.cwd(), "package.json");
+
   if (!fs.existsSync(packagePath)) return null;
+
   try {
     return JSON.parse(fs.readFileSync(packagePath, "utf8"));
   } catch {
@@ -178,34 +160,52 @@ function readPackageJson() {
 
 function hasDependency(packageJson, dependencyName) {
   if (!packageJson) return false;
+
   return Boolean(
     packageJson.dependencies?.[dependencyName] ||
     packageJson.devDependencies?.[dependencyName],
   );
 }
 
+function titleCasePackageName(name) {
+  return name.replace(/-/g, " ").replace(/\b\w/g, function (c) {
+    return c.toUpperCase();
+  });
+}
+
 function addEmilyScriptsToPackageJson() {
   const packagePath = path.join(process.cwd(), "package.json");
+
   if (!fs.existsSync(packagePath)) return false;
+
   try {
     const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
+
     packageJson.scripts = packageJson.scripts || {};
+
     let changed = false;
+
     const scripts = {
       "emily:build": "emily-css build",
       "emily:watch": "emily-css watch",
       "emily:help": "emily-css help",
       "emily:showcase": "emily-css showcase",
     };
-    for (const [key, val] of Object.entries(scripts)) {
+
+    for (const [key, value] of Object.entries(scripts)) {
       if (!packageJson.scripts[key]) {
-        packageJson.scripts[key] = val;
+        packageJson.scripts[key] = value;
         changed = true;
       }
     }
+
     if (changed) {
-      fs.writeFileSync(packagePath, JSON.stringify(packageJson, null, 2) + "\n");
+      fs.writeFileSync(
+        packagePath,
+        JSON.stringify(packageJson, null, 2) + "\n",
+      );
     }
+
     return true;
   } catch {
     return false;
@@ -227,12 +227,14 @@ function detectProject() {
     return {
       name: "Nuxt",
       sourceDir: ".",
+      outputPath: "public/emily.min.css",
       sourceGlobs: [
         "./components/**/*.{vue,js,ts}",
         "./pages/**/*.vue",
         "./layouts/**/*.vue",
         "./app.vue",
       ],
+      linkHint: '<link rel="stylesheet" href="/emily.min.css">',
     };
   }
 
@@ -240,12 +242,14 @@ function detectProject() {
     return {
       name: "Next.js",
       sourceDir: ".",
+      outputPath: "public/emily.min.css",
       sourceGlobs: [
         "./app/**/*.{js,jsx,ts,tsx}",
         "./pages/**/*.{js,jsx,ts,tsx}",
         "./components/**/*.{js,jsx,ts,tsx}",
         "./src/**/*.{js,jsx,ts,tsx}",
       ],
+      linkHint: '<link rel="stylesheet" href="/emily.min.css">',
     };
   }
 
@@ -253,10 +257,16 @@ function detectProject() {
     return {
       name: "React",
       sourceDir: "./src",
+      outputPath: hasFile("public")
+        ? "public/emily.min.css"
+        : "dist/emily.min.css",
       sourceGlobs: [
         "./src/**/*.{js,jsx,ts,tsx}",
         "./components/**/*.{js,jsx,ts,tsx}",
       ],
+      linkHint: hasFile("public")
+        ? '<link rel="stylesheet" href="/emily.min.css">'
+        : '<link rel="stylesheet" href="./dist/emily.min.css">',
     };
   }
 
@@ -268,7 +278,9 @@ function detectProject() {
     return {
       name: "Vue/Vite",
       sourceDir: "./src",
+      outputPath: "public/emily.min.css",
       sourceGlobs: ["./src/**/*.{vue,js,ts}"],
+      linkHint: '<link rel="stylesheet" href="/emily.min.css">',
     };
   }
 
@@ -276,14 +288,16 @@ function detectProject() {
     return {
       name: "Astro",
       sourceDir: "./src",
+      outputPath: "public/emily.min.css",
       sourceGlobs: ["./src/**/*.{astro,html,js,ts,vue,jsx,tsx,svelte}"],
+      linkHint: '<link rel="stylesheet" href="/emily.min.css">',
     };
   }
 
   const rootFiles = fs.readdirSync(process.cwd());
-  const hasDrupalInfoFile = rootFiles.some((file) =>
-    file.endsWith(".info.yml"),
-  );
+  const hasDrupalInfoFile = rootFiles.some(function (file) {
+    return file.endsWith(".info.yml");
+  });
 
   if (
     hasDrupalInfoFile ||
@@ -292,21 +306,25 @@ function detectProject() {
     return {
       name: "Drupal",
       sourceDir: ".",
+      outputPath: "dist/emily.min.css",
       sourceGlobs: [
         "./web/themes/custom/**/*.{twig,js,ts}",
         "./templates/**/*.html.twig",
         "./components/**/*.twig",
         "./**/*.theme",
       ],
+      linkHint: "Attach dist/emily.min.css through your theme library YAML.",
     };
   }
 
   return {
     name: "Static/Generic",
     sourceDir: ".",
+    outputPath: "dist/emily.min.css",
     sourceGlobs: [
       "./**/*.{html,htm,twig,njk,liquid,hbs,php,astro,svelte,vue,js,ts}",
     ],
+    linkHint: '<link rel="stylesheet" href="./dist/emily.min.css">',
   };
 }
 
@@ -321,7 +339,6 @@ function createDefaultConfig({
   bodyFont,
   baseUnit,
   detectedProject,
-  sourceDir,
 }) {
   return {
     name,
@@ -337,11 +354,16 @@ function createDefaultConfig({
 
     customFonts: [],
 
+    output: {
+      css: detectedProject.outputPath,
+      fullCss: "dist/emily.css",
+    },
+
     colours,
 
     purge: {
       projectType: detectedProject.name,
-      sourceDir,
+      sourceDir: detectedProject.sourceDir,
       sourceGlobs: detectedProject.sourceGlobs,
       ignore: DEFAULT_PURGE_IGNORE,
       extensions: PURGE_EXTENSIONS,
@@ -469,26 +491,32 @@ function createDefaultConfig({
 // ============================================================================
 
 async function init() {
-  console.log(chalk.bold.magenta("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"));
+  console.log(
+    chalk.bold.magenta("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"),
+  );
   console.log(chalk.bold.magenta("  EmilyUI Setup"));
-  console.log(chalk.bold.magenta("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"));
+  console.log(
+    chalk.bold.magenta("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"),
+  );
 
   try {
     const spinner = ora("Analysing project structure...").start();
     const detectedProject = detectProject();
     spinner.succeed("Detected project: " + chalk.cyan(detectedProject.name));
 
-    // Derive a sensible default name from package.json if available
     const packageJsonData = readPackageJson();
-    const pkgName = packageJsonData && packageJsonData.name
-      ? packageJsonData.name.replace(/-/g, " ").replace(/\b\w/g, function(c) { return c.toUpperCase(); })
-      : "My Design System";
+    const pkgName =
+      packageJsonData && packageJsonData.name
+        ? titleCasePackageName(packageJsonData.name)
+        : "My Design System";
 
     const projectName = await new Input({
       name: "projectName",
       message: "Project name",
       initial: pkgName,
-      validate: function(v) { return v.trim() ? true : "Project name is required"; },
+      validate: function (value) {
+        return value.trim() ? true : "Project name is required";
+      },
     }).run();
 
     if (!projectName || !projectName.trim()) {
@@ -502,31 +530,61 @@ async function init() {
 
     console.log(chalk.bold("\n" + chalk.magenta("→") + " Brand colours"));
 
-    const primary = await askColourFromPresets("primary", COLOUR_PRESETS.primary, "#DB2777");
-    const secondary = await askColourFromPresets("secondary", COLOUR_PRESETS.secondary, "#2563EB");
-    const btnPrimary = await askBtnColour("btn-primary", "primary", primary, COLOUR_PRESETS.primary);
-    const btnSecondary = await askBtnColour("btn-secondary", "secondary", secondary, COLOUR_PRESETS.secondary);
+    const primary = await askColourFromPresets(
+      "primary",
+      COLOUR_PRESETS.primary,
+      "#DB2777",
+    );
+    const secondary = await askColourFromPresets(
+      "secondary",
+      COLOUR_PRESETS.secondary,
+      "#2563EB",
+    );
+
+    console.log(
+      chalk.gray(
+        "\n  Button colour tokens will use your brand colours by default:",
+      ),
+    );
+    console.log(chalk.gray("  - btn-primary = primary"));
+    console.log(chalk.gray("  - btn-secondary = secondary"));
 
     console.log(chalk.bold("\n" + chalk.magenta("→") + " Utility colours"));
-    console.log(chalk.gray("  Defaults shown. Press enter to accept or pick an alternative.\n"));
+    console.log(
+      chalk.gray(
+        "  Defaults shown. Press enter to accept or pick an alternative.\n",
+      ),
+    );
 
-    const success = await askColourFromPresets("success", COLOUR_PRESETS.success, "#017F65");
-    const warning = await askColourFromPresets("warning", COLOUR_PRESETS.warning, "#FFC107");
-    const error = await askColourFromPresets("error", COLOUR_PRESETS.error, "#B20000");
+    const success = await askColourFromPresets(
+      "success",
+      COLOUR_PRESETS.success,
+      "#017F65",
+    );
+    const warning = await askColourFromPresets(
+      "warning",
+      COLOUR_PRESETS.warning,
+      "#FFC107",
+    );
+    const error = await askColourFromPresets(
+      "error",
+      COLOUR_PRESETS.error,
+      "#B20000",
+    );
 
     const colours = {
-      primary: primary,
-      secondary: secondary,
-      "btn-primary": btnPrimary,
-      "btn-secondary": btnSecondary,
-      success: success,
-      warning: warning,
-      error: error,
+      primary,
+      secondary,
+      "btn-primary": primary,
+      "btn-secondary": secondary,
+      success,
+      warning,
+      error,
       neutral: "#57534E",
     };
 
-    // Additional utility colours
     let addingMore = true;
+
     while (addingMore) {
       const wantsMore = await new Confirm({
         name: "addMore",
@@ -542,16 +600,24 @@ async function init() {
       const customName = await new Input({
         name: "customName",
         message: "Colour name (e.g. accent, highlight, brand-dark)",
-        validate: function(value) {
+        validate: function (value) {
           const trimmed = value.trim();
+
           if (!trimmed) return "Name is required";
-          if (!/^[a-z][a-z0-9-]*$/.test(trimmed)) return "Use lowercase letters, numbers, and hyphens only";
+          if (!/^[a-z][a-z0-9-]*$/.test(trimmed)) {
+            return "Use lowercase letters, numbers, and hyphens only";
+          }
           if (colours[trimmed]) return '"' + trimmed + '" is already defined';
+
           return true;
         },
       }).run();
 
-      colours[customName.trim()] = await askHex("hex-" + customName, "Hex for " + customName, "#000000");
+      colours[customName.trim()] = await askHex(
+        "hex-" + customName,
+        "Hex for " + customName,
+        "#000000",
+      );
     }
 
     // =========================================================================
@@ -582,9 +648,13 @@ async function init() {
       name: "baseUnit",
       message: "Base spacing unit in px (18px = 1.125rem)",
       initial: "18",
-      validate: function(value) {
+      validate: function (value) {
         const parsed = Number.parseInt(value, 10);
-        if (Number.isNaN(parsed) || parsed <= 0) return "Must be a positive number.";
+
+        if (Number.isNaN(parsed) || parsed <= 0) {
+          return "Must be a positive number.";
+        }
+
         return true;
       },
     }).run();
@@ -592,16 +662,25 @@ async function init() {
     const baseUnit = Number.parseInt(baseUnitRaw, 10);
 
     // =========================================================================
-    // PURGE
+    // PURGE / OUTPUT
     // =========================================================================
 
-    console.log(chalk.bold("\n" + chalk.magenta("→") + " Purge settings"));
+    console.log(chalk.bold("\n" + chalk.magenta("→") + " Project files"));
 
-    const sourceDirRaw = await new Input({
-      name: "sourceDir",
-      message: "Detected " + detectedProject.name + " — scan directory",
-      initial: detectedProject.sourceDir,
-    }).run();
+    console.log(
+      chalk.gray(
+        "  Detected " +
+          detectedProject.name +
+          ". EmilyCSS will scan the recommended files automatically.",
+      ),
+    );
+
+    detectedProject.sourceGlobs.forEach(function (glob) {
+      console.log(chalk.gray("  - " + glob));
+    });
+
+    console.log(chalk.bold("\n" + chalk.magenta("→") + " CSS output"));
+    console.log(chalk.gray("  Output: " + detectedProject.outputPath));
 
     // =========================================================================
     // BUILD
@@ -609,18 +688,18 @@ async function init() {
 
     const config = createDefaultConfig({
       name: projectName.trim(),
-      colours: colours,
-      headingFont: headingFont,
-      bodyFont: bodyFont,
-      baseUnit: baseUnit,
-      detectedProject: detectedProject,
-      sourceDir: sourceDirRaw.trim() || detectedProject.sourceDir,
+      colours,
+      headingFont,
+      bodyFont,
+      baseUnit,
+      detectedProject,
     });
 
     const configPath = path.join(process.cwd(), "emily.config.json");
-    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + "\n");
 
     console.log("");
+
     const buildSpinner = ora("Building EmilyUI CSS...").start();
 
     const build = crossSpawn("npx", ["emily-css", "build"], {
@@ -630,9 +709,12 @@ async function init() {
     });
 
     let stderr = "";
-    build.stderr.on("data", function(data) { stderr += data.toString(); });
 
-    build.on("close", async function(code) {
+    build.stderr.on("data", function (data) {
+      stderr += data.toString();
+    });
+
+    build.on("close", async function (code) {
       if (code === 0) {
         buildSpinner.succeed("EmilyUI CSS built successfully.");
 
@@ -640,22 +722,33 @@ async function init() {
 
         console.log(
           "\n" +
-          boxen(
-            chalk.green.bold("Setup complete") +
-            "\n\nConfig:   " + chalk.cyan("emily.config.json") +
-            "\nOutput:   " + chalk.cyan("dist/emily.min.css") +
-            "\nProject:  " + chalk.cyan(detectedProject.name) +
-            "\nScan:     " + chalk.cyan(config.purge.sourceDir) +
-            "\n\nNext: link " + chalk.yellow("dist/emily.min.css") + " in your project." +
-            (scriptsAdded
-              ? "\n\nScripts added:\n" +
-                chalk.cyan("  npm run emily:build\n") +
-                chalk.cyan("  npm run emily:watch\n") +
-                chalk.cyan("  npm run emily:showcase\n") +
-                chalk.cyan("  npm run emily:help")
-              : ""),
-            { padding: 1, margin: 1, borderStyle: "round", borderColor: "magenta" },
-          ),
+            boxen(
+              chalk.green.bold("Setup complete") +
+                "\n\nConfig:   " +
+                chalk.cyan("emily.config.json") +
+                "\nOutput:   " +
+                chalk.cyan(config.output.css) +
+                "\nProject:  " +
+                chalk.cyan(detectedProject.name) +
+                "\nScan:\n  " +
+                chalk.cyan(config.purge.sourceGlobs.join("\n  ")) +
+                "\n\nNext: add this stylesheet to your project:" +
+                "\n" +
+                chalk.yellow("  " + detectedProject.linkHint) +
+                (scriptsAdded
+                  ? "\n\nScripts added:\n" +
+                    chalk.cyan("  npm run emily:build\n") +
+                    chalk.cyan("  npm run emily:watch\n") +
+                    chalk.cyan("  npm run emily:showcase\n") +
+                    chalk.cyan("  npm run emily:help")
+                  : ""),
+              {
+                padding: 1,
+                margin: 1,
+                borderStyle: "round",
+                borderColor: "magenta",
+              },
+            ),
         );
 
         const startWatch = await new Confirm({
@@ -665,31 +758,45 @@ async function init() {
         }).run();
 
         if (startWatch) {
-          console.log(chalk.cyan("\nStarting watcher — press Ctrl+C to stop.\n"));
+          console.log(
+            chalk.cyan("\nStarting watcher. Press Ctrl+C to stop.\n"),
+          );
+
           const watcher = crossSpawn("npx", ["emily-css", "watch"], {
             cwd: process.cwd(),
             stdio: "inherit",
             shell: process.platform === "win32",
           });
-          watcher.on("close", function(c) { process.exit(c || 0); });
+
+          watcher.on("close", function (c) {
+            process.exit(c || 0);
+          });
         } else {
-          console.log(chalk.gray("\nRun the watcher any time with: npm run emily:watch\n"));
+          console.log(
+            chalk.gray(
+              "\nRun the watcher any time with: npm run emily:watch\n",
+            ),
+          );
           process.exit(0);
         }
-      } else {
-        buildSpinner.fail("Automatic build failed.");
-        console.log("\nYour config was created, but CSS was not built.");
-        console.log("\nRun manually:\n");
-        console.log(chalk.cyan("  npx emily-css build"));
-        if (stderr.trim()) {
-          console.log(chalk.gray("\nBuild error:\n"));
-          console.log(stderr.trim());
-        }
-        process.exit(1);
+
+        return;
       }
+
+      buildSpinner.fail("Automatic build failed.");
+      console.log("\nYour config was created, but CSS was not built.");
+      console.log("\nRun manually:\n");
+      console.log(chalk.cyan("  npx emily-css build"));
+
+      if (stderr.trim()) {
+        console.log(chalk.gray("\nBuild error:\n"));
+        console.log(stderr.trim());
+      }
+
+      process.exit(1);
     });
 
-    build.on("error", function(error) {
+    build.on("error", function (error) {
       buildSpinner.fail("Automatic build failed.");
       console.log("\nYour config was created, but CSS was not built.");
       console.log("Reason: " + error.message);
@@ -697,12 +804,13 @@ async function init() {
       console.log(chalk.cyan("  npx emily-css build\n"));
       process.exit(1);
     });
-
   } catch (error) {
     console.log(chalk.red("\nSetup cancelled or failed."));
+
     if (error && error.message) {
       console.log(chalk.gray(error.message));
     }
+
     process.exit(1);
   }
 }

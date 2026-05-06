@@ -7,8 +7,6 @@ if (command === "init") {
 } else if (command === "build") {
   const { build } = require("../src/index.js");
   build({ keepFull: process.argv.includes("--keep-full") });
-} else if (command === "purge") {
-  require("../src/purge-cmd.js");
 } else if (command === "watch") {
   require("../src/watch.js");
 } else if (command === "showcase") {
@@ -19,9 +17,8 @@ if (command === "init") {
   
   Commands:
     emily-css init        Set up a new project (interactive wizard)
-    emily-css build       Generate production CSS to dist/emily.min.css
-    emily-css watch       Dev mode: watch for config changes and rebuild
-    emily-css purge       Scan project files and remove unused utilities
+    emily-css build       Generate production CSS to the configured output path
+    emily-css watch       Dev mode: watch for changes and rebuild
     emily-css showcase    Launch the component showcase in your browser
     emily-css help        Show this help text
   
@@ -39,9 +36,8 @@ if (command === "init") {
 
   Usage:
     emily-css init        Set up a new project
-    emily-css build       Generate production CSS
+    emily-css build       Generate production CSS to the configured output path
     emily-css watch       Dev mode: rebuild on changes
-    emily-css purge       Remove unused utilities
     emily-css showcase    Browse components in your browser
     emily-css help        Full command reference
 

@@ -1,9 +1,31 @@
 // new version
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-function getAllFiles(dir, extensions = ['.html', '.htm', '.twig', '.njk', '.liquid', '.hbs', '.jsx', '.tsx', '.vue', '.php', '.astro', '.svelte', '.blade.php', '.jinja', '.jinja2', '.j2', '.md']) {
+const DEFAULT_EXTENSIONS = [
+  ".html",
+  ".htm",
+  ".twig",
+  ".njk",
+  ".liquid",
+  ".hbs",
+  ".js",
+  ".jsx",
+  ".ts",
+  ".tsx",
+  ".vue",
+  ".php",
+  ".astro",
+  ".svelte",
+  ".blade.php",
+  ".jinja",
+  ".jinja2",
+  ".j2",
+  ".md",
+];
+
+function getAllFiles(dir, extensions = DEFAULT_EXTENSIONS) {
   let files = [];
 
   try {
@@ -12,13 +34,17 @@ function getAllFiles(dir, extensions = ['.html', '.htm', '.twig', '.njk', '.liqu
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
 
-      if (entry.name.startsWith('.') || entry.name === 'node_modules' || entry.name === 'dist') {
+      if (
+        entry.name.startsWith(".") ||
+        entry.name === "node_modules" ||
+        entry.name === "dist"
+      ) {
         continue;
       }
 
       if (entry.isDirectory()) {
         files = files.concat(getAllFiles(fullPath, extensions));
-      } else if (extensions.some(ext => entry.name.endsWith(ext))) {
+      } else if (extensions.some((ext) => entry.name.endsWith(ext))) {
         files.push(fullPath);
       }
     }
@@ -36,7 +62,7 @@ function extractClassNames(content) {
 
   while ((match = classRegex.exec(content)) !== null) {
     const classes = match[1].split(/\s+/);
-    classes.forEach(cls => {
+    classes.forEach((cls) => {
       if (cls.trim()) classNames.add(cls.trim());
     });
   }
@@ -44,8 +70,8 @@ function extractClassNames(content) {
   const vueRegex = /(?::class|class\.|v-bind:class)\s*=\s*["'{]([^"'}]+)["'}]/g;
   while ((match = vueRegex.exec(content)) !== null) {
     const classes = match[1].split(/[\s,]+/);
-    classes.forEach(cls => {
-      const cleaned = cls.replace(/['"`{}"]/g, '').trim();
+    classes.forEach((cls) => {
+      const cleaned = cls.replace(/['"`{}"]/g, "").trim();
       if (cleaned) classNames.add(cleaned);
     });
   }
@@ -55,18 +81,20 @@ function extractClassNames(content) {
 
 function extractBlocks(css) {
   const blocks = [];
-  let current = '';
+  let current = "";
   let depth = 0;
 
   for (let i = 0; i < css.length; i++) {
     current += css[i];
-    if (css[i] === '{') {
+
+    if (css[i] === "{") {
       depth++;
-    } else if (css[i] === '}') {
+    } else if (css[i] === "}") {
       depth--;
+
       if (depth === 0) {
         blocks.push(current.trim());
-        current = '';
+        current = "";
       }
     }
   }
@@ -80,18 +108,18 @@ function extractBlocks(css) {
 
 function purgeBlock(block, usedClasses) {
   if (
-    block.startsWith(':root') || 
-    block.startsWith('*,') || 
-    block.startsWith('html') || 
-    block.startsWith('body') ||
-    block.startsWith('@layer theme,') // Keep layer definition
+    block.startsWith(":root") ||
+    block.startsWith("*,") ||
+    block.startsWith("html") ||
+    block.startsWith("body") ||
+    block.startsWith("@layer theme,")
   ) {
     return block;
   }
 
-  if (block.startsWith('@') && block.includes('{')) {
-    const firstBrace = block.indexOf('{');
-    const lastBrace = block.lastIndexOf('}');
+  if (block.startsWith("@") && block.includes("{")) {
+    const firstBrace = block.indexOf("{");
+    const lastBrace = block.lastIndexOf("}");
 
     if (firstBrace === -1 || lastBrace === -1) return block;
 
@@ -100,61 +128,96 @@ function purgeBlock(block, usedClasses) {
 
     const innerBlocks = extractBlocks(innerContent);
     const purgedInner = innerBlocks
-      .map(b => purgeBlock(b, usedClasses))
-      .filter(b => b.trim() !== '')
-      .join('\n  ');
+      .map((b) => purgeBlock(b, usedClasses))
+      .filter((b) => b.trim() !== "")
+      .join("\n  ");
 
-    if (!purgedInner.trim()) return '';
+    if (!purgedInner.trim()) return "";
 
     return `${wrapperSignature}\n  ${purgedInner}\n}`;
   }
 
-  const selectorPart = block.split('{')[0];
-  if (!selectorPart) return '';
+  const selectorPart = block.split("{")[0];
+  if (!selectorPart) return "";
 
-  const cleanSelectorPart = selectorPart.replace(/\/\*[\s\S]*?\*\//g, '').trim();
-  const selectors = cleanSelectorPart.split(',').map(s => s.trim());
+  const cleanSelectorPart = selectorPart
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .trim();
 
-  const isUsed = selectors.some(selector => {
-    if (!selector.includes('.')) return true;
+  const selectors = cleanSelectorPart.split(",").map((s) => s.trim());
+
+  const isUsed = selectors.some((selector) => {
+    if (!selector.includes(".")) return true;
 
     for (const used of usedClasses) {
-      const escapedUsed = used.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/:/g, '\\\\:');
-      const boundaryRegex = new RegExp(`\\.${escapedUsed}(?::[\\w\\-]+|[\\s,>+~]|$)`);
+      const escapedUsed = used
+        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+        .replace(/:/g, "\\\\:");
+
+      const boundaryRegex = new RegExp(
+        `\\.${escapedUsed}(?::[\\w\\-]+|[\\s,>+~]|$)`,
+      );
+
       if (boundaryRegex.test(selector)) return true;
     }
+
     return false;
   });
 
-  return isUsed ? block : '';
+  return isUsed ? block : "";
 }
 
-function purgeCSS(css, scanDir, config) {
-  const extensions = config && config.purge && config.purge.extensions
-    ? config.purge.extensions
-    : ['.html', '.htm', '.njk', '.liquid', '.hbs', '.jsx', '.tsx', '.vue', '.php', '.astro', '.svelte', '.blade.php'];
+function getFilesForPurge(scanDir, config, extensions) {
+  if (config?.purge?.sourceGlobs && config.purge.sourceGlobs.length) {
+    const fg = require("fast-glob");
 
-  console.log(`\n🔍 Scanning for files in: ${scanDir}`);
-  console.log(`   Extensions: ${extensions.join(', ')}`);
+    console.log(`\n🔍 Scanning using sourceGlobs`);
+    config.purge.sourceGlobs.forEach((glob) => console.log(`   - ${glob}`));
+    console.log(`   Extensions: ${extensions.join(", ")}`);
 
-  const files = getAllFiles(scanDir, extensions);
+    return fg.sync(config.purge.sourceGlobs, {
+      ignore: config.purge.ignore || [],
+      onlyFiles: true,
+      unique: true,
+    });
+  }
 
-  // Show per-extension breakdown so missing extensions are immediately obvious
+  console.log(`\n🔍 Scanning fallback directory: ${scanDir}`);
+  console.log(`   Extensions: ${extensions.join(", ")}`);
+
+  return getAllFiles(scanDir, extensions);
+}
+
+function printFileSummary(files, extensions) {
   const countsByExt = {};
-  for (const ext of extensions) countsByExt[ext] = 0;
+
+  for (const ext of extensions) {
+    countsByExt[ext] = 0;
+  }
+
   for (const file of files) {
-    const ext = extensions.find(e => file.endsWith(e)) || 'other';
+    const ext = extensions.find((e) => file.endsWith(e)) || "other";
     countsByExt[ext] = (countsByExt[ext] || 0) + 1;
   }
+
   const extSummary = Object.entries(countsByExt)
     .filter(([, count]) => count > 0)
     .map(([ext, count]) => `${count} ${ext}`)
-    .join(', ');
-  console.log(`   Found: ${files.length === 0 ? 'no files' : extSummary}`);
+    .join(", ");
+
+  console.log(`   Found: ${files.length === 0 ? "no source files" : extSummary}`);
+}
+
+function purgeCSS(css, scanDir, config) {
+  const extensions = config?.purge?.extensions || DEFAULT_EXTENSIONS;
+  const files = getFilesForPurge(scanDir, config, extensions);
+
+  printFileSummary(files, extensions);
 
   if (files.length === 0) {
-    console.warn('   ⚠️  No template files found. Check that --purge points to the right directory and extensions are configured.');
-    console.warn(`   Expected extensions: ${extensions.join(', ')}`);
+    console.warn(
+      "   ⚠️  No template/source files found. Check your purge.sourceGlobs or purge.sourceDir.",
+    );
     return css;
   }
 
@@ -162,23 +225,23 @@ function purgeCSS(css, scanDir, config) {
 
   for (const file of files) {
     try {
-      const content = fs.readFileSync(file, 'utf8');
+      const content = fs.readFileSync(file, "utf8");
       const classes = extractClassNames(content);
-      classes.forEach(cls => usedClasses.add(cls));
+      classes.forEach((cls) => usedClasses.add(cls));
     } catch (err) {
       console.warn(`   ⚠️  Could not read ${file}: ${err.message}`);
     }
   }
 
-  console.log(`   Extracted ${usedClasses.size} unique class names from HTML`);
+  console.log(`   Extracted ${usedClasses.size} unique class names`);
 
   const blocks = extractBlocks(css);
   const purgedBlocks = blocks
-    .map(block => purgeBlock(block, usedClasses))
-    .filter(block => block.trim() !== '');
+    .map((block) => purgeBlock(block, usedClasses))
+    .filter((block) => block.trim() !== "");
 
-  const purgedCss = purgedBlocks.join('\n\n');
-  
+  const purgedCss = purgedBlocks.join("\n\n");
+
   const beforeSize = (css.length / 1024).toFixed(2);
   const afterSize = (purgedCss.length / 1024).toFixed(2);
   const reduction = (((css.length - purgedCss.length) / css.length) * 100).toFixed(1);
@@ -191,4 +254,8 @@ function purgeCSS(css, scanDir, config) {
   return purgedCss;
 }
 
-module.exports = { purgeCSS, getAllFiles, extractClassNames };
+module.exports = {
+  purgeCSS,
+  getAllFiles,
+  extractClassNames,
+};
