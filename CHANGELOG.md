@@ -4,6 +4,11 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.0.21 — May 2026
+
+**"Include bundled showcase template**
+
+---
 ## v1.0.20 — May 2026
 
 **replace folder structure template to tempalates**
