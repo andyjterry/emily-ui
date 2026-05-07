@@ -4,6 +4,14 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.0.23 — May 2026
+
+**colour system redesign — brand/accent tokens + semantic colours (v1.0.23)**
+
+### Added
+- colour system redesign — brand/accent tokens + semantic colours (v1.0.23)
+
+---
 ## v1.0.22 — May 2026
 
 **· Improve purge extraction and package robustness tests**
