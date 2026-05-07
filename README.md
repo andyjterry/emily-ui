@@ -83,8 +83,15 @@ Edit `emily.config.json`:
     "body": "inter"
   },
   "colours": {
-    "primary": "#2563EB",
+    "brand": "#2563EB",
+    "accent": "#2563EB",
+    "btn-primary": "#2563EB",
+    "btn-secondary": "#2563EB",
     "neutral": "#57534E"
+  },
+  "semanticColours": {
+    "dark": "#1A1A1A",
+    "light": "#FAFAFA"
   },
   "purge": {
     "content": ["./**/*.{html,php,jsx,tsx,vue}"]
@@ -108,7 +115,7 @@ After your first build, open `showcase.html` in your browser. It contains produc
 ### Button
 
 ```html
-<button class="px-6 py-3 rounded-lg bg-primary-80 text-white hover:bg-primary-90 focus-visible:ring-2 focus-visible:ring-primary-50 font-medium">
+<button class="px-6 py-3 rounded-lg bg-brand-80 text-white hover:bg-brand-90 focus-visible:ring-2 focus-visible:ring-brand-50 font-medium">
   Submit
 </button>
 ```

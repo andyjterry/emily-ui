@@ -13,14 +13,18 @@
     "fullCss": "dist/emily.css"
   },
   "colours": {
-    "primary": "#DB2777",
-    "secondary": "#2563EB",
+    "brand": "#DB2777",
+    "accent": "#2563EB",
     "btn-primary": "#DB2777",
     "btn-secondary": "#2563EB",
     "success": "#017F65",
     "warning": "#FFC107",
     "error": "#B20000",
     "neutral": "#57534E"
+  },
+  "semanticColours": {
+    "dark": "#1A1A1A",
+    "light": "#FAFAFA"
   },
   "purge": {
     "projectType": "Static/Generic",

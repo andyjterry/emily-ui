@@ -361,6 +361,11 @@ function createDefaultConfig({
 
     colours,
 
+    semanticColours: {
+      dark: "#1A1A1A",
+      light: "#FAFAFA",
+    },
+
     purge: {
       projectType: detectedProject.name,
       sourceDir: detectedProject.sourceDir,
@@ -530,13 +535,13 @@ async function init() {
 
     console.log(chalk.bold("\n" + chalk.magenta("→") + " Brand colours"));
 
-    const primary = await askColourFromPresets(
-      "primary",
+    const brand = await askColourFromPresets(
+      "brand",
       COLOUR_PRESETS.primary,
       "#DB2777",
     );
-    const secondary = await askColourFromPresets(
-      "secondary",
+    const accent = await askColourFromPresets(
+      "accent",
       COLOUR_PRESETS.secondary,
       "#2563EB",
     );
@@ -546,8 +551,8 @@ async function init() {
         "\n  Button colour tokens will use your brand colours by default:",
       ),
     );
-    console.log(chalk.gray("  - btn-primary = primary"));
-    console.log(chalk.gray("  - btn-secondary = secondary"));
+    console.log(chalk.gray("  - btn-primary = brand"));
+    console.log(chalk.gray("  - btn-secondary = accent"));
 
     console.log(chalk.bold("\n" + chalk.magenta("→") + " Utility colours"));
     console.log(
@@ -573,10 +578,10 @@ async function init() {
     );
 
     const colours = {
-      primary,
-      secondary,
-      "btn-primary": primary,
-      "btn-secondary": secondary,
+      brand,
+      accent,
+      "btn-primary": brand,
+      "btn-secondary": accent,
       success,
       warning,
       error,

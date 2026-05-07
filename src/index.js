@@ -221,12 +221,19 @@ function generateFontCSS(config) {
 function generateCSSVariables(colours, spacing, config) {
   let css = `:root {\n`;
 
-  // Colour variables
+  // Colour variables (full shade scale)
   Object.entries(colours).forEach(([colourName, shades]) => {
     Object.entries(shades).forEach(([shade, hex]) => {
       css += `  --color-${colourName}-${shade}: ${hex};\n`;
     });
   });
+
+  // Semantic colour variables (single value, no shade scale)
+  if (config.semanticColours) {
+    Object.entries(config.semanticColours).forEach(([name, hex]) => {
+      css += `  --color-${name}: ${hex};\n`;
+    });
+  }
 
   // Spacing variables
   Object.entries(spacing).forEach(([key, value]) => {
@@ -669,6 +676,19 @@ function generateColourUtilities(colours) {
   return css;
 }
 
+function generateSemanticColourUtilities(semanticColours) {
+  if (!semanticColours) return '';
+  let css = `/* Semantic colours: single value, no shade scale */\n`;
+  Object.entries(semanticColours).forEach(([name]) => {
+    css += `.bg-${name} { background-color: var(--color-${name}); }\n`;
+    css += `.text-${name} { color: var(--color-${name}); }\n`;
+    css += `.border-${name} { border-color: var(--color-${name}); }\n`;
+    css += `.fill-${name} { fill: var(--color-${name}); }\n`;
+  });
+  css += `\n`;
+  return css;
+}
+
 // ============================================================================
 // DARK MODE VARIANTS
 // ============================================================================
@@ -909,6 +929,9 @@ function buildFullFramework() {
 
   const colours = generateAllColours(config.colours);
   console.log(`✓ Generated ${Object.keys(colours).length} colour scales`);
+  if (config.semanticColours) {
+    console.log(`✓ Generated ${Object.keys(config.semanticColours).length} semantic colour tokens`);
+  }
 
   const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
   console.log(`✓ Generated ${Object.keys(spacing).length} spacing values`);
@@ -924,6 +947,7 @@ function buildFullFramework() {
   utilityCss += generateTypographyUtilities(config);
   utilityCss += generateBorderUtilities(config);
   utilityCss += generateColourUtilities(colours);
+  utilityCss += generateSemanticColourUtilities(config.semanticColours);
   utilityCss += positioningUtilities(spacing);
   utilityCss += overflowUtilities();
   utilityCss += transformUtilities(spacing);
@@ -1153,6 +1177,7 @@ module.exports = {
   generateSpacing,
   generateBorderUtilities,
   generateColourUtilities,
+  generateSemanticColourUtilities,
   generateTypographyUtilities,
   generateSpacingUtilities,
   addStateVariants,

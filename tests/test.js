@@ -295,13 +295,13 @@ test('generateColourUtilities includes text-white', () => {
   assert.ok(css.includes('.text-white {'), 'Missing ".text-white {"');
 });
 
-test('generateColourUtilities accent-primary-80 uses correct hex', () => {
+test('generateColourUtilities accent-brand-80 uses correct hex', () => {
   const colours = generateAllColours(config.colours);
   const css = generateColourUtilities(colours);
-  const primaryHex = config.colours.primary.toUpperCase();
+  const brandHex = config.colours.brand.toUpperCase();
   assert.ok(
-    css.includes(`.accent-primary-80 { accent-color: ${primaryHex}; }`),
-    `Missing correct accent-primary-80 rule`
+    css.includes(`.accent-brand-80 { accent-color: ${brandHex}; }`),
+    `Missing correct accent-brand-80 rule`
   );
 });
 
@@ -527,8 +527,8 @@ test('config has required top-level keys', () => {
   });
 });
 
-test('config.colours has at least primary, success, error, neutral', () => {
-  const required = ['primary', 'success', 'error', 'neutral'];
+test('config.colours has at least brand, success, error, neutral', () => {
+  const required = ['brand', 'success', 'error', 'neutral'];
   required.forEach(colour => {
     assert.ok(config.colours[colour], `Config missing colour: "${colour}"`);
   });
@@ -643,18 +643,18 @@ requireBuild('.border-l-4 exists in built CSS', () => {
   assert.ok(builtCss.includes('.border-l-4 {'), 'Missing ".border-l-4 {"');
 });
 
-requireBuild('.accent-primary-80 exists in built CSS', () => {
-  assert.ok(builtCss.includes('.accent-primary-80 {'), 'Missing ".accent-primary-80 {"');
+requireBuild('.accent-brand-80 exists in built CSS', () => {
+  assert.ok(builtCss.includes('.accent-brand-80 {'), 'Missing ".accent-brand-80 {"');
 });
 
 requireBuild('.sr-only exists in built CSS', () => {
   assert.ok(builtCss.includes('.sr-only {'), 'Missing ".sr-only {"');
 });
 
-requireBuild('hover:bg-primary-80 state variant exists', () => {
+requireBuild('hover:bg-brand-80 state variant exists', () => {
   assert.ok(
-    builtCss.includes('.hover\\:bg-primary-80:hover {'),
-    'Missing ".hover\\:bg-primary-80:hover {"'
+    builtCss.includes('.hover\\:bg-brand-80:hover {'),
+    'Missing ".hover\\:bg-brand-80:hover {"'
   );
 });
 
@@ -1064,7 +1064,7 @@ test('divideUtilities includes colour variants', () => {
   const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
   const colours = generateAllColours(config.colours);
   const css = divideUtilities(spacing, colours);
-  assert.ok(css.includes('.divide-primary-'), 'Missing .divide-primary-* colour variants');
+  assert.ok(css.includes('.divide-brand-'), 'Missing .divide-brand-* colour variants');
 });
 
 // --- Background utilities ---
