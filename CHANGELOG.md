@@ -4,6 +4,14 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.0.25 — May 2026
+
+**updaed colour**
+
+### Fixed
+- change colour on code
+
+---
 ## v1.0.24 — May 2026
 
 **colour system redesign — brand/accent tokens + semantic colours (v1.0.23)**
