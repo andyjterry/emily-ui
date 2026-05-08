@@ -1026,7 +1026,7 @@ function buildFullFramework() {
     font-family: "Menlo", "Monaco", "Courier New", monospace;
     font-size: 0.875em;
     background-color: #0d0c0b;
-    color: #a3c986;
+    color: #e6ffd2;
     padding: 0.125rem 0.4rem;
     border-radius: 4px;
     display: inline;
