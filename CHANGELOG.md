@@ -6,6 +6,14 @@ All notable changes to `emily-css` are documented here.
 
 ## v1.0.26 — May 2026
 
+**Expand utility coverage and typography scale**
+
+### Added
+- Expand utility coverage and typography scale
+
+---
+## v1.0.26 — May 2026
+
 **Colour utilities now variable-based; fix grey text on dark surfaces**
 
 ### Fixed
