@@ -359,7 +359,6 @@ function generateSpacingUtilities(spacing) {
 function generateFlexboxUtilities(spacing) {
   let css = `/* Flexbox */\n`;
 
-  // Note: .flex is already generated in displayUtilities(), removed duplicate here
   css += `.inline-flex { display: inline-flex; }\n`;
 
   // Direction
@@ -373,22 +372,65 @@ function generateFlexboxUtilities(spacing) {
   css += `.flex-nowrap { flex-wrap: nowrap; }\n`;
   css += `.flex-wrap-reverse { flex-wrap: wrap-reverse; }\n`;
 
-  // Grow/shrink
+  // Flex shorthand
   css += `.flex-1 { flex: 1 1 0%; }\n`;
   css += `.flex-auto { flex: 1 1 auto; }\n`;
+  css += `.flex-initial { flex: 0 1 auto; }\n`;
   css += `.flex-none { flex: none; }\n`;
+
+  // Grow/shrink
   css += `.grow { flex-grow: 1; }\n`;
   css += `.grow-0 { flex-grow: 0; }\n`;
   css += `.shrink { flex-shrink: 1; }\n`;
   css += `.shrink-0 { flex-shrink: 0; }\n`;
 
+  // Flex basis
+  css += `.basis-auto { flex-basis: auto; }\n`;
+  css += `.basis-full { flex-basis: 100%; }\n`;
+  Object.entries(spacing).forEach(([key, value]) => {
+    const escaped = escapeClassName(key);
+    css += `.basis-${escaped} { flex-basis: ${value}; }\n`;
+  });
+
+  const fractions = {
+    '1\\/2': '50%', '1\\/3': '33.333333%', '2\\/3': '66.666667%',
+    '1\\/4': '25%', '2\\/4': '50%', '3\\/4': '75%',
+    '1\\/5': '20%', '2\\/5': '40%', '3\\/5': '60%', '4\\/5': '80%',
+    '1\\/6': '16.666667%', '2\\/6': '33.333333%', '3\\/6': '50%', '4\\/6': '66.666667%', '5\\/6': '83.333333%',
+    '1\\/12': '8.333333%', '2\\/12': '16.666667%', '3\\/12': '25%', '4\\/12': '33.333333%', '5\\/12': '41.666667%', '6\\/12': '50%', '7\\/12': '58.333333%', '8\\/12': '66.666667%', '9\\/12': '75%', '10\\/12': '83.333333%', '11\\/12': '91.666667%'
+  };
+  Object.entries(fractions).forEach(([name, value]) => {
+    css += `.basis-${name} { flex-basis: ${value}; }\n`;
+  });
+
+  // Order
+  css += `.order-first { order: -9999; }\n`;
+  css += `.order-last { order: 9999; }\n`;
+  css += `.order-none { order: 0; }\n`;
+  for (let i = 1; i <= 12; i++) {
+    css += `.order-${i} { order: ${i}; }\n`;
+  }
+
   // Justify (main axis)
+  css += `.justify-normal { justify-content: normal; }\n`;
   css += `.justify-start { justify-content: flex-start; }\n`;
   css += `.justify-end { justify-content: flex-end; }\n`;
   css += `.justify-center { justify-content: center; }\n`;
   css += `.justify-between { justify-content: space-between; }\n`;
   css += `.justify-around { justify-content: space-around; }\n`;
   css += `.justify-evenly { justify-content: space-evenly; }\n`;
+  css += `.justify-stretch { justify-content: stretch; }\n`;
+
+  // Content alignment
+  css += `.content-normal { align-content: normal; }\n`;
+  css += `.content-center { align-content: center; }\n`;
+  css += `.content-start { align-content: flex-start; }\n`;
+  css += `.content-end { align-content: flex-end; }\n`;
+  css += `.content-between { align-content: space-between; }\n`;
+  css += `.content-around { align-content: space-around; }\n`;
+  css += `.content-evenly { align-content: space-evenly; }\n`;
+  css += `.content-baseline { align-content: baseline; }\n`;
+  css += `.content-stretch { align-content: stretch; }\n`;
 
   // Items (cross axis)
   css += `.items-start { align-items: flex-start; }\n`;
@@ -398,11 +440,32 @@ function generateFlexboxUtilities(spacing) {
   css += `.items-stretch { align-items: stretch; }\n`;
 
   // Self alignment
+  css += `.self-auto { align-self: auto; }\n`;
   css += `.self-start { align-self: flex-start; }\n`;
   css += `.self-end { align-self: flex-end; }\n`;
   css += `.self-center { align-self: center; }\n`;
   css += `.self-stretch { align-self: stretch; }\n`;
-  css += `.self-auto { align-self: auto; }\n`;
+  css += `.self-baseline { align-self: baseline; }\n`;
+
+  // Place utilities
+  css += `.place-content-center { place-content: center; }\n`;
+  css += `.place-content-start { place-content: start; }\n`;
+  css += `.place-content-end { place-content: end; }\n`;
+  css += `.place-content-between { place-content: space-between; }\n`;
+  css += `.place-content-around { place-content: space-around; }\n`;
+  css += `.place-content-evenly { place-content: space-evenly; }\n`;
+  css += `.place-content-baseline { place-content: baseline; }\n`;
+  css += `.place-content-stretch { place-content: stretch; }\n`;
+  css += `.place-items-start { place-items: start; }\n`;
+  css += `.place-items-end { place-items: end; }\n`;
+  css += `.place-items-center { place-items: center; }\n`;
+  css += `.place-items-baseline { place-items: baseline; }\n`;
+  css += `.place-items-stretch { place-items: stretch; }\n`;
+  css += `.place-self-auto { place-self: auto; }\n`;
+  css += `.place-self-start { place-self: start; }\n`;
+  css += `.place-self-end { place-self: end; }\n`;
+  css += `.place-self-center { place-self: center; }\n`;
+  css += `.place-self-stretch { place-self: stretch; }\n`;
 
   css += `\n`;
   return css;
@@ -415,45 +478,59 @@ function generateFlexboxUtilities(spacing) {
 function generateGridUtilities(spacing) {
   let css = `/* Grid */\n`;
 
-  // Note: .grid is already generated in displayUtilities(), removed duplicate here
   css += `.inline-grid { display: inline-grid; }\n`;
 
-  // Grid columns
+  css += `.grid-cols-none { grid-template-columns: none; }\n`;
+  css += `.grid-cols-subgrid { grid-template-columns: subgrid; }\n`;
   for (let i = 1; i <= 12; i++) {
     css += `.grid-cols-${i} { grid-template-columns: repeat(${i}, minmax(0, 1fr)); }\n`;
   }
 
-  // Column span
+  css += `.grid-rows-none { grid-template-rows: none; }\n`;
+  css += `.grid-rows-subgrid { grid-template-rows: subgrid; }\n`;
+  for (let i = 1; i <= 12; i++) {
+    css += `.grid-rows-${i} { grid-template-rows: repeat(${i}, minmax(0, 1fr)); }\n`;
+  }
+
   for (let i = 1; i <= 12; i++) {
     css += `.col-span-${i} { grid-column: span ${i} / span ${i}; }\n`;
   }
   css += `.col-span-full { grid-column: 1 / -1; }\n`;
-
-  // Column start/end
+  css += `.col-auto { grid-column: auto; }\n`;
   for (let i = 1; i <= 13; i++) {
     css += `.col-start-${i} { grid-column-start: ${i}; }\n`;
     css += `.col-end-${i} { grid-column-end: ${i}; }\n`;
   }
+  css += `.col-start-auto { grid-column-start: auto; }\n`;
+  css += `.col-end-auto { grid-column-end: auto; }\n`;
 
-  // Row span
-  for (let i = 1; i <= 6; i++) {
+  for (let i = 1; i <= 12; i++) {
     css += `.row-span-${i} { grid-row: span ${i} / span ${i}; }\n`;
   }
   css += `.row-span-full { grid-row: 1 / -1; }\n`;
-
-  // Row start/end
-  for (let i = 1; i <= 6; i++) {
+  css += `.row-auto { grid-row: auto; }\n`;
+  for (let i = 1; i <= 13; i++) {
     css += `.row-start-${i} { grid-row-start: ${i}; }\n`;
     css += `.row-end-${i} { grid-row-end: ${i}; }\n`;
   }
+  css += `.row-start-auto { grid-row-start: auto; }\n`;
+  css += `.row-end-auto { grid-row-end: auto; }\n`;
 
-  // Auto flow
+  css += `.grid-flow-row { grid-auto-flow: row; }\n`;
+  css += `.grid-flow-col { grid-auto-flow: column; }\n`;
+  css += `.grid-flow-dense { grid-auto-flow: dense; }\n`;
+  css += `.grid-flow-row-dense { grid-auto-flow: row dense; }\n`;
+  css += `.grid-flow-col-dense { grid-auto-flow: column dense; }\n`;
+
   css += `.auto-cols-auto { grid-auto-columns: auto; }\n`;
+  css += `.auto-cols-min { grid-auto-columns: min-content; }\n`;
+  css += `.auto-cols-max { grid-auto-columns: max-content; }\n`;
   css += `.auto-cols-fr { grid-auto-columns: minmax(0, 1fr); }\n`;
   css += `.auto-rows-auto { grid-auto-rows: auto; }\n`;
+  css += `.auto-rows-min { grid-auto-rows: min-content; }\n`;
+  css += `.auto-rows-max { grid-auto-rows: max-content; }\n`;
   css += `.auto-rows-fr { grid-auto-rows: minmax(0, 1fr); }\n`;
 
-  // Gap
   Object.entries(spacing).forEach(([key, value]) => {
     const escaped = escapeClassName(key);
     css += `.gap-${escaped} { gap: ${value}; }\n`;
@@ -472,57 +549,76 @@ function generateGridUtilities(spacing) {
 function generateTypographyUtilities(config) {
   let css = `/* Typography */\n`;
 
-  // Font sizes
   config.typography.fontSizes.forEach(fontSize => {
     css += `.text-${fontSize.name} { font-size: var(--text-${fontSize.name}); line-height: ${fontSize.lineHeight}; }\n`;
   });
 
-  // Font weights
   Object.entries(config.typography.fontWeights).forEach(([name, weight]) => {
     css += `.font-${name} { font-weight: ${weight}; }\n`;
   });
 
-  // Text alignment
+  css += `.italic { font-style: italic; }\n`;
+  css += `.not-italic { font-style: normal; }\n`;
+
   css += `.text-left { text-align: left; }\n`;
   css += `.text-center { text-align: center; }\n`;
   css += `.text-right { text-align: right; }\n`;
   css += `.text-justify { text-align: justify; }\n`;
+  css += `.text-start { text-align: start; }\n`;
+  css += `.text-end { text-align: end; }\n`;
 
-  // Text wrapping (.truncate lives in overflowUtilities in generators.js — not duplicated here)
-  css += `.whitespace-nowrap { white-space: nowrap; }\n`;
   css += `.whitespace-normal { white-space: normal; }\n`;
-  css += `.break-words { word-break: break-word; }\n`;
+  css += `.whitespace-nowrap { white-space: nowrap; }\n`;
+  css += `.whitespace-pre { white-space: pre; }\n`;
+  css += `.whitespace-pre-line { white-space: pre-line; }\n`;
+  css += `.whitespace-pre-wrap { white-space: pre-wrap; }\n`;
+  css += `.whitespace-break-spaces { white-space: break-spaces; }\n`;
+  css += `.text-wrap { text-wrap: wrap; }\n`;
+  css += `.text-nowrap { text-wrap: nowrap; }\n`;
+  css += `.text-balance { text-wrap: balance; }\n`;
+  css += `.text-pretty { text-wrap: pretty; }\n`;
+  css += `.break-normal { overflow-wrap: normal; word-break: normal; }\n`;
+  css += `.break-words { overflow-wrap: break-word; }\n`;
   css += `.break-all { word-break: break-all; }\n`;
+  css += `.break-keep { word-break: keep-all; }\n`;
+  css += `.hyphens-none { hyphens: none; }\n`;
+  css += `.hyphens-manual { hyphens: manual; }\n`;
+  css += `.hyphens-auto { hyphens: auto; }\n`;
 
-  // Line height
-  css += `.leading-tight { line-height: 1.2; }\n`;
+  css += `.leading-none { line-height: 1; }\n`;
+  css += `.leading-tight { line-height: 1.25; }\n`;
+  css += `.leading-snug { line-height: 1.375; }\n`;
   css += `.leading-normal { line-height: 1.5; }\n`;
-  css += `.leading-relaxed { line-height: 1.75; }\n`;
+  css += `.leading-relaxed { line-height: 1.625; }\n`;
+  css += `.leading-loose { line-height: 2; }\n`;
+  css += `.text-display { font-size: clamp(2.5rem, 6vw, 4rem); }\n`;
 
-  // Letter spacing
   css += `.tracking-tighter { letter-spacing: -0.05em; }\n`;
-  css += `.tracking-tight { letter-spacing: -0.02em; }\n`;
+  css += `.tracking-tight { letter-spacing: -0.025em; }\n`;
   css += `.tracking-normal { letter-spacing: 0em; }\n`;
-  css += `.tracking-wide { letter-spacing: 0.02em; }\n`;
+  css += `.tracking-wide { letter-spacing: 0.025em; }\n`;
   css += `.tracking-wider { letter-spacing: 0.05em; }\n`;
   css += `.tracking-widest { letter-spacing: 0.1em; }\n`;
 
-  // Text decoration
-  css += `.underline { text-decoration: underline; }\n`;
-  css += `.no-underline { text-decoration: none; }\n`;
-  css += `.line-through { text-decoration: line-through; }\n`;
+  css += `.underline { text-decoration-line: underline; }\n`;
+  css += `.overline { text-decoration-line: overline; }\n`;
+  css += `.line-through { text-decoration-line: line-through; }\n`;
+  css += `.no-underline { text-decoration-line: none; }\n`;
+  css += `.decoration-solid { text-decoration-style: solid; }\n`;
+  css += `.decoration-double { text-decoration-style: double; }\n`;
+  css += `.decoration-dotted { text-decoration-style: dotted; }\n`;
+  css += `.decoration-dashed { text-decoration-style: dashed; }\n`;
+  css += `.decoration-wavy { text-decoration-style: wavy; }\n`;
   css += `.underline-offset-auto { text-underline-offset: auto; }\n`;
-  css += `.underline-offset-1 { text-underline-offset: 1px; }\n`;
-  css += `.underline-offset-2 { text-underline-offset: 2px; }\n`;
-  css += `.underline-offset-4 { text-underline-offset: 4px; }\n`;
-  css += `.underline-offset-8 { text-underline-offset: 8px; }\n`;
+  [0, 1, 2, 4, 8].forEach(value => {
+    css += `.underline-offset-${value} { text-underline-offset: ${value}px; }\n`;
+  });
   css += `.decoration-auto { text-decoration-thickness: auto; }\n`;
   css += `.decoration-from-font { text-decoration-thickness: from-font; }\n`;
-  css += `.decoration-1 { text-decoration-thickness: 1px; }\n`;
-  css += `.decoration-2 { text-decoration-thickness: 2px; }\n`;
-  css += `.decoration-4 { text-decoration-thickness: 4px; }\n`;
+  [0, 1, 2, 4, 8].forEach(value => {
+    css += `.decoration-${value} { text-decoration-thickness: ${value}px; }\n`;
+  });
 
-  // Font variant numeric
   css += `.normal-nums { font-variant-numeric: normal; }\n`;
   css += `.ordinal { font-variant-numeric: ordinal; }\n`;
   css += `.slashed-zero { font-variant-numeric: slashed-zero; }\n`;
@@ -533,17 +629,19 @@ function generateTypographyUtilities(config) {
   css += `.diagonal-fractions { font-variant-numeric: diagonal-fractions; }\n`;
   css += `.stacked-fractions { font-variant-numeric: stacked-fractions; }\n`;
 
-  // Text transform
   css += `.uppercase { text-transform: uppercase; }\n`;
   css += `.lowercase { text-transform: lowercase; }\n`;
   css += `.capitalize { text-transform: capitalize; }\n`;
+  css += `.normal-case { text-transform: none; }\n`;
 
-  // Font family utilities
   css += `.font-sans { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }\n`;
   css += `.font-serif { font-family: Georgia, "Times New Roman", serif; }\n`;
   css += `.font-mono { font-family: "Menlo", "Monaco", "Courier New", monospace; }\n`;
   css += `.font-inter { font-family: "Inter", system-ui, sans-serif; }\n`;
   css += `.font-lexend { font-family: "Lexend", system-ui, sans-serif; }\n`;
+  css += `.font-dm-sans { font-family: "DM Sans", system-ui, sans-serif; }\n`;
+  css += `.font-nunito { font-family: "Nunito", system-ui, sans-serif; }\n`;
+  css += `.font-atkinson { font-family: "Atkinson Hyperlegible", system-ui, sans-serif; }\n`;
 
   css += `\n`;
   return css;
@@ -556,53 +654,74 @@ function generateTypographyUtilities(config) {
 function generateBorderUtilities(config) {
   let css = `/* Borders & Radius */\n`;
 
-  // Border widths from config
   const borderWidths = config.spacing.borderWidths || [0, 2, 4, 8];
 
-  // Border width
-  css += `.border { border-width: 1px; }\n`;
+  css += `.border { border-width: 1px; border-style: solid; }\n`;
   borderWidths.forEach(width => {
     css += `.border-${width} { border-width: ${width}px; }\n`;
   });
 
-  // Border sides (default 1px + widths)
+  const sides = {
+    t: 'top', r: 'right', b: 'bottom', l: 'left',
+    x: ['left', 'right'], y: ['top', 'bottom'],
+    s: 'inline-start', e: 'inline-end'
+  };
 
-  ['t', 'r', 'b', 'l'].forEach(side => {
-    css += `.border-${side} { border-${side === 't' ? 'top' : side === 'r' ? 'right' : side === 'b' ? 'bottom' : 'left'}-width: 1px; }\n`;
+  Object.entries(sides).forEach(([side, value]) => {
+    if (Array.isArray(value)) {
+      css += `.border-${side} { border-${value[0]}-width: 1px; border-${value[1]}-width: 1px; border-${value[0]}-style: solid; border-${value[1]}-style: solid; }\n`;
+    } else {
+      css += `.border-${side} { border-${value}-width: 1px; border-${value}-style: solid; }\n`;
+    }
   });
 
   borderWidths.forEach(width => {
-    ['t', 'r', 'b', 'l'].forEach(side => {
-      const sideMap = { t: 'top', r: 'right', b: 'bottom', l: 'left' };
-      css += `.border-${side}-${width} { border-${sideMap[side]}-width: ${width}px; }\n`;
+    Object.entries(sides).forEach(([side, value]) => {
+      if (Array.isArray(value)) {
+        css += `.border-${side}-${width} { border-${value[0]}-width: ${width}px; border-${value[1]}-width: ${width}px; border-${value[0]}-style: solid; border-${value[1]}-style: solid; }\n`;
+      } else {
+        css += `.border-${side}-${width} { border-${value}-width: ${width}px; border-${value}-style: solid; }\n`;
+      }
     });
   });
 
-  // Border style
   css += `.border-solid { border-style: solid; }\n`;
   css += `.border-dashed { border-style: dashed; }\n`;
   css += `.border-dotted { border-style: dotted; }\n`;
   css += `.border-double { border-style: double; }\n`;
+  css += `.border-hidden { border-style: hidden; }\n`;
   css += `.border-none { border-style: none; }\n`;
+  css += `.border-transparent { border-color: transparent; }\n`;
+  css += `.border-current { border-color: currentColor; }\n`;
+  css += `.border-black { border-color: #000000; }\n`;
+  css += `.border-white { border-color: #ffffff; }\n`;
 
-  // Border radius (base)
   const baseRadius = config.spacing.borderRadius['base'] || '8px';
   css += `.rounded { border-radius: ${baseRadius}; }\n`;
 
-  // Border radius (named)
   Object.entries(config.spacing.borderRadius).forEach(([name, value]) => {
     css += `.rounded-${name} { border-radius: ${value}; }\n`;
   });
 
-  // Border radius per side
-  css += `.rounded-t { border-top-left-radius: ${baseRadius}; border-top-right-radius: ${baseRadius}; }\n`;
-  css += `.rounded-b { border-bottom-left-radius: ${baseRadius}; border-bottom-right-radius: ${baseRadius}; }\n`;
-  css += `.rounded-l { border-top-left-radius: ${baseRadius}; border-bottom-left-radius: ${baseRadius}; }\n`;
-  css += `.rounded-r { border-top-right-radius: ${baseRadius}; border-bottom-right-radius: ${baseRadius}; }\n`;
-  css += `.rounded-tl { border-top-left-radius: ${baseRadius}; }\n`;
-  css += `.rounded-tr { border-top-right-radius: ${baseRadius}; }\n`;
-  css += `.rounded-bl { border-bottom-left-radius: ${baseRadius}; }\n`;
-  css += `.rounded-br { border-bottom-right-radius: ${baseRadius}; }\n`;
+  const radiusTargets = {
+    t: ['top-left', 'top-right'], r: ['top-right', 'bottom-right'],
+    b: ['bottom-right', 'bottom-left'], l: ['top-left', 'bottom-left'],
+    tl: ['top-left'], tr: ['top-right'], br: ['bottom-right'], bl: ['bottom-left']
+  };
+
+  Object.entries(radiusTargets).forEach(([side, corners]) => {
+    corners.forEach(corner => {
+      css += `.rounded-${side} { border-${corner}-radius: ${baseRadius}; }\n`;
+    });
+  });
+
+  Object.entries(config.spacing.borderRadius).forEach(([name, value]) => {
+    Object.entries(radiusTargets).forEach(([side, corners]) => {
+      corners.forEach(corner => {
+        css += `.rounded-${side}-${name} { border-${corner}-radius: ${value}; }\n`;
+      });
+    });
+  });
 
   css += `\n`;
   return css;
@@ -625,7 +744,8 @@ function generateBaseStyles(config) {
   // Line height hints per size — keeps headings tighter than body text
   const lineHeightMap = {
     xs: '1.5', sm: '1.5', base: '1.6', lg: '1.6',
-    xl: '1.5', '2xl': '1.4', '3xl': '1.35', '4xl': '1.3'
+    xl: '1.5', '2xl': '1.4', '3xl': '1.35', '4xl': '1.3',
+    '5xl': '1.15', '6xl': '1.1', '7xl': '1.05', '8xl': '1', '9xl': '1'
   };
 
   let css = '\n  /* Base element styles (from baseStyles in emily.config.json) */\n';
@@ -645,26 +765,29 @@ function generateBaseStyles(config) {
 
 function generateColourUtilities(colours) {
   let css = `/* Colours: Background, Text, Borders, Accents */\n`;
+  // Uses CSS custom properties rather than hardcoded hex so colour utilities
+  // can be overridden via variable redefinition (e.g. dark mode, theme layers).
+  // The hex values are still declared as --color-* tokens in @layer theme.
 
   Object.entries(colours).forEach(([colourName, shades]) => {
     // Background colours
-    Object.entries(shades).forEach(([shade, hex]) => {
-      css += `.bg-${colourName}-${shade} { background-color: ${hex}; }\n`;
+    Object.entries(shades).forEach(([shade]) => {
+      css += `.bg-${colourName}-${shade} { background-color: var(--color-${colourName}-${shade}); }\n`;
     });
 
     // Text colours
-    Object.entries(shades).forEach(([shade, hex]) => {
-      css += `.text-${colourName}-${shade} { color: ${hex}; }\n`;
+    Object.entries(shades).forEach(([shade]) => {
+      css += `.text-${colourName}-${shade} { color: var(--color-${colourName}-${shade}); }\n`;
     });
 
     // Border colours
-    Object.entries(shades).forEach(([shade, hex]) => {
-      css += `.border-${colourName}-${shade} { border-color: ${hex}; }\n`;
+    Object.entries(shades).forEach(([shade]) => {
+      css += `.border-${colourName}-${shade} { border-color: var(--color-${colourName}-${shade}); }\n`;
     });
 
     // Accent colours (for form elements like checkboxes, radio buttons)
-    Object.entries(shades).forEach(([shade, hex]) => {
-      css += `.accent-${colourName}-${shade} { accent-color: ${hex}; }\n`;
+    Object.entries(shades).forEach(([shade]) => {
+      css += `.accent-${colourName}-${shade} { accent-color: var(--color-${colourName}-${shade}); }\n`;
     });
   });
 
@@ -1044,7 +1167,7 @@ function buildFullFramework() {
     background-color: #0d0c0b;
     color: #e4e0db;
     padding: 1.25rem;
-    border-radius: 6px;
+    border-radius: 0 0 6px;
     overflow-x: auto;
     font-family: "Menlo", "Monaco", "Courier New", monospace;
     font-size: 0.875rem;
@@ -1180,6 +1303,8 @@ module.exports = {
   generateSemanticColourUtilities,
   generateTypographyUtilities,
   generateSpacingUtilities,
+  generateFlexboxUtilities,
+  generateGridUtilities,
   addStateVariants,
   addResponsiveVariants,
   generateFontCSS,

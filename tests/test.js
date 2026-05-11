@@ -24,6 +24,8 @@ const {
   generateSpacingUtilities,
   addStateVariants,
   addResponsiveVariants,
+  generateFlexboxUtilities,
+  generateGridUtilities,
 } = require('../src/index.js');
 
 const { extractClassNames, purgeCSS } = require('../src/purge.js');
@@ -295,13 +297,12 @@ test('generateColourUtilities includes text-white', () => {
   assert.ok(css.includes('.text-white {'), 'Missing ".text-white {"');
 });
 
-test('generateColourUtilities accent-brand-80 uses correct hex', () => {
+test('generateColourUtilities accent-brand-80 uses CSS variable', () => {
   const colours = generateAllColours(config.colours);
   const css = generateColourUtilities(colours);
-  const brandHex = config.colours.brand.toUpperCase();
   assert.ok(
-    css.includes(`.accent-brand-80 { accent-color: ${brandHex}; }`),
-    `Missing correct accent-brand-80 rule`
+    css.includes('.accent-brand-80 { accent-color: var(--color-brand-80); }'),
+    'Missing correct accent-brand-80 rule — expected var(--color-brand-80)'
   );
 });
 
@@ -695,7 +696,7 @@ requireBuild('all 6 colour backgrounds exist in built CSS', () => {
 // ─── 13. New Utilities ────────────────────────────────────────────────────────
 
 // animationUtilities and backdropUtilities imported below via generators.js
-const { overflowUtilities, sizingUtilities, contentScrollUtilities, spaceUtilities, divideUtilities, backgroundUtilities, filterUtilities, opacityUtilities, cursorUtilities, ringUtilities, animationUtilities, backdropUtilities } = require('../src/generators.js');
+const { overflowUtilities, sizingUtilities, positioningUtilities, displayUtilities, shadowUtilities, contentScrollUtilities, spaceUtilities, divideUtilities, backgroundUtilities, filterUtilities, opacityUtilities, cursorUtilities, ringUtilities, animationUtilities, backdropUtilities } = require('../src/generators.js');
 
 section('13. New Utilities');
 
@@ -1179,9 +1180,476 @@ requireBuild('.outline-offset-4 exists in built CSS', () => {
 });
 
 
-// ─── 15. CLI / Package Robustness ─────────────────────────────────────────────
+// ─── 15. Patch — New Utility Coverage ────────────────────────────────────────
+//
+// Tests for features added in the generators.js / index.js / init.js patches:
+//   - Extended sizing (size-*, fractions, viewport units, min/max content)
+//   - Negative & axis-based positioning
+//   - Display extensions (flow-root, float, clear, table)
+//   - Overflow extensions (clip, scroll, text-ellipsis)
+//   - Extended shadows (xl, 2xl, inner)
+//   - Extended cursors + touch-action
+//   - Flex basis, order, content/place alignment
+//   - Grid extensions (subgrid, expanded rows, flow, auto)
+//   - Extended border sides (x, y, s, e)
+//   - Per-side named border-radius
+//   - New font families + normal-case
+//   - Underline-offset-0 + decoration-0 (from array loops)
+//   - 5xl–9xl font sizes in init defaults
+// ─────────────────────────────────────────────────────────────────────────────
 
-section('15. CLI / Package Robustness');
+section('15. Patch — New Utility Coverage');
+
+const testSpacing = generateSpacing('18px', config.spacing.scale);
+
+// ── Display extensions ──────────────────────────────────────────────────────
+
+test('displayUtilities includes flow-root', () => {
+  const css = displayUtilities();
+  assert.ok(css.includes('.flow-root { display: flow-root; }'), 'Missing .flow-root');
+});
+
+test('displayUtilities includes list-item', () => {
+  const css = displayUtilities();
+  assert.ok(css.includes('.list-item { display: list-item; }'), 'Missing .list-item');
+});
+
+test('displayUtilities includes table variants', () => {
+  const css = displayUtilities();
+  assert.ok(css.includes('.table { display: table; }'), 'Missing .table');
+  assert.ok(css.includes('.table-cell { display: table-cell; }'), 'Missing .table-cell');
+  assert.ok(css.includes('.inline-table { display: inline-table; }'), 'Missing .inline-table');
+});
+
+test('displayUtilities includes float utilities', () => {
+  const css = displayUtilities();
+  assert.ok(css.includes('.float-left { float: left; }'), 'Missing .float-left');
+  assert.ok(css.includes('.float-right { float: right; }'), 'Missing .float-right');
+  assert.ok(css.includes('.float-none { float: none; }'), 'Missing .float-none');
+  assert.ok(css.includes('.float-start { float: inline-start; }'), 'Missing .float-start');
+});
+
+test('displayUtilities includes clear utilities', () => {
+  const css = displayUtilities();
+  assert.ok(css.includes('.clear-both { clear: both; }'), 'Missing .clear-both');
+  assert.ok(css.includes('.clear-left { clear: left; }'), 'Missing .clear-left');
+  assert.ok(css.includes('.clear-none { clear: none; }'), 'Missing .clear-none');
+});
+
+// ── Sizing extensions ───────────────────────────────────────────────────────
+
+test('sizingUtilities generates size-* (combined width + height)', () => {
+  const css = sizingUtilities(testSpacing);
+  assert.ok(css.includes('.size-4 { width: 1rem; height: 1rem; }'), 'Missing .size-4');
+});
+
+test('sizingUtilities generates fractional widths', () => {
+  const css = sizingUtilities(testSpacing);
+  assert.ok(css.includes('.w-1\\/2 { width: 50%; }'), 'Missing .w-1/2');
+  assert.ok(css.includes('.w-1\\/3 { width: 33.333333%; }'), 'Missing .w-1/3');
+  assert.ok(css.includes('.w-2\\/3 { width: 66.666667%; }'), 'Missing .w-2/3');
+  assert.ok(css.includes('.w-3\\/4 { width: 75%; }'), 'Missing .w-3/4');
+});
+
+test('sizingUtilities generates fractional heights', () => {
+  const css = sizingUtilities(testSpacing);
+  assert.ok(css.includes('.h-1\\/2 { height: 50%; }'), 'Missing .h-1/2');
+  assert.ok(css.includes('.h-1\\/4 { height: 25%; }'), 'Missing .h-1/4');
+});
+
+test('sizingUtilities generates fractional size-*', () => {
+  const css = sizingUtilities(testSpacing);
+  assert.ok(css.includes('.size-1\\/2 { width: 50%; height: 50%; }'), 'Missing .size-1/2');
+});
+
+test('sizingUtilities generates viewport unit classes', () => {
+  const css = sizingUtilities(testSpacing);
+  assert.ok(css.includes('.w-svw { width: 100svw; }'), 'Missing .w-svw');
+  assert.ok(css.includes('.h-svh { height: 100svh; }'), 'Missing .h-svh');
+  assert.ok(css.includes('.w-dvw { width: 100dvw; }'), 'Missing .w-dvw');
+  assert.ok(css.includes('.h-dvh { height: 100dvh; }'), 'Missing .h-dvh');
+  assert.ok(css.includes('.w-lvw { width: 100lvw; }'), 'Missing .w-lvw');
+  assert.ok(css.includes('.h-lvh { height: 100lvh; }'), 'Missing .h-lvh');
+});
+
+test('sizingUtilities generates min/max content sizing', () => {
+  const css = sizingUtilities(testSpacing);
+  assert.ok(css.includes('.w-min { width: min-content; }'), 'Missing .w-min');
+  assert.ok(css.includes('.w-max { width: max-content; }'), 'Missing .w-max');
+  assert.ok(css.includes('.w-fit { width: fit-content; }'), 'Missing .w-fit');
+  assert.ok(css.includes('.h-min { height: min-content; }'), 'Missing .h-min');
+  assert.ok(css.includes('.h-max { height: max-content; }'), 'Missing .h-max');
+  assert.ok(css.includes('.h-fit { height: fit-content; }'), 'Missing .h-fit');
+});
+
+test('sizingUtilities generates size-auto and size-full', () => {
+  const css = sizingUtilities(testSpacing);
+  assert.ok(css.includes('.size-auto { width: auto; height: auto; }'), 'Missing .size-auto');
+  assert.ok(css.includes('.size-full { width: 100%; height: 100%; }'), 'Missing .size-full');
+});
+
+test('sizingUtilities generates min-w fit/max/min content', () => {
+  const css = sizingUtilities(testSpacing);
+  assert.ok(css.includes('.min-w-fit { min-width: fit-content; }'), 'Missing .min-w-fit');
+  assert.ok(css.includes('.min-w-max { min-width: max-content; }'), 'Missing .min-w-max');
+  assert.ok(css.includes('.min-h-dvh { min-height: 100dvh; }'), 'Missing .min-h-dvh');
+});
+
+test('sizingUtilities generates max-h-screen and viewport variants', () => {
+  const css = sizingUtilities(testSpacing);
+  assert.ok(css.includes('.max-h-screen { max-height: 100vh; }'), 'Missing .max-h-screen');
+  assert.ok(css.includes('.max-h-svh { max-height: 100svh; }'), 'Missing .max-h-svh');
+  assert.ok(css.includes('.max-w-none { max-width: none; }'), 'Missing .max-w-none');
+  assert.ok(css.includes('.max-w-fit { max-width: fit-content; }'), 'Missing .max-w-fit');
+});
+
+test('sizingUtilities generates per-spacing min-w/min-h/max-w/max-h', () => {
+  const css = sizingUtilities(testSpacing);
+  assert.ok(css.includes('.min-w-4 { min-width: 1rem; }'), 'Missing .min-w-4');
+  assert.ok(css.includes('.min-h-4 { min-height: 1rem; }'), 'Missing .min-h-4');
+  assert.ok(css.includes('.max-w-4 { max-width: 1rem; }'), 'Missing .max-w-4');
+  assert.ok(css.includes('.max-h-4 { max-height: 1rem; }'), 'Missing .max-h-4');
+});
+
+// ── Positioning extensions ──────────────────────────────────────────────────
+
+test('positioningUtilities generates inset-x-* and inset-y-*', () => {
+  const css = positioningUtilities(testSpacing);
+  assert.ok(css.includes('.inset-x-4 { left: 1rem; right: 1rem; }'), 'Missing .inset-x-4');
+  assert.ok(css.includes('.inset-y-4 { top: 1rem; bottom: 1rem; }'), 'Missing .inset-y-4');
+});
+
+test('positioningUtilities generates negative positioning utilities', () => {
+  const css = positioningUtilities(testSpacing);
+  assert.ok(css.includes('.-top-4 { top: -1rem; }'), 'Missing .-top-4');
+  assert.ok(css.includes('.-right-4 { right: -1rem; }'), 'Missing .-right-4');
+  assert.ok(css.includes('.-bottom-4 { bottom: -1rem; }'), 'Missing .-bottom-4');
+  assert.ok(css.includes('.-left-4 { left: -1rem; }'), 'Missing .-left-4');
+  assert.ok(css.includes('.-inset-4 { inset: -1rem; }'), 'Missing .-inset-4');
+});
+
+test('positioningUtilities generates negative inset-x and inset-y', () => {
+  const css = positioningUtilities(testSpacing);
+  assert.ok(css.includes('.-inset-x-4 { left: -1rem; right: -1rem; }'), 'Missing .-inset-x-4');
+  assert.ok(css.includes('.-inset-y-4 { top: -1rem; bottom: -1rem; }'), 'Missing .-inset-y-4');
+});
+
+test('positioningUtilities does not generate negative class for 0 value', () => {
+  const css = positioningUtilities(testSpacing);
+  assert.ok(!css.includes('.-top-0 {'), 'Should not have .-top-0 (zero has no negative)');
+});
+
+test('positioningUtilities generates auto positioning', () => {
+  const css = positioningUtilities(testSpacing);
+  assert.ok(css.includes('.top-auto { top: auto; }'), 'Missing .top-auto');
+  assert.ok(css.includes('.right-auto { right: auto; }'), 'Missing .right-auto');
+  assert.ok(css.includes('.bottom-auto { bottom: auto; }'), 'Missing .bottom-auto');
+  assert.ok(css.includes('.left-auto { left: auto; }'), 'Missing .left-auto');
+  assert.ok(css.includes('.inset-x-auto { left: auto; right: auto; }'), 'Missing .inset-x-auto');
+  assert.ok(css.includes('.inset-y-auto { top: auto; bottom: auto; }'), 'Missing .inset-y-auto');
+});
+
+// ── Overflow extensions ─────────────────────────────────────────────────────
+
+test('overflowUtilities includes overflow-clip', () => {
+  const css = overflowUtilities();
+  assert.ok(css.includes('.overflow-clip { overflow: clip; }'), 'Missing .overflow-clip');
+});
+
+test('overflowUtilities includes overflow-x/y clip, visible, scroll', () => {
+  const css = overflowUtilities();
+  assert.ok(css.includes('.overflow-x-clip { overflow-x: clip; }'), 'Missing .overflow-x-clip');
+  assert.ok(css.includes('.overflow-x-visible { overflow-x: visible; }'), 'Missing .overflow-x-visible');
+  assert.ok(css.includes('.overflow-x-scroll { overflow-x: scroll; }'), 'Missing .overflow-x-scroll');
+  assert.ok(css.includes('.overflow-y-clip { overflow-y: clip; }'), 'Missing .overflow-y-clip');
+  assert.ok(css.includes('.overflow-y-visible { overflow-y: visible; }'), 'Missing .overflow-y-visible');
+  assert.ok(css.includes('.overflow-y-scroll { overflow-y: scroll; }'), 'Missing .overflow-y-scroll');
+});
+
+test('overflowUtilities includes text-ellipsis and text-clip', () => {
+  const css = overflowUtilities();
+  assert.ok(css.includes('.text-ellipsis { text-overflow: ellipsis; }'), 'Missing .text-ellipsis');
+  assert.ok(css.includes('.text-clip { text-overflow: clip; }'), 'Missing .text-clip');
+});
+
+test('overflowUtilities includes line-clamp-none', () => {
+  const css = overflowUtilities();
+  assert.ok(css.includes('.line-clamp-none {'), 'Missing .line-clamp-none');
+});
+
+// ── Shadow extensions ───────────────────────────────────────────────────────
+
+test('shadowUtilities includes shadow-xl', () => {
+  const css = shadowUtilities();
+  assert.ok(css.includes('.shadow-xl {'), 'Missing .shadow-xl');
+});
+
+test('shadowUtilities includes shadow-2xl', () => {
+  const css = shadowUtilities();
+  assert.ok(css.includes('.shadow-2xl {'), 'Missing .shadow-2xl');
+});
+
+test('shadowUtilities includes shadow-inner', () => {
+  const css = shadowUtilities();
+  assert.ok(css.includes('.shadow-inner { box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06); }'), 'Missing .shadow-inner');
+});
+
+test('shadowUtilities .shadow uses multi-layer value', () => {
+  const css = shadowUtilities();
+  assert.ok(
+    css.includes('.shadow { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06); }'),
+    'shadow should use multi-layer value'
+  );
+});
+
+// ── Cursor + touch-action extensions ───────────────────────────────────────
+
+test('cursorUtilities includes extended cursor types', () => {
+  const css = cursorUtilities();
+  assert.ok(css.includes('.cursor-grab { cursor: grab; }'), 'Missing .cursor-grab');
+  assert.ok(css.includes('.cursor-grabbing { cursor: grabbing; }'), 'Missing .cursor-grabbing');
+  assert.ok(css.includes('.cursor-zoom-in { cursor: zoom-in; }'), 'Missing .cursor-zoom-in');
+  assert.ok(css.includes('.cursor-zoom-out { cursor: zoom-out; }'), 'Missing .cursor-zoom-out');
+  assert.ok(css.includes('.cursor-none { cursor: none; }'), 'Missing .cursor-none');
+  assert.ok(css.includes('.cursor-crosshair { cursor: crosshair; }'), 'Missing .cursor-crosshair');
+  assert.ok(css.includes('.cursor-no-drop { cursor: no-drop; }'), 'Missing .cursor-no-drop');
+  assert.ok(css.includes('.cursor-copy { cursor: copy; }'), 'Missing .cursor-copy');
+});
+
+test('cursorUtilities includes touch-action utilities', () => {
+  const css = cursorUtilities();
+  assert.ok(css.includes('.touch-auto { touch-action: auto; }'), 'Missing .touch-auto');
+  assert.ok(css.includes('.touch-none { touch-action: none; }'), 'Missing .touch-none');
+  assert.ok(css.includes('.touch-pan-x { touch-action: pan-x; }'), 'Missing .touch-pan-x');
+  assert.ok(css.includes('.touch-manipulation { touch-action: manipulation; }'), 'Missing .touch-manipulation');
+});
+
+// ── Flexbox extensions ──────────────────────────────────────────────────────
+
+test('generateFlexboxUtilities includes flex-initial', () => {
+  const css = generateFlexboxUtilities(testSpacing);
+  assert.ok(css.includes('.flex-initial { flex: 0 1 auto; }'), 'Missing .flex-initial');
+});
+
+test('generateFlexboxUtilities includes basis-auto and basis-full', () => {
+  const css = generateFlexboxUtilities(testSpacing);
+  assert.ok(css.includes('.basis-auto { flex-basis: auto; }'), 'Missing .basis-auto');
+  assert.ok(css.includes('.basis-full { flex-basis: 100%; }'), 'Missing .basis-full');
+});
+
+test('generateFlexboxUtilities generates basis-* from spacing', () => {
+  const css = generateFlexboxUtilities(testSpacing);
+  assert.ok(css.includes('.basis-4 { flex-basis: 1rem; }'), 'Missing .basis-4');
+  assert.ok(css.includes('.basis-8 { flex-basis: 2rem; }'), 'Missing .basis-8');
+});
+
+test('generateFlexboxUtilities generates fractional basis values', () => {
+  const css = generateFlexboxUtilities(testSpacing);
+  assert.ok(css.includes('.basis-1\\/2 { flex-basis: 50%; }'), 'Missing .basis-1/2');
+  assert.ok(css.includes('.basis-1\\/3 { flex-basis: 33.333333%; }'), 'Missing .basis-1/3');
+  assert.ok(css.includes('.basis-3\\/4 { flex-basis: 75%; }'), 'Missing .basis-3/4');
+});
+
+test('generateFlexboxUtilities includes order utilities', () => {
+  const css = generateFlexboxUtilities(testSpacing);
+  assert.ok(css.includes('.order-first { order: -9999; }'), 'Missing .order-first');
+  assert.ok(css.includes('.order-last { order: 9999; }'), 'Missing .order-last');
+  assert.ok(css.includes('.order-none { order: 0; }'), 'Missing .order-none');
+  assert.ok(css.includes('.order-1 { order: 1; }'), 'Missing .order-1');
+  assert.ok(css.includes('.order-12 { order: 12; }'), 'Missing .order-12');
+});
+
+test('generateFlexboxUtilities includes justify-normal and justify-stretch', () => {
+  const css = generateFlexboxUtilities(testSpacing);
+  assert.ok(css.includes('.justify-normal { justify-content: normal; }'), 'Missing .justify-normal');
+  assert.ok(css.includes('.justify-stretch { justify-content: stretch; }'), 'Missing .justify-stretch');
+});
+
+test('generateFlexboxUtilities includes content-* (align-content) utilities', () => {
+  const css = generateFlexboxUtilities(testSpacing);
+  assert.ok(css.includes('.content-normal { align-content: normal; }'), 'Missing .content-normal');
+  assert.ok(css.includes('.content-center { align-content: center; }'), 'Missing .content-center');
+  assert.ok(css.includes('.content-between { align-content: space-between; }'), 'Missing .content-between');
+  assert.ok(css.includes('.content-stretch { align-content: stretch; }'), 'Missing .content-stretch');
+});
+
+test('generateFlexboxUtilities includes self-baseline', () => {
+  const css = generateFlexboxUtilities(testSpacing);
+  assert.ok(css.includes('.self-baseline { align-self: baseline; }'), 'Missing .self-baseline');
+});
+
+test('generateFlexboxUtilities includes place-content utilities', () => {
+  const css = generateFlexboxUtilities(testSpacing);
+  assert.ok(css.includes('.place-content-center { place-content: center; }'), 'Missing .place-content-center');
+  assert.ok(css.includes('.place-content-between { place-content: space-between; }'), 'Missing .place-content-between');
+  assert.ok(css.includes('.place-content-stretch { place-content: stretch; }'), 'Missing .place-content-stretch');
+});
+
+test('generateFlexboxUtilities includes place-items utilities', () => {
+  const css = generateFlexboxUtilities(testSpacing);
+  assert.ok(css.includes('.place-items-center { place-items: center; }'), 'Missing .place-items-center');
+  assert.ok(css.includes('.place-items-stretch { place-items: stretch; }'), 'Missing .place-items-stretch');
+});
+
+test('generateFlexboxUtilities includes place-self utilities', () => {
+  const css = generateFlexboxUtilities(testSpacing);
+  assert.ok(css.includes('.place-self-auto { place-self: auto; }'), 'Missing .place-self-auto');
+  assert.ok(css.includes('.place-self-center { place-self: center; }'), 'Missing .place-self-center');
+});
+
+// ── Grid extensions ─────────────────────────────────────────────────────────
+
+test('generateGridUtilities includes grid-cols-none and grid-cols-subgrid', () => {
+  const css = generateGridUtilities(testSpacing);
+  assert.ok(css.includes('.grid-cols-none { grid-template-columns: none; }'), 'Missing .grid-cols-none');
+  assert.ok(css.includes('.grid-cols-subgrid { grid-template-columns: subgrid; }'), 'Missing .grid-cols-subgrid');
+});
+
+test('generateGridUtilities includes grid-rows-* utilities', () => {
+  const css = generateGridUtilities(testSpacing);
+  assert.ok(css.includes('.grid-rows-none { grid-template-rows: none; }'), 'Missing .grid-rows-none');
+  assert.ok(css.includes('.grid-rows-subgrid { grid-template-rows: subgrid; }'), 'Missing .grid-rows-subgrid');
+  assert.ok(css.includes('.grid-rows-3 { grid-template-rows: repeat(3, minmax(0, 1fr)); }'), 'Missing .grid-rows-3');
+  assert.ok(css.includes('.grid-rows-12 { grid-template-rows: repeat(12, minmax(0, 1fr)); }'), 'Missing .grid-rows-12');
+});
+
+test('generateGridUtilities col-span goes up to 12', () => {
+  const css = generateGridUtilities(testSpacing);
+  assert.ok(css.includes('.col-span-12 {'), 'Missing .col-span-12');
+});
+
+test('generateGridUtilities includes col-auto and auto start/end', () => {
+  const css = generateGridUtilities(testSpacing);
+  assert.ok(css.includes('.col-auto { grid-column: auto; }'), 'Missing .col-auto');
+  assert.ok(css.includes('.col-start-auto { grid-column-start: auto; }'), 'Missing .col-start-auto');
+  assert.ok(css.includes('.col-end-auto { grid-column-end: auto; }'), 'Missing .col-end-auto');
+});
+
+test('generateGridUtilities row-span goes up to 12', () => {
+  const css = generateGridUtilities(testSpacing);
+  assert.ok(css.includes('.row-span-12 {'), 'Missing .row-span-12');
+});
+
+test('generateGridUtilities includes row-auto and auto start/end', () => {
+  const css = generateGridUtilities(testSpacing);
+  assert.ok(css.includes('.row-auto { grid-row: auto; }'), 'Missing .row-auto');
+  assert.ok(css.includes('.row-start-auto { grid-row-start: auto; }'), 'Missing .row-start-auto');
+  assert.ok(css.includes('.row-end-auto { grid-row-end: auto; }'), 'Missing .row-end-auto');
+});
+
+test('generateGridUtilities includes grid-flow utilities', () => {
+  const css = generateGridUtilities(testSpacing);
+  assert.ok(css.includes('.grid-flow-row { grid-auto-flow: row; }'), 'Missing .grid-flow-row');
+  assert.ok(css.includes('.grid-flow-col { grid-auto-flow: column; }'), 'Missing .grid-flow-col');
+  assert.ok(css.includes('.grid-flow-dense { grid-auto-flow: dense; }'), 'Missing .grid-flow-dense');
+  assert.ok(css.includes('.grid-flow-row-dense { grid-auto-flow: row dense; }'), 'Missing .grid-flow-row-dense');
+});
+
+// ── Border extensions ───────────────────────────────────────────────────────
+
+test('generateBorderUtilities includes border-x and border-y', () => {
+  const css = generateBorderUtilities(config);
+  assert.ok(css.includes('.border-x {'), 'Missing .border-x');
+  assert.ok(css.includes('.border-y {'), 'Missing .border-y');
+  assert.ok(css.includes('border-left-width: 1px'), 'border-x should set left width');
+  assert.ok(css.includes('border-top-width: 1px'), 'border-y should set top width');
+});
+
+test('generateBorderUtilities includes border-s and border-e (logical)', () => {
+  const css = generateBorderUtilities(config);
+  assert.ok(css.includes('.border-s {'), 'Missing .border-s');
+  assert.ok(css.includes('border-inline-start-width: 1px'), 'border-s should use inline-start');
+  assert.ok(css.includes('.border-e {'), 'Missing .border-e');
+  assert.ok(css.includes('border-inline-end-width: 1px'), 'border-e should use inline-end');
+});
+
+test('generateBorderUtilities includes border-x-2 and border-y-4', () => {
+  const css = generateBorderUtilities(config);
+  assert.ok(css.includes('.border-x-2 {'), 'Missing .border-x-2');
+  assert.ok(css.includes('.border-y-4 {'), 'Missing .border-y-4');
+});
+
+test('generateBorderUtilities includes border-current, border-black, border-white', () => {
+  const css = generateBorderUtilities(config);
+  assert.ok(css.includes('.border-current { border-color: currentColor; }'), 'Missing .border-current');
+  assert.ok(css.includes('.border-black { border-color: #000000; }'), 'Missing .border-black');
+  assert.ok(css.includes('.border-white { border-color: #ffffff; }'), 'Missing .border-white');
+});
+
+test('generateBorderUtilities .border includes border-style: solid', () => {
+  const css = generateBorderUtilities(config);
+  assert.ok(
+    css.includes('.border { border-width: 1px; border-style: solid; }'),
+    '.border should include border-style: solid'
+  );
+});
+
+test('generateBorderUtilities generates per-side rounded with named radii', () => {
+  const css = generateBorderUtilities(config);
+  // rounded-t-sm should set both top corners
+  assert.ok(css.includes('.rounded-t-sm {'), 'Missing .rounded-t-sm');
+  assert.ok(css.includes('.rounded-br-lg {'), 'Missing .rounded-br-lg');
+  assert.ok(css.includes('.rounded-tl-full {'), 'Missing .rounded-tl-full');
+});
+
+// ── Typography extensions ───────────────────────────────────────────────────
+
+test('generateTypographyUtilities includes font-dm-sans', () => {
+  const css = generateTypographyUtilities(config);
+  assert.ok(css.includes('.font-dm-sans { font-family: "DM Sans"'), 'Missing .font-dm-sans');
+});
+
+test('generateTypographyUtilities includes font-nunito', () => {
+  const css = generateTypographyUtilities(config);
+  assert.ok(css.includes('.font-nunito { font-family: "Nunito"'), 'Missing .font-nunito');
+});
+
+test('generateTypographyUtilities includes font-atkinson', () => {
+  const css = generateTypographyUtilities(config);
+  assert.ok(css.includes('.font-atkinson { font-family: "Atkinson Hyperlegible"'), 'Missing .font-atkinson');
+});
+
+test('generateTypographyUtilities includes normal-case', () => {
+  const css = generateTypographyUtilities(config);
+  assert.ok(css.includes('.normal-case { text-transform: none; }'), 'Missing .normal-case');
+});
+
+test('generateTypographyUtilities includes underline-offset-0', () => {
+  const css = generateTypographyUtilities(config);
+  assert.ok(css.includes('.underline-offset-0 { text-underline-offset: 0px; }'), 'Missing .underline-offset-0');
+});
+
+test('generateTypographyUtilities includes decoration-0', () => {
+  const css = generateTypographyUtilities(config);
+  assert.ok(css.includes('.decoration-0 { text-decoration-thickness: 0px; }'), 'Missing .decoration-0');
+});
+
+// ── Init defaults ───────────────────────────────────────────────────────────
+
+test('init default config includes 5xl–9xl font sizes', () => {
+  const initJs = fs.readFileSync(path.join(__dirname, '../src/init.js'), 'utf-8');
+  ['5xl', '6xl', '7xl', '8xl', '9xl'].forEach(size => {
+    assert.ok(initJs.includes(`"${size}"`), `Missing "${size}" in init defaults`);
+  });
+});
+
+test('init default config includes xl and 2xl font size names', () => {
+  const initJs = fs.readFileSync(path.join(__dirname, '../src/init.js'), 'utf-8');
+  assert.ok(initJs.includes('"xl"'), 'Missing "xl" font size in init defaults');
+  assert.ok(initJs.includes('"2xl"'), 'Missing "2xl" font size in init defaults');
+  assert.ok(initJs.includes('"3xl"'), 'Missing "3xl" font size in init defaults');
+});
+
+test('init default shadows include xl, 2xl, and inner', () => {
+  const initJs = fs.readFileSync(path.join(__dirname, '../src/init.js'), 'utf-8');
+  assert.ok(initJs.includes('"xl"'), 'Missing shadow xl in init defaults');
+  assert.ok(initJs.includes('"2xl"'), 'Missing shadow 2xl in init defaults');
+  assert.ok(initJs.includes("inner:"), 'Missing shadow inner in init defaults');
+});
+
+// ─── 16. CLI / Package Robustness ─────────────────────────────────────────────
+
+section('16. CLI / Package Robustness');
 
 test('CLI version command returns package version', () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
