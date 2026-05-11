@@ -4,8 +4,8 @@
   "baseUnit": "18px",
   "baseFontSize": "16px",
   "fontFamily": {
-    "heading": "inter",
-    "body": "lexend"
+    "heading": "lexend",
+    "body": "inter"
   },
   "customFonts": [],
   "output": {

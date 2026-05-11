@@ -4,6 +4,21 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.0.26 — May 2026
+
+**Colour utilities now variable-based; fix grey text on dark surfaces**
+
+### Fixed
+- `generateColourUtilities` now emits `var(--color-*)` references instead of hardcoded hex values for all `text-*`, `bg-*`, `border-*`, and `accent-*` utilities. Consistent with how semantic colours and ring/fill/stroke utilities already worked. Enables theme-layer overrides without specificity hacks.
+- Homepage "How it works" cards: `text-neutral-80` / `text-neutral-40` on `bg-dark` produced near-invisible text in light mode (contrast ~2.3:1). Fixed to `text-neutral-10` / `text-neutral-30` — matches the pattern used by the hero and CTA banner.
+- Removed erroneous backslash in `h-2\.5` HTML class strings in `index.vue` (rendered fine via Vue template compilation, but confusing and inconsistent).
+- Stripped null bytes from `pages/index.vue` (6) and `package.json` (339) in `emilyui-site`.
+
+### Changed
+- `tests/test.js`: updated `accent-brand-80` assertion to expect `var(--color-brand-80)` rather than hardcoded hex, matching the new generation behaviour.
+
+---
+
 ## v1.0.25 — May 2026
 
 **updaed colour**
