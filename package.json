@@ -1,6 +1,6 @@
 {
   "name": "emily-css",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "description": "A config-driven utility CSS framework. Define your brand once, generate the CSS.",
   "main": "src/index.js",
   "bin": {
