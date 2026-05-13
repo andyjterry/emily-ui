@@ -424,6 +424,12 @@ function svgUtilities(colours) {
 
   css += `.fill-current { fill: currentColor; }\n`;
   css += `.stroke-current { stroke: currentColor; }\n`;
+  css += `.fill-white { fill: #FAFAFA; }\n`;
+  css += `.fill-black { fill: #111110; }\n`;
+  css += `.fill-transparent { fill: transparent; }\n`;
+  css += `.stroke-white { stroke: #FAFAFA; }\n`;
+  css += `.stroke-black { stroke: #111110; }\n`;
+  css += `.stroke-transparent { stroke: transparent; }\n`;
   css += `.stroke-0 { stroke-width: 0; }\n`;
   css += `.stroke-1 { stroke-width: 1; }\n`;
   css += `.stroke-2 { stroke-width: 2; }\n`;
@@ -602,6 +608,10 @@ function accessibilityUtilities() {
   return `/* Accessibility */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
 .not-sr-only { position: static; width: auto; height: auto; padding: 0; margin: 0; overflow: visible; clip: auto; white-space: normal; }
+.sr-only-focusable:not(:focus):not(:focus-within) { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
+.focus-ring:focus-visible { outline: 2px solid var(--color-brand-80); outline-offset: 2px; }
+.focus-ring-inset:focus-visible { outline: 2px solid var(--color-brand-80); outline-offset: -2px; }
+.focus-ring-none:focus-visible { outline: none; }
 .focus-visible:focus { outline: 2px solid currentColor; outline-offset: 2px; }
 .focus\\:outline-none:focus { outline: 2px solid transparent; outline-offset: 2px; }
 
@@ -756,8 +766,8 @@ function divideUtilities(spacing, colours) {
       css += `.divide-${colourName}-${shade} > * + * { border-color: var(--color-${colourName}-${shade}); }\n`;
     });
   });
-  css += `.divide-white > * + * { border-color: #ffffff; }\n`;
-  css += `.divide-black > * + * { border-color: #000000; }\n`;
+  css += `.divide-white > * + * { border-color: #FAFAFA; }\n`;
+  css += `.divide-black > * + * { border-color: #111110; }\n`;
   css += `.divide-transparent > * + * { border-color: transparent; }\n`;
   css += `\n`;
   return css;

@@ -4,10 +4,22 @@
 const { spawnSync } = require('child_process')
 const chalk = require('chalk')
 const path = require('path')
+const fs = require('fs')
 
 const ROOT = path.join(__dirname, '..')
+const GIT_LOCK_PATH = path.join(ROOT, '.git', 'index.lock')
 
 console.log(chalk.bold('\n  emilyCSS ship\n'))
+
+// Pre-flight check: Ensure Git is not locked
+if (fs.existsSync(GIT_LOCK_PATH)) {
+  console.log(chalk.red.bold('  ⚠ Git index is locked.'))
+  console.log(chalk.dim('  Another git process is running or a previous one crashed.'))
+  console.log(chalk.yellow(`  Run: rm .git/index.lock`))
+  console.log()
+  process.exit(1)
+}
+
 console.log(chalk.dim('  This will run commit, then release + publish.'))
 console.log(chalk.dim('  Both steps are interactive — work through them in order.\n'))
 

@@ -693,8 +693,8 @@ function generateBorderUtilities(config) {
   css += `.border-none { border-style: none; }\n`;
   css += `.border-transparent { border-color: transparent; }\n`;
   css += `.border-current { border-color: currentColor; }\n`;
-  css += `.border-black { border-color: #000000; }\n`;
-  css += `.border-white { border-color: #ffffff; }\n`;
+  css += `.border-black { border-color: #111110; }\n`;
+  css += `.border-white { border-color: #FAFAFA; }\n`;
 
   const baseRadius = config.spacing.borderRadius['base'] || '8px';
   css += `.rounded { border-radius: ${baseRadius}; }\n`;
@@ -791,9 +791,15 @@ function generateColourUtilities(colours) {
     });
   });
 
-  css += `.bg-white { background-color: #ffffff; }\n`;
+  css += `.bg-white { background-color: #FAFAFA; }\n`;
+  css += `.bg-black { background-color: #111110; }\n`;
   css += `.bg-transparent { background-color: transparent; }\n`;
-  css += `.text-white { color: #ffffff; }\n`;
+  css += `.bg-current { background-color: currentColor; }\n`;
+
+  css += `.text-white { color: #FAFAFA; }\n`;
+  css += `.text-black { color: #111110; }\n`;
+  css += `.text-transparent { color: transparent; }\n`;
+  css += `.text-current { color: currentColor; }\n`;
 
   css += `\n`;
   return css;
@@ -810,6 +816,63 @@ function generateSemanticColourUtilities(semanticColours) {
   });
   css += `\n`;
   return css;
+}
+
+// ============================================================================
+// ARIA & DATA-STATE VARIANTS
+// ============================================================================
+// Generates ARIA attribute and data-state variants for all utility classes.
+// Selectors target the attribute value directly so they work without JS —
+// just toggle the attribute and the utility activates.
+//
+// Usage in HTML:
+//   aria-expanded: class="aria-expanded:block" aria-expanded="true"
+//   data-open:     class="data-open:flex"       data-state="open"
+//
+// Output examples:
+//   .aria-expanded\:block[aria-expanded="true"] { display: block; }
+//   .data-open\:flex[data-state="open"] { display: flex; }
+
+function addAriaDataVariants(css) {
+  const variants = [
+    { name: 'aria-expanded', selector: '[aria-expanded="true"]' },
+    { name: 'aria-selected', selector: '[aria-selected="true"]' },
+    { name: 'aria-current',  selector: '[aria-current="page"]' },
+    { name: 'aria-disabled', selector: '[aria-disabled="true"]' },
+    { name: 'data-open',     selector: '[data-state="open"]' },
+    { name: 'data-closed',   selector: '[data-state="closed"]' },
+  ];
+
+  let variantCss = css;
+
+  variants.forEach(variant => {
+    let variantRules = '';
+    const lines = css.split('\n');
+
+    lines.forEach(line => {
+      if (line.startsWith('.') && line.includes('{')) {
+        const className = line.split('{')[0].trim();
+        // Skip already-variant lines (contain ':' in class name) and special selectors
+        if (
+          !className.startsWith(':root') &&
+          !className.includes('@') &&
+          !className.includes('::') &&
+          !className.includes(':')
+        ) {
+          const classWithoutDot = className.substring(1);
+          const ariaSelector = `.${variant.name}\\:${classWithoutDot}${variant.selector}`;
+          const ariaRule = line.replace(className, ariaSelector);
+          variantRules += ariaRule + '\n';
+        }
+      }
+    });
+
+    if (variantRules) {
+      variantCss += `\n/* ARIA/data-state variant: ${variant.name} */\n` + variantRules;
+    }
+  });
+
+  return variantCss;
 }
 
 // ============================================================================
@@ -981,6 +1044,65 @@ function generatePatternComponents() {
   .prose {
     max-width: 65ch;
     margin-inline: auto;
+  }
+
+  .prose-emily {
+    max-width: 65ch;
+    margin-inline: auto;
+  }
+
+  .prose-emily > * + * {
+    margin-top: var(--space-4, 1rem);
+  }
+
+  .prose-emily h2,
+  .prose-emily h3 {
+    font-family: inherit;
+    color: var(--color-neutral-90);
+    line-height: 1.25;
+  }
+
+  .prose-emily h2 {
+    font-size: var(--text-2xl, 24px);
+    margin-top: var(--space-10, 2.5rem);
+  }
+
+  .prose-emily h3 {
+    font-size: var(--text-xl, 20px);
+    margin-top: var(--space-8, 2rem);
+  }
+
+  .prose-emily p,
+  .prose-emily li {
+    color: var(--color-neutral-70);
+    line-height: 1.75;
+  }
+
+  .prose-emily ul,
+  .prose-emily ol {
+    padding-left: var(--space-6, 1.5rem);
+  }
+
+  .prose-emily ul {
+    list-style-type: disc;
+  }
+
+  .prose-emily ol {
+    list-style-type: decimal;
+  }
+
+  .prose-emily a {
+    color: var(--color-brand-80);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .prose-emily code {
+    font-size: var(--text-sm, 14px);
+    background-color: var(--color-neutral-10);
+    border: 1px solid var(--color-neutral-20);
+    border-radius: var(--space-1, 0.25rem);
+    padding: 0.125rem 0.375rem;
   }
 
   /* ---- Composition ---- */
@@ -1421,6 +1543,7 @@ function buildFullFramework() {
   utilityCss += filterUtilities();
 
   utilityCss = addStateVariants(utilityCss);
+  utilityCss = addAriaDataVariants(utilityCss);
   utilityCss = addDarkModeVariants(utilityCss);
   utilityCss = addResponsiveVariants(utilityCss, config);
 
@@ -1645,8 +1768,8 @@ function build(options = {}) {
   const fullCssPath = getFullCssPath(config);
   const result = buildProductionCss();
 
-  console.log('✓ Generated production CSS: ' + path.relative(process.cwd(), result.outputPath));
-  console.log('✓ File size: ' + (result.outputSize / 1024).toFixed(2) + ' KB');
+  console.log('\u2713 Generated production CSS: ' + path.relative(process.cwd(), result.outputPath));
+  console.log('\u2713 File size: ' + (result.outputSize / 1024).toFixed(2) + ' KB');
 
   if (!options.keepFull && fs.existsSync(fullCssPath)) {
     try {
@@ -1683,6 +1806,7 @@ module.exports = {
   generateFlexboxUtilities,
   generateGridUtilities,
   addStateVariants,
+  addAriaDataVariants,
   addResponsiveVariants,
   generateFontCSS,
   codeUtilities,

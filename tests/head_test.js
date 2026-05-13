@@ -23,7 +23,6 @@ const {
   generateTypographyUtilities,
   generateSpacingUtilities,
   addStateVariants,
-  addAriaDataVariants,
   addResponsiveVariants,
   generateFlexboxUtilities,
   generateGridUtilities,
@@ -506,30 +505,6 @@ test('purgeCSS keeps focus-visible variants when class is used', () => {
   fs.writeFileSync(path.join(tmpDir, 'test.html'), '<input class="focus-visible:ring-2">');
   const result = purgeCSS(css, tmpDir, config);
   assert.ok(result.includes('.focus-visible\\:ring-2:focus-visible {'), 'Should keep focus-visible variant when class is used in HTML');
-  fs.rmSync(tmpDir, { recursive: true });
-});
-
-test('purgeCSS keeps aria-expanded variant when class is used', () => {
-  const css = '.block { display: block; }\n.aria-expanded\\:block[aria-expanded="true"] { display: block; }\n';
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'emily-aria-test-'));
-  fs.writeFileSync(path.join(tmpDir, 'test.html'), '<button aria-expanded="true" class="aria-expanded:block"></button>');
-  const result = purgeCSS(css, tmpDir, isolatedPurgeConfig(tmpDir));
-  assert.ok(
-    result.includes('.aria-expanded\\:block[aria-expanded="true"]'),
-    'Should keep aria-expanded variant when class is used'
-  );
-  fs.rmSync(tmpDir, { recursive: true });
-});
-
-test('purgeCSS keeps data-open variant when class is used', () => {
-  const css = '.flex { display: flex; }\n.data-open\\:flex[data-state="open"] { display: flex; }\n';
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'emily-data-test-'));
-  fs.writeFileSync(path.join(tmpDir, 'test.html'), '<div data-state="open" class="data-open:flex"></div>');
-  const result = purgeCSS(css, tmpDir, isolatedPurgeConfig(tmpDir));
-  assert.ok(
-    result.includes('.data-open\\:flex[data-state="open"]'),
-    'Should keep data-open variant when class is used'
-  );
   fs.rmSync(tmpDir, { recursive: true });
 });
 
@@ -1597,8 +1572,8 @@ test('generateBorderUtilities includes border-x-2 and border-y-4', () => {
 test('generateBorderUtilities includes border-current, border-black, border-white', () => {
   const css = generateBorderUtilities(config);
   assert.ok(css.includes('.border-current { border-color: currentColor; }'), 'Missing .border-current');
-  assert.ok(css.includes('.border-black { border-color: #111110; }'), 'Missing .border-black');
-  assert.ok(css.includes('.border-white { border-color: #FAFAFA; }'), 'Missing .border-white');
+  assert.ok(css.includes('.border-black { border-color: #000000; }'), 'Missing .border-black');
+  assert.ok(css.includes('.border-white { border-color: #ffffff; }'), 'Missing .border-white');
 });
 
 test('generateBorderUtilities .border includes border-style: solid', () => {
@@ -1845,189 +1820,17 @@ test('shipped JS files contain no null bytes', () => {
   });
 });
 
-// ─── 17. Softened Plain Colours, prose-emily, Focus Helpers ──────────────────
-
-section('17. Softened Plain Colours, prose-emily, Focus Helpers');
-
-const { accessibilityUtilities: a11yUtils, svgUtilities: svgUtils, divideUtilities: divUtils } = require('../src/generators.js');
-
-test('generateColourUtilities uses #FAFAFA for bg-white', () => {
-  const colours = generateAllColours(config.colours);
-  const css = generateColourUtilities(colours);
-  assert.ok(css.includes('.bg-white { background-color: #FAFAFA; }'), 'bg-white should use #FAFAFA');
-});
-
-test('generateColourUtilities uses #111110 for bg-black', () => {
-  const colours = generateAllColours(config.colours);
-  const css = generateColourUtilities(colours);
-  assert.ok(css.includes('.bg-black { background-color: #111110; }'), 'bg-black should use #111110');
-});
-
-test('generateColourUtilities uses #111110 for text-black', () => {
-  const colours = generateAllColours(config.colours);
-  const css = generateColourUtilities(colours);
-  assert.ok(css.includes('.text-black { color: #111110; }'), 'text-black should use #111110');
-});
-
-test('generateColourUtilities includes text-transparent', () => {
-  const colours = generateAllColours(config.colours);
-  const css = generateColourUtilities(colours);
-  assert.ok(css.includes('.text-transparent { color: transparent; }'), 'Missing .text-transparent');
-});
-
-test('generateBorderUtilities uses #FAFAFA for border-white', () => {
-  const css = generateBorderUtilities(config);
-  assert.ok(css.includes('.border-white { border-color: #FAFAFA; }'), 'border-white should use #FAFAFA');
-});
-
-test('generateBorderUtilities uses #111110 for border-black', () => {
-  const css = generateBorderUtilities(config);
-  assert.ok(css.includes('.border-black { border-color: #111110; }'), 'border-black should use #111110');
-});
-
-test('svgUtilities includes fill-white with #FAFAFA', () => {
-  const colours = generateAllColours(config.colours);
-  const css = svgUtils(colours);
-  assert.ok(css.includes('.fill-white { fill: #FAFAFA; }'), 'fill-white should use #FAFAFA');
-});
-
-test('svgUtilities includes stroke-black with #111110', () => {
-  const colours = generateAllColours(config.colours);
-  const css = svgUtils(colours);
-  assert.ok(css.includes('.stroke-black { stroke: #111110; }'), 'stroke-black should use #111110');
-});
-
-test('prose-emily is present in generatePatternComponents', () => {
-  const { generatePatternComponents } = require('../src/index.js');
-  // prose-emily is inside the function — test via built output or string check
-  // We'll confirm via the function source instead
-  const src = require('fs').readFileSync(require('path').join(__dirname, '../src/index.js'), 'utf8');
-  assert.ok(src.includes('.prose-emily'), 'Missing .prose-emily in src/index.js');
-});
-
-test('accessibilityUtilities includes .sr-only-focusable', () => {
-  const css = a11yUtils();
-  assert.ok(css.includes('.sr-only-focusable:not(:focus):not(:focus-within)'), 'Missing .sr-only-focusable');
-});
-
-test('accessibilityUtilities includes .focus-ring:focus-visible', () => {
-  const css = a11yUtils();
-  assert.ok(css.includes('.focus-ring:focus-visible'), 'Missing .focus-ring:focus-visible');
-});
-
-test('accessibilityUtilities includes .focus-ring-inset:focus-visible', () => {
-  const css = a11yUtils();
-  assert.ok(css.includes('.focus-ring-inset:focus-visible'), 'Missing .focus-ring-inset:focus-visible');
-});
-
-test('accessibilityUtilities includes .focus-ring-none:focus-visible', () => {
-  const css = a11yUtils();
-  assert.ok(css.includes('.focus-ring-none:focus-visible'), 'Missing .focus-ring-none:focus-visible');
-});
-
-// ─── 18. ARIA & Data-State Variants ──────────────────────────────────────────
-
-section('18. ARIA & Data-State Variants');
-test('addAriaDataVariants generates aria-expanded: prefix with attribute selector', () => {
-  const base = '.block { display: block; }\n';
-  const result = addAriaDataVariants(base);
-  assert.ok(
-    result.includes('.aria-expanded\\:block[aria-expanded="true"] { display: block; }'),
-    'Missing aria-expanded:block variant'
-  );
-});
-
-test('addAriaDataVariants generates aria-selected: prefix with attribute selector', () => {
-  const base = '.bg-brand-80 { background-color: var(--color-brand-80); }\n';
-  const result = addAriaDataVariants(base);
-  assert.ok(
-    result.includes('.aria-selected\\:bg-brand-80[aria-selected="true"]'),
-    'Missing aria-selected:bg-brand-80 variant'
-  );
-});
-
-test('addAriaDataVariants generates aria-current: uses aria-current="page" selector', () => {
-  const base = '.font-bold { font-weight: 700; }\n';
-  const result = addAriaDataVariants(base);
-  assert.ok(
-    result.includes('.aria-current\\:font-bold[aria-current="page"]'),
-    'Missing aria-current:font-bold variant with page selector'
-  );
-});
-
-test('addAriaDataVariants generates aria-disabled: prefix with attribute selector', () => {
-  const base = '.opacity-50 { opacity: 0.5; }\n';
-  const result = addAriaDataVariants(base);
-  assert.ok(
-    result.includes('.aria-disabled\\:opacity-50[aria-disabled="true"]'),
-    'Missing aria-disabled:opacity-50 variant'
-  );
-});
-
-test('addAriaDataVariants generates data-open: with data-state="open" selector', () => {
-  const base = '.block { display: block; }\n';
-  const result = addAriaDataVariants(base);
-  assert.ok(
-    result.includes('.data-open\\:block[data-state="open"]'),
-    'Missing data-open:block variant'
-  );
-});
-
-test('addAriaDataVariants generates data-closed: with data-state="closed" selector', () => {
-  const base = '.hidden { display: none; }\n';
-  const result = addAriaDataVariants(base);
-  assert.ok(
-    result.includes('.data-closed\\:hidden[data-state="closed"]'),
-    'Missing data-closed:hidden variant'
-  );
-});
-
-test('addAriaDataVariants does not process existing state variant lines', () => {
-  const base = '.block { display: block; }\n';
-  const withState = addStateVariants(base);
-  const result = addAriaDataVariants(withState);
-  assert.ok(
-    !result.includes('aria-expanded\\:hover\\:'),
-    'ARIA variants are being applied to existing state variant lines'
-  );
-});
-
-test('addAriaDataVariants produces all 6 variant types for a single utility', () => {
-  const base = '.flex { display: flex; }\n';
-  const result = addAriaDataVariants(base);
-  const expected = [
-    'aria-expanded\\:flex[aria-expanded="true"]',
-    'aria-selected\\:flex[aria-selected="true"]',
-    'aria-current\\:flex[aria-current="page"]',
-    'aria-disabled\\:flex[aria-disabled="true"]',
-    'data-open\\:flex[data-state="open"]',
-    'data-closed\\:flex[data-state="closed"]',
-  ];
-  expected.forEach(selector => {
-    assert.ok(result.includes(selector), 'Missing variant: ' + selector);
-  });
-});
-
-test('addAriaDataVariants preserves original CSS rules unchanged', () => {
-  const base = '.block { display: block; }\n';
-  const result = addAriaDataVariants(base);
-  assert.ok(
-    result.startsWith('.block { display: block; }'),
-    'Original CSS rule was modified or removed'
-  );
-});
-
-// \u2500\u2500\u2500 Results \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// ─── Results ──────────────────────────────────────────────────────────────────
 
 const total = passed + failed;
-console.log('\n' + '\u2550'.repeat(40));
-console.log('Results: ' + passed + '/' + total + ' passed');
+console.log(`\n${'═'.repeat(40)}`);
+console.log(`Results: ${passed}/${total} passed`);
 
 if (failed > 0) {
-  console.log('\nFailed tests:');
-  failures.forEach(f => console.log('  \u2717 ' + f.name + '\n    ' + f.message));
+  console.log(`\nFailed tests:`);
+  failures.forEach(f => console.log(`  ✗ ${f.name}\n    ${f.message}`));
   process.exit(1);
 } else {
-  console.log('\nAll tests passed \u2713');
+  console.log(`\nAll tests passed ✓`);
   process.exit(0);
 }

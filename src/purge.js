@@ -173,7 +173,7 @@ function purgeBlock(block, usedClasses) {
         .replace(/:/g, "\\\\:");
 
       const boundaryRegex = new RegExp(
-        `\\.${escapedUsed}(?::[\\w\\-]+|[\\s,>+~]|$)`,
+        `\\.${escapedUsed}(?::[\\w\\-]+|\\[|[\\s,>+~]|$)`,
       );
 
       if (boundaryRegex.test(selector)) return true;
@@ -275,5 +275,5 @@ function purgeCSS(css, scanDir, config) {
 module.exports = {
   purgeCSS,
   getAllFiles,
-  extractClassNames,
+  extractClassNames
 };
