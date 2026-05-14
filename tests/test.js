@@ -32,6 +32,11 @@ const {
 
 const { extractClassNames, purgeCSS } = require('../src/purge.js');
 const { generateManifest } = require('../src/manifest.js');
+const {
+  doctor,
+  normaliseClassForManifest,
+  suggestClassName,
+} = require('../src/doctor.js');
 
 const config = JSON.parse(
   fs.readFileSync(path.join(__dirname, '../emily.config.json'), 'utf8')
@@ -122,6 +127,20 @@ function buildConfigWithManifest(manifestConfig) {
   }
 
   return tmpConfig;
+}
+
+function buildDoctorConfig(tmpDir, sourceFilename, classMarkup, manifestConfig = true) {
+  const tmpConfig = JSON.parse(JSON.stringify(config));
+  tmpConfig.manifest = manifestConfig;
+  tmpConfig.purge = {
+    sourceDir: tmpDir,
+    sourceGlobs: [path.join(tmpDir, sourceFilename).replace(/\\/g, '/')],
+    ignore: [],
+    extensions: ['.html', '.js', '.ts', '.jsx', '.tsx', '.vue'],
+  };
+
+  fs.writeFileSync(path.join(tmpDir, 'emily.config.json'), JSON.stringify(tmpConfig, null, 2));
+  fs.writeFileSync(path.join(tmpDir, sourceFilename), classMarkup);
 }
 
 // ─── 1. Colour Generation ─────────────────────────────────────────────────────
@@ -2250,6 +2269,172 @@ test('buildFullFramework supports custom manifest output path', () => {
     assert.ok(fs.existsSync(customPath), 'Manifest should be generated at custom output path');
   } finally {
     process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
+// ─── 20. Doctor ──────────────────────────────────────────────────────────────
+
+section('20. Doctor');
+
+test('normaliseClassForManifest parses md:flex into variant md and base flex', () => {
+  const result = normaliseClassForManifest('md:flex');
+  assert.strictEqual(result.variant, 'md');
+  assert.deepStrictEqual(result.variants, ['md']);
+  assert.strictEqual(result.baseClass, 'flex');
+});
+
+test('normaliseClassForManifest parses focus-visible:ring-2 into variant and base', () => {
+  const result = normaliseClassForManifest('focus-visible:ring-2');
+  assert.strictEqual(result.variant, 'focus-visible');
+  assert.deepStrictEqual(result.variants, ['focus-visible']);
+  assert.strictEqual(result.baseClass, 'ring-2');
+});
+
+test('suggestClassName suggests misspelt base class', () => {
+  const suggestion = suggestClassName(
+    'bg-brnad-80',
+    new Set(['bg-brand-80', 'text-base']),
+    new Set(['hover', 'focus-visible', 'md']),
+  );
+  assert.strictEqual(suggestion, 'bg-brand-80');
+});
+
+test('suggestClassName suggests misspelt variant+class combo', () => {
+  const suggestion = suggestClassName(
+    'foucs-visible:ring-2',
+    new Set(['ring-2', 'flex']),
+    new Set(['hover', 'focus-visible', 'md']),
+  );
+  assert.strictEqual(suggestion, 'focus-visible:ring-2');
+});
+
+test('doctor validates known base classes with no issues', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    buildDoctorConfig(tmpDir, 'page.html', '<div class="flex bg-brand-80"></div>');
+    process.chdir(tmpDir);
+
+    const result = doctor();
+    assert.strictEqual(result.ok, true);
+    assert.strictEqual(result.exitCode, 0);
+    assert.strictEqual(result.issues.length, 0);
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
+test('doctor validates known variant + known base class with no issues', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    buildDoctorConfig(
+      tmpDir,
+      'page.html',
+      '<div class="md:flex hover:bg-brand-80 focus-visible:ring-2"></div>',
+    );
+    process.chdir(tmpDir);
+
+    const result = doctor();
+    assert.strictEqual(result.ok, true);
+    assert.strictEqual(result.exitCode, 0);
+    assert.strictEqual(result.issues.length, 0);
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
+test('doctor reports unknown class and includes suggestion', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    buildDoctorConfig(tmpDir, 'page.html', '<div class="bg-brnad-80"></div>');
+    process.chdir(tmpDir);
+
+    const result = doctor();
+    assert.strictEqual(result.ok, false);
+    assert.strictEqual(result.exitCode, 1);
+    assert.ok(result.issues.length > 0, 'Expected unknown class issue');
+    assert.ok(
+      result.issues.some((issue) => issue.className === 'bg-brnad-80'),
+      'Expected bg-brnad-80 to be reported',
+    );
+    assert.ok(
+      result.issues.some((issue) => issue.suggestion === 'bg-brand-80'),
+      'Expected suggestion bg-brand-80',
+    );
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
+test('doctor reports unknown variant', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    buildDoctorConfig(tmpDir, 'page.html', '<div class="banana:flex"></div>');
+    process.chdir(tmpDir);
+
+    const result = doctor();
+    assert.strictEqual(result.ok, false);
+    assert.strictEqual(result.exitCode, 1);
+    assert.ok(
+      result.issues.some((issue) => issue.reason === 'unknown-variant' && issue.className === 'banana:flex'),
+      'Expected banana:flex to be flagged as unknown variant',
+    );
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
+test('CLI doctor exits cleanly when no issues are found', () => {
+  const tmpDir = createTempProject();
+
+  try {
+    buildDoctorConfig(tmpDir, 'page.html', '<div class="flex bg-brand-80"></div>');
+
+    const result = spawnSync('node', [path.join(__dirname, '../bin/emilyui.js'), 'doctor'], {
+      cwd: tmpDir,
+      encoding: 'utf8',
+    });
+
+    assert.strictEqual(result.status, 0);
+    assert.ok(
+      result.stdout.includes('doctor found no class issues'),
+      'Expected no-issues doctor output',
+    );
+  } finally {
+    removeTempProject(tmpDir);
+  }
+});
+
+test('CLI doctor returns issues when invalid classes are found', () => {
+  const tmpDir = createTempProject();
+
+  try {
+    buildDoctorConfig(tmpDir, 'page.html', '<div class="foucs-visible:ring-2"></div>');
+
+    const result = spawnSync('node', [path.join(__dirname, '../bin/emilyui.js'), 'doctor'], {
+      cwd: tmpDir,
+      encoding: 'utf8',
+    });
+
+    assert.strictEqual(result.status, 1);
+    assert.ok(result.stdout.includes('Unknown variant'), 'Expected unknown variant message');
+    assert.ok(
+      result.stdout.includes('focus-visible:ring-2'),
+      'Expected suggestion to be shown for misspelt class',
+    );
+  } finally {
     removeTempProject(tmpDir);
   }
 });

@@ -14,6 +14,10 @@ if (command === "init") {
   require("../src/watch.js");
 } else if (command === "showcase") {
   require("../src/showcase.js");
+} else if (command === "doctor") {
+  const { doctor } = require("../src/doctor.js");
+  const result = doctor();
+  process.exitCode = result.exitCode;
 } else if (command === "version" || command === "--version" || command === "-v") {
   console.log(packageJson.version);
 } else if (command === "help") {
@@ -24,6 +28,7 @@ if (command === "init") {
     emily-css init        Set up a new project (interactive wizard)
     emily-css build       Generate production CSS to the configured output path
     emily-css watch       Dev mode: watch for changes and rebuild
+    emily-css doctor      Scan project files for unknown EmilyCSS classes
     emily-css showcase    Launch the component showcase in your browser
     emily-css version     Show installed version
     emily-css help        Show this help text
@@ -44,6 +49,7 @@ if (command === "init") {
     emily-css init        Set up a new project
     emily-css build       Generate production CSS to the configured output path
     emily-css watch       Dev mode: rebuild on changes
+    emily-css doctor      Scan project files for unknown EmilyCSS classes
     emily-css showcase    Browse components in your browser
     emily-css help        Full command reference
 

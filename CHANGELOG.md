@@ -3,6 +3,13 @@
 All notable changes to `emily-css` are documented here.
 
 ---
+## v1.1.0 — May 2026
+
+### Added
+- Added `emily-css doctor`, a manifest-powered project checker that scans configured source files and reports unknown EmilyCSS classes with suggestions.
+- Added variant-aware class validation for responsive, state, ARIA, data-state, motion, dark, and forced-colours variants.
+
+---
 
 ## v1.0.29 — May 2026
 
