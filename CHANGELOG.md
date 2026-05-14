@@ -3,6 +3,18 @@
 All notable changes to `emily-css` are documented here.
 
 ---
+## v1.2.0-alpha.0 — May 2026
+
+### Added
+- Report-only Tailwind-to-EmilyCSS migration command: `emily-css migrate`.
+- Default semantic migration mode for design-token aligned suggestions.
+- Imported palette mode via `emily-css migrate --import-colours` for visual parity mapping suggestions.
+- Detection and reporting for arbitrary value utilities during migration analysis.
+
+### Notes
+- Migration in this alpha is analysis-only: no source files are modified by `migrate`.
+
+---
 ## v1.1.0 — May 2026
 
 ### Added

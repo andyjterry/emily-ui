@@ -37,6 +37,11 @@ const {
   normaliseClassForManifest,
   suggestClassName,
 } = require('../src/doctor.js');
+const {
+  migrateClasses,
+  loadManifest,
+  generateMigrationReport,
+} = require('../src/migrate.js');
 
 const config = JSON.parse(
   fs.readFileSync(path.join(__dirname, '../emily.config.json'), 'utf8')
@@ -2433,6 +2438,285 @@ test('CLI doctor returns issues when invalid classes are found', () => {
     assert.ok(
       result.stdout.includes('focus-visible:ring-2'),
       'Expected suggestion to be shown for misspelt class',
+    );
+  } finally {
+    removeTempProject(tmpDir);
+  }
+});
+
+// ─── 21. Migration ───────────────────────────────────────────────────────────
+
+section('21. Migration');
+
+test('migrateClasses exists', () => {
+  assert.strictEqual(typeof migrateClasses, 'function');
+});
+
+test('migrateClasses returns structured report', () => {
+  const report = migrateClasses('<div class="text-gray-900 unknown-class"></div>', {
+    manifest: { utilities: [] },
+  });
+
+  ['found', 'supported', 'unsupported', 'suggestions', 'replacements', 'warnings'].forEach((key) => {
+    assert.ok(Array.isArray(report[key]), `Expected report.${key} to be an array`);
+  });
+});
+
+test('existing EmilyCSS class is marked supported', () => {
+  const report = migrateClasses('<div class="flex"></div>', {
+    manifest: {
+      utilities: [
+        {
+          class: 'flex',
+          variants: [],
+        },
+      ],
+    },
+  });
+
+  assert.ok(report.supported.includes('flex'), 'Expected flex to be supported');
+});
+
+test('known Tailwind class gets suggested replacement', () => {
+  const report = migrateClasses('<p class="text-gray-900"></p>', {
+    manifest: { utilities: [] },
+  });
+
+  assert.ok(report.knownTailwind.includes('text-gray-900'), 'Expected known Tailwind class to be detected');
+  assert.ok(
+    report.replacements.some((replacement) => replacement.from === 'text-gray-900' && replacement.to === 'text-neutral-90'),
+    'Expected text-gray-900 replacement to text-neutral-90',
+  );
+  assert.ok(
+    !report.unsupported.includes('text-gray-900'),
+    'Known Tailwind class with replacement should not be treated as unsupported',
+  );
+});
+
+test('semantic mode remaps slate/gray families to neutral naming', () => {
+  const report = migrateClasses('<div class="bg-slate-900 text-zinc-700"></div>', {
+    manifest: { utilities: [] },
+  });
+
+  assert.ok(
+    report.replacements.some((replacement) => replacement.from === 'bg-slate-900' && replacement.to === 'bg-neutral-90'),
+    'Expected semantic remap bg-slate-900 -> bg-neutral-90',
+  );
+  assert.ok(
+    report.replacements.some((replacement) => replacement.from === 'text-zinc-700' && replacement.to === 'text-neutral-70'),
+    'Expected semantic remap text-zinc-700 -> text-neutral-70',
+  );
+});
+
+test('unsupported class is flagged', () => {
+  const report = migrateClasses('<div class="enterprise-legacy-token"></div>', {
+    manifest: { utilities: [] },
+  });
+
+  assert.ok(
+    report.unsupported.includes('enterprise-legacy-token'),
+    'Expected unknown class to be reported as unsupported',
+  );
+});
+
+test('manifest absence handled gracefully', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    fs.writeFileSync(
+      path.join(tmpDir, 'emily.config.json'),
+      JSON.stringify(buildConfigWithManifest(false), null, 2),
+    );
+    process.chdir(tmpDir);
+
+    const result = loadManifest();
+    assert.ok(result && result.manifest, 'Expected loadManifest to return a result object');
+    assert.ok(Array.isArray(result.manifest.utilities), 'Expected manifest utilities array fallback');
+    assert.ok(
+      result.warnings.some((warning) => warning.includes('Manifest not found')),
+      'Expected missing-manifest warning',
+    );
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
+test('CLI help output includes migrate command', () => {
+  const result = spawnSync('node', [path.join(__dirname, '../bin/emilyui.js'), 'help'], {
+    cwd: path.join(__dirname, '..'),
+    encoding: 'utf8',
+  });
+
+  assert.strictEqual(result.status, 0);
+  assert.ok(result.stdout.includes('emily-css migrate'), 'Expected help output to include migrate command');
+});
+
+test('migrate command runs without crashing', () => {
+  const tmpDir = createTempProject();
+
+  try {
+    const tmpConfig = JSON.parse(JSON.stringify(config));
+    tmpConfig.manifest = false;
+    tmpConfig.purge = {
+      sourceDir: tmpDir,
+      sourceGlobs: [path.join(tmpDir, '**/*.html').replace(/\\/g, '/')],
+      ignore: [],
+      extensions: ['.html'],
+    };
+
+    fs.writeFileSync(path.join(tmpDir, 'emily.config.json'), JSON.stringify(tmpConfig, null, 2));
+    fs.writeFileSync(
+      path.join(tmpDir, 'index.html'),
+      '<main class="text-gray-900 flex enterprise-legacy-token"></main>',
+    );
+
+    const result = spawnSync('node', [path.join(__dirname, '../bin/emilyui.js'), 'migrate'], {
+      cwd: tmpDir,
+      encoding: 'utf8',
+    });
+
+    assert.strictEqual(result.status, 0);
+    assert.ok(result.stdout.includes('EmilyCSS migration report'), 'Expected migrate report heading');
+    assert.ok(result.stdout.includes('Known Tailwind classes'), 'Expected migrate summary output');
+  } finally {
+    removeTempProject(tmpDir);
+  }
+});
+
+test('migrateClasses detects imported palette mapping when import-colours is enabled', () => {
+  const report = migrateClasses('<div class="text-blue-500 bg-zinc-50 bg-zinc-100 bg-zinc-950 bg-zinc-800 text-slate-700"></div>', {
+    manifest: { utilities: [] },
+    importColours: true,
+  });
+
+  assert.ok(
+    report.knownTailwind.includes('text-blue-500'),
+    'Expected text-blue-500 to be recognised as Tailwind colour utility',
+  );
+  assert.ok(
+    report.replacements.some((replacement) => replacement.from === 'text-blue-500' && replacement.to === 'text-blue-50'),
+    'Expected text-blue-500 to map to Emily-style text-blue-50',
+  );
+  assert.ok(
+    report.replacements.some((replacement) => replacement.from === 'bg-zinc-50' && replacement.to === 'bg-zinc-5'),
+    'Expected bg-zinc-50 to map to Emily-style bg-zinc-5 in imported palette mode',
+  );
+  assert.ok(
+    report.replacements.some((replacement) => replacement.from === 'bg-zinc-100' && replacement.to === 'bg-zinc-10'),
+    'Expected bg-zinc-100 to map to Emily-style bg-zinc-10 in imported palette mode',
+  );
+  assert.ok(
+    report.replacements.some((replacement) => replacement.from === 'bg-zinc-950' && replacement.to === 'bg-zinc-100'),
+    'Expected bg-zinc-950 to map to Emily-style bg-zinc-100 in imported palette mode',
+  );
+  assert.ok(
+    report.replacements.some((replacement) => replacement.from === 'bg-zinc-800' && replacement.to === 'bg-zinc-80'),
+    'Expected bg-zinc-800 to map to Emily-style bg-zinc-80 in imported palette mode',
+  );
+  assert.ok(
+    report.replacements.some((replacement) => replacement.from === 'text-slate-700' && replacement.to === 'text-slate-70'),
+    'Expected text-slate-700 to map to Emily-style text-slate-70 in imported palette mode',
+  );
+  assert.ok(
+    !report.unsupported.includes('text-blue-500'),
+    'Mapped Tailwind colour class should not be unsupported',
+  );
+});
+
+test('generateMigrationReport includes importedPalettes config suggestion when import-colours is enabled', () => {
+  const tmpDir = createTempProject();
+
+  try {
+    const tmpConfig = JSON.parse(JSON.stringify(config));
+    tmpConfig.manifest = false;
+    tmpConfig.purge = {
+      sourceDir: tmpDir,
+      sourceGlobs: [path.join(tmpDir, '**/*.html').replace(/\\/g, '/')],
+      ignore: [],
+      extensions: ['.html'],
+    };
+
+    fs.writeFileSync(path.join(tmpDir, 'emily.config.json'), JSON.stringify(tmpConfig, null, 2));
+    fs.writeFileSync(
+      path.join(tmpDir, 'index.html'),
+      '<section class="text-blue-500 bg-slate-900 border-emerald-600"></section>',
+    );
+
+    const report = generateMigrationReport({
+      config: tmpConfig,
+      sourceGlobs: [path.join(tmpDir, '**/*.html').replace(/\\/g, '/')],
+      importColours: true,
+    });
+
+    assert.ok(Array.isArray(report.importedPalettes), 'Expected importedPalettes array');
+    assert.ok(
+      report.importedPalettes.some((entry) => entry.tailwindPalette === 'blue' && entry.emilyPalette === 'blue'),
+      'Expected blue imported palette entry',
+    );
+    assert.ok(
+      report.importedPalettes.some((entry) => entry.tailwindPalette === 'slate' && entry.emilyPalette === 'slate'),
+      'Expected slate to slate imported palette entry',
+    );
+    assert.ok(
+      typeof report.importedPalettesConfig === 'string' && report.importedPalettesConfig.includes('importedPalettes'),
+      'Expected importedPalettes config block suggestion',
+    );
+  } finally {
+    removeTempProject(tmpDir);
+  }
+});
+
+test('migrateClasses reports arbitrary value utilities as unsupported', () => {
+  const report = migrateClasses('<div class="w-[37px] bg-[#0f172a] grid-cols-[200px_1fr]"></div>', {
+    manifest: { utilities: [] },
+  });
+
+  assert.ok(report.arbitraryValueUtilities.includes('w-[37px]'));
+  assert.ok(report.arbitraryValueUtilities.includes('bg-[#0f172a]'));
+  assert.ok(report.arbitraryValueUtilities.includes('grid-cols-[200px_1fr]'));
+  assert.ok(report.unsupported.includes('w-[37px]'));
+  assert.ok(report.unsupported.includes('bg-[#0f172a]'));
+  assert.ok(report.unsupported.includes('grid-cols-[200px_1fr]'));
+});
+
+test('migrate command supports --import-colours and prints palette suggestion', () => {
+  const tmpDir = createTempProject();
+
+  try {
+    const tmpConfig = JSON.parse(JSON.stringify(config));
+    tmpConfig.manifest = false;
+    tmpConfig.purge = {
+      sourceDir: tmpDir,
+      sourceGlobs: [path.join(tmpDir, '**/*.html').replace(/\\/g, '/')],
+      ignore: [],
+      extensions: ['.html'],
+    };
+
+    fs.writeFileSync(path.join(tmpDir, 'emily.config.json'), JSON.stringify(tmpConfig, null, 2));
+    fs.writeFileSync(
+      path.join(tmpDir, 'index.html'),
+      '<main class="text-blue-500 bg-slate-900"></main>',
+    );
+
+    const result = spawnSync(
+      'node',
+      [path.join(__dirname, '../bin/emilyui.js'), 'migrate', '--import-colours'],
+      {
+        cwd: tmpDir,
+        encoding: 'utf8',
+      },
+    );
+
+    assert.strictEqual(result.status, 0);
+    assert.ok(
+      result.stdout.includes('Suggested importedPalettes config'),
+      'Expected migrate --import-colours to print importedPalettes suggestion',
+    );
+    assert.ok(
+      result.stdout.includes('importedPalettes: {'),
+      'Expected config block content in output',
     );
   } finally {
     removeTempProject(tmpDir);

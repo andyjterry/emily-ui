@@ -53,7 +53,16 @@ npx emily-css init     # Setup config + first build
 npx emily-css build    # Regenerate CSS
 npx emily-css watch    # Development watch mode
 npx emily-css purge    # Remove unused styles for production
+npx emily-css migrate  # Report-only Tailwind-to-EmilyCSS migration analysis
+  --import-colours     # Imported palette mode (visual parity class suggestions)
 ```
+
+## Migration (1.2.0-alpha)
+
+- `emily-css migrate` is report-only and does not modify files.
+- Default migration mode is semantic (`gray/slate/zinc/stone` remap toward `neutral` naming).
+- `emily-css migrate --import-colours` enables imported palette mode for parity-oriented palette suggestions.
+- Arbitrary value utilities (for example `w-[37px]`, `bg-[#0f172a]`) are detected and reported as unsupported.
 
 ## How Purge Works
 

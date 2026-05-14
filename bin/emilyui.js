@@ -18,6 +18,12 @@ if (command === "init") {
   const { doctor } = require("../src/doctor.js");
   const result = doctor();
   process.exitCode = result.exitCode;
+} else if (command === "migrate") {
+  const { generateMigrationReport } = require("../src/migrate.js");
+  const { formatMigrationReport } = require("../src/reporters/migrationReporter.js");
+  const importColours = process.argv.includes("--import-colours");
+  const report = generateMigrationReport({ importColours });
+  console.log(formatMigrationReport(report, { importColours }));
 } else if (command === "version" || command === "--version" || command === "-v") {
   console.log(packageJson.version);
 } else if (command === "help") {
@@ -29,6 +35,8 @@ if (command === "init") {
     emily-css build       Generate production CSS to the configured output path
     emily-css watch       Dev mode: watch for changes and rebuild
     emily-css doctor      Scan project files for unknown EmilyCSS classes
+    emily-css migrate     Generate a Tailwind-to-EmilyCSS migration report
+      --import-colours    Detect Tailwind colour palettes and suggest importedPalettes config
     emily-css showcase    Launch the component showcase in your browser
     emily-css version     Show installed version
     emily-css help        Show this help text
@@ -50,6 +58,8 @@ if (command === "init") {
     emily-css build       Generate production CSS to the configured output path
     emily-css watch       Dev mode: rebuild on changes
     emily-css doctor      Scan project files for unknown EmilyCSS classes
+    emily-css migrate     Generate a Tailwind-to-EmilyCSS migration report
+      --import-colours    Detect Tailwind colour palettes and suggest importedPalettes config
     emily-css showcase    Browse components in your browser
     emily-css help        Full command reference
 
