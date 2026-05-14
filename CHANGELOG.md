@@ -4,6 +4,14 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.0.29 — May 2026
+
+**added json manifest for future use**
+
+### Added
+- added json manifest for future use
+
+---
 ## v1.0.28 — May 2026
 
 **added new utilities**
