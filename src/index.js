@@ -3,6 +3,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { generateManifest } = require('./manifest');
 
 
 // ============================================================================
@@ -1479,6 +1480,32 @@ function getProductionCssPath(config) {
   return path.join(process.cwd(), config.output?.css || 'dist/emily.min.css');
 }
 
+function getManifestSettings(config) {
+  const manifestConfig = config.manifest;
+
+  if (manifestConfig === true) {
+    return { enabled: true, output: 'dist/emily.manifest.json' };
+  }
+
+  if (manifestConfig && typeof manifestConfig === 'object') {
+    return {
+      enabled: manifestConfig.enabled === true,
+      output: manifestConfig.output || 'dist/emily.manifest.json',
+    };
+  }
+
+  return { enabled: false, output: 'dist/emily.manifest.json' };
+}
+
+function getManifestOutputPath(config) {
+  const manifestSettings = getManifestSettings(config);
+  const outputPath = manifestSettings.output || 'dist/emily.manifest.json';
+
+  return path.isAbsolute(outputPath)
+    ? outputPath
+    : path.join(process.cwd(), outputPath);
+}
+
 function ensureDirectoryForFile(filePath) {
   const dir = path.dirname(filePath);
 
@@ -1700,6 +1727,16 @@ ${bodyFont}`;
   ensureDirectoryForFile(fullCssPath);
   fs.writeFileSync(fullCssPath, css);
 
+  const manifestSettings = getManifestSettings(config);
+  if (manifestSettings.enabled) {
+    const manifestPath = getManifestOutputPath(config);
+    const manifest = generateManifest(css, config);
+
+    ensureDirectoryForFile(manifestPath);
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+    console.log(`✓ Generated manifest: ${manifestPath}`);
+  }
+
   console.log(`✓ Generated CSS: ${fullCssPath}`);
   console.log(`✓ File size: ${(css.length / 1024).toFixed(2)} KB (unminified)`);
   console.log('Full framework build complete');
@@ -1808,6 +1845,7 @@ module.exports = {
   addStateVariants,
   addAriaDataVariants,
   addResponsiveVariants,
+  generateManifest,
   generateFontCSS,
   codeUtilities,
 };

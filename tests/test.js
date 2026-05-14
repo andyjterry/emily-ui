@@ -13,6 +13,7 @@ const { execSync, spawnSync } = require('child_process');
 // ─── Load modules ─────────────────────────────────────────────────────────────
 
 const {
+  buildFullFramework,
   hexToOklch,
   oklchToHex,
   generateColourScale,
@@ -30,6 +31,7 @@ const {
 } = require('../src/index.js');
 
 const { extractClassNames, purgeCSS } = require('../src/purge.js');
+const { generateManifest } = require('../src/manifest.js');
 
 const config = JSON.parse(
   fs.readFileSync(path.join(__dirname, '../emily.config.json'), 'utf8')
@@ -108,6 +110,18 @@ function isolatedPurgeConfig(tmpDir) {
       extensions: ['.html', '.js', '.ts', '.jsx', '.tsx', '.vue'],
     },
   };
+}
+
+function buildConfigWithManifest(manifestConfig) {
+  const tmpConfig = JSON.parse(JSON.stringify(config));
+
+  if (manifestConfig === undefined) {
+    delete tmpConfig.manifest;
+  } else {
+    tmpConfig.manifest = manifestConfig;
+  }
+
+  return tmpConfig;
 }
 
 // ─── 1. Colour Generation ─────────────────────────────────────────────────────
@@ -2015,6 +2029,229 @@ test('addAriaDataVariants preserves original CSS rules unchanged', () => {
     result.startsWith('.block { display: block; }'),
     'Original CSS rule was modified or removed'
   );
+});
+
+// ─── 19. Utility Manifest ────────────────────────────────────────────────────
+
+section('19. Utility Manifest');
+
+test('generateManifest exists and returns an object with utilities', () => {
+  assert.strictEqual(typeof generateManifest, 'function');
+  const manifest = generateManifest('.p-4 { padding: 1rem; }');
+  assert.ok(manifest && typeof manifest === 'object', 'Manifest should be an object');
+  assert.ok(Array.isArray(manifest.utilities), 'Manifest utilities should be an array');
+  assert.ok(manifest.utilities.length > 0, 'Manifest utilities should not be empty');
+});
+
+test('generateManifest maps text-brand-80 to colour with token and declarations', () => {
+  const css = '.text-brand-80 { color: var(--color-brand-80); }\n';
+  const manifest = generateManifest(css);
+  const entry = manifest.utilities.find((utility) => utility.class === 'text-brand-80');
+
+  assert.ok(entry, 'Expected text-brand-80 utility in manifest');
+  assert.strictEqual(entry.category, 'colour');
+  assert.strictEqual(entry.property, 'color');
+  assert.strictEqual(entry.value, 'var(--color-brand-80)');
+  assert.strictEqual(entry.token, '--color-brand-80');
+  assert.deepStrictEqual(entry.declarations, { color: 'var(--color-brand-80)' });
+});
+
+test('generateManifest categorizes p-4 as spacing and btn as component', () => {
+  const css = '.p-4 { padding: var(--space-4); }\n.btn { display: inline-flex; }\n';
+  const manifest = generateManifest(css);
+  const spacing = manifest.utilities.find((utility) => utility.class === 'p-4');
+  const component = manifest.utilities.find((utility) => utility.class === 'btn');
+
+  assert.ok(spacing, 'Expected p-4 utility in manifest');
+  assert.ok(component, 'Expected btn utility in manifest');
+  assert.strictEqual(spacing.category, 'spacing');
+  assert.strictEqual(component.category, 'component');
+});
+
+test('generateManifest skips expanded variant selectors', () => {
+  const css = [
+    '.text-brand-80 { color: var(--color-brand-80); }',
+    '.hover\\:text-brand-80:hover { color: var(--color-brand-80); }',
+    '.focus-within\\:text-brand-80:focus-within { color: var(--color-brand-80); }',
+    '.md\\:p-4 { padding: var(--space-4); }',
+    '.dark .dark\\:text-brand-80 { color: var(--color-brand-80); }',
+  ].join('\n');
+  const manifest = generateManifest(css);
+  const classes = manifest.utilities.map((utility) => utility.class);
+
+  assert.ok(classes.includes('text-brand-80'), 'Expected base class to remain');
+  assert.ok(!classes.includes('hover:text-brand-80'), 'Hover-expanded selector should be skipped');
+  assert.ok(!classes.includes('focus-within:text-brand-80'), 'Focus-within-expanded selector should be skipped');
+  assert.ok(!classes.includes('md:p-4'), 'Responsive-expanded selector should be skipped');
+  assert.ok(!classes.includes('dark:text-brand-80'), 'Dark-expanded selector should be skipped');
+});
+
+test('generateManifest uses fallback responsive variants only when config breakpoints are missing', () => {
+  const manifest = generateManifest('.p-4 { padding: 1rem; }');
+  const entry = manifest.utilities.find((utility) => utility.class === 'p-4');
+  const fallback = ['sm', 'md', 'lg', 'xl', '2xl'];
+
+  assert.ok(entry, 'Expected p-4 utility in manifest');
+  fallback.forEach((variant) => {
+    assert.ok(entry.variants.includes(variant), `Expected fallback variant ${variant}`);
+  });
+});
+
+test('generateManifest uses custom config breakpoints instead of fallback breakpoints', () => {
+  const manifest = generateManifest('.p-4 { padding: 1rem; }', {
+    breakpoints: {
+      tablet: '768px',
+      desktop: '1024px',
+    },
+  });
+  const entry = manifest.utilities.find((utility) => utility.class === 'p-4');
+
+  assert.ok(entry, 'Expected p-4 utility in manifest');
+  assert.ok(entry.variants.includes('tablet'), 'Expected custom tablet breakpoint variant');
+  assert.ok(entry.variants.includes('desktop'), 'Expected custom desktop breakpoint variant');
+  ['sm', 'md', 'lg', 'xl', '2xl'].forEach((fallbackVariant) => {
+    assert.ok(
+      !entry.variants.includes(fallbackVariant),
+      `Should not include fallback breakpoint ${fallbackVariant} when config breakpoints exist`,
+    );
+  });
+});
+
+test('generateManifest includes all expected base variants', () => {
+  const manifest = generateManifest('.p-4 { padding: 1rem; }');
+  const entry = manifest.utilities.find((utility) => utility.class === 'p-4');
+  const expectedBaseVariants = [
+    'hover',
+    'focus',
+    'focus-within',
+    'focus-visible',
+    'active',
+    'disabled',
+    'motion-reduce',
+    'motion-safe',
+    'aria-expanded',
+    'aria-selected',
+    'aria-current',
+    'aria-disabled',
+    'data-open',
+    'data-closed',
+    'dark',
+    'forced-colors',
+  ];
+
+  assert.ok(entry, 'Expected p-4 utility in manifest');
+  expectedBaseVariants.forEach((variant) => {
+    assert.ok(entry.variants.includes(variant), `Missing base variant ${variant}`);
+  });
+});
+
+test('generateManifest categorizes rounded, shadow, border, outline, and ring correctly', () => {
+  const css = [
+    '.rounded { border-radius: 0.25rem; }',
+    '.shadow { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); }',
+    '.border { border-width: 1px; }',
+    '.outline { outline-style: solid; }',
+    '.ring { box-shadow: 0 0 0 1px currentColor; }',
+  ].join('\n');
+  const manifest = generateManifest(css);
+
+  const expected = {
+    rounded: 'radius',
+    shadow: 'shadow',
+    border: 'border',
+    outline: 'border',
+    ring: 'border',
+  };
+
+  Object.entries(expected).forEach(([className, category]) => {
+    const entry = manifest.utilities.find((utility) => utility.class === className);
+    assert.ok(entry, `Expected ${className} utility in manifest`);
+    assert.strictEqual(entry.category, category, `Expected ${className} to be category ${category}`);
+  });
+});
+
+test('generateManifest categorizes prose, btn-primary, form-hint, and code-window as components', () => {
+  const css = [
+    '.prose { max-width: 65ch; }',
+    '.btn-primary { background-color: var(--color-brand-80); }',
+    '.form-hint { color: var(--color-neutral-60); }',
+    '.code-window { background-color: #111110; }',
+  ].join('\n');
+  const manifest = generateManifest(css);
+  const classes = ['prose', 'btn-primary', 'form-hint', 'code-window'];
+
+  classes.forEach((className) => {
+    const entry = manifest.utilities.find((utility) => utility.class === className);
+    assert.ok(entry, `Expected ${className} utility in manifest`);
+    assert.strictEqual(entry.category, 'component', `Expected ${className} to be category component`);
+  });
+});
+
+test('buildFullFramework does not generate manifest by default', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    fs.writeFileSync(
+      path.join(tmpDir, 'emily.config.json'),
+      JSON.stringify(buildConfigWithManifest(undefined), null, 2),
+    );
+    process.chdir(tmpDir);
+    buildFullFramework();
+
+    const manifestPath = path.join(tmpDir, 'dist', 'emily.manifest.json');
+    assert.ok(!fs.existsSync(manifestPath), 'Manifest should not be generated by default');
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
+test('buildFullFramework generates manifest when manifest: true', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    fs.writeFileSync(
+      path.join(tmpDir, 'emily.config.json'),
+      JSON.stringify(buildConfigWithManifest(true), null, 2),
+    );
+    process.chdir(tmpDir);
+    buildFullFramework();
+
+    const manifestPath = path.join(tmpDir, 'dist', 'emily.manifest.json');
+    assert.ok(fs.existsSync(manifestPath), 'Manifest should be generated when manifest: true');
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
+test('buildFullFramework supports custom manifest output path', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    fs.writeFileSync(
+      path.join(tmpDir, 'emily.config.json'),
+      JSON.stringify(
+        buildConfigWithManifest({
+          enabled: true,
+          output: 'dist/custom/emily.manifest.json',
+        }),
+        null,
+        2,
+      ),
+    );
+    process.chdir(tmpDir);
+    buildFullFramework();
+
+    const customPath = path.join(tmpDir, 'dist', 'custom', 'emily.manifest.json');
+    assert.ok(fs.existsSync(customPath), 'Manifest should be generated at custom output path');
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
 });
 
 // \u2500\u2500\u2500 Results \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
