@@ -11,6 +11,14 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.1.1 — May 2026
+
+**updated changes and added**
+
+### Added
+- updted changes
+
+---
 ## v1.1.0 — May 2026
 
 **add utility manifest generation): chore: release v1.1.0**
