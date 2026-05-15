@@ -4,6 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const { generateManifest } = require('./manifest');
+const { generateIntellisense } = require('./intellisense');
 
 
 // ============================================================================
@@ -1507,6 +1508,32 @@ function getManifestOutputPath(config) {
     : path.join(process.cwd(), outputPath);
 }
 
+function getIntellisenseSettings(config) {
+  const intellisenseConfig = config.intellisense;
+
+  if (intellisenseConfig === true) {
+    return { enabled: true, output: 'dist/emily.intellisense.json' };
+  }
+
+  if (intellisenseConfig && typeof intellisenseConfig === 'object') {
+    return {
+      enabled: intellisenseConfig.enabled === true,
+      output: intellisenseConfig.output || 'dist/emily.intellisense.json',
+    };
+  }
+
+  return { enabled: false, output: 'dist/emily.intellisense.json' };
+}
+
+function getIntellisenseOutputPath(config) {
+  const intellisenseSettings = getIntellisenseSettings(config);
+  const outputPath = intellisenseSettings.output || 'dist/emily.intellisense.json';
+
+  return path.isAbsolute(outputPath)
+    ? outputPath
+    : path.join(process.cwd(), outputPath);
+}
+
 function ensureDirectoryForFile(filePath) {
   const dir = path.dirname(filePath);
 
@@ -1729,13 +1756,28 @@ ${bodyFont}`;
   fs.writeFileSync(fullCssPath, css);
 
   const manifestSettings = getManifestSettings(config);
+  const intellisenseSettings = getIntellisenseSettings(config);
+  const shouldGenerateManifestData =
+    manifestSettings.enabled || intellisenseSettings.enabled;
+  const manifestData = shouldGenerateManifestData
+    ? generateManifest(css, config)
+    : null;
+
   if (manifestSettings.enabled) {
     const manifestPath = getManifestOutputPath(config);
-    const manifest = generateManifest(css, config);
 
     ensureDirectoryForFile(manifestPath);
-    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+    fs.writeFileSync(manifestPath, JSON.stringify(manifestData, null, 2));
     console.log(`✓ Generated manifest: ${manifestPath}`);
+  }
+
+  if (intellisenseSettings.enabled) {
+    const intellisensePath = getIntellisenseOutputPath(config);
+    const intellisense = generateIntellisense(manifestData);
+
+    ensureDirectoryForFile(intellisensePath);
+    fs.writeFileSync(intellisensePath, JSON.stringify(intellisense, null, 2));
+    console.log(`✓ Generated IntelliSense: ${intellisensePath}`);
   }
 
   console.log(`✓ Generated CSS: ${fullCssPath}`);
