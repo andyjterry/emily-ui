@@ -1795,11 +1795,16 @@ function minify(css) {
     .trim();
 }
 
-function buildProductionCss() {
+function buildProductionCss(options = {}) {
   const config = getConfig();
   const sourceDir = getSourceDir(config);
   const fullCssPath = getFullCssPath(config);
   const productionCssPath = getProductionCssPath(config);
+  const profile = {
+    purge: 0,
+    minify: 0,
+    write: 0,
+  };
 
   if (!fs.existsSync(fullCssPath)) {
     buildFullFramework();
@@ -1807,11 +1812,18 @@ function buildProductionCss() {
 
   const { purgeCSS } = require('./purge.js');
   const css = fs.readFileSync(fullCssPath, 'utf8');
+  const purgeStart = Date.now();
   const purged = purgeCSS(css, sourceDir, config);
-  const minified = minify(purged);
+  profile.purge = Date.now() - purgeStart;
 
+  const minifyStart = Date.now();
+  const minified = minify(purged);
+  profile.minify = Date.now() - minifyStart;
+
+  const writeStart = Date.now();
   ensureDirectoryForFile(productionCssPath);
   fs.writeFileSync(productionCssPath, minified);
+  profile.write = Date.now() - writeStart;
 
   return {
     css,
@@ -1821,6 +1833,7 @@ function buildProductionCss() {
     outputSize: Buffer.byteLength(minified, 'utf8'),
     outputPath: productionCssPath,
     fullCssPath,
+    profile: options.profile ? profile : undefined,
   };
 }
 
@@ -1842,11 +1855,14 @@ function ensureFullFramework() {
 }
 
 function build(options = {}) {
+  const totalStart = Date.now();
+  const frameworkStart = Date.now();
   ensureFullFramework();
+  const frameworkMs = Date.now() - frameworkStart;
 
   const config = getConfig();
   const fullCssPath = getFullCssPath(config);
-  const result = buildProductionCss();
+  const result = buildProductionCss({ profile: options.profile });
 
   console.log('\u2713 Generated production CSS: ' + path.relative(process.cwd(), result.outputPath));
   console.log('\u2713 File size: ' + (result.outputSize / 1024).toFixed(2) + ' KB');
@@ -1860,12 +1876,27 @@ function build(options = {}) {
     }
   }
 
+  if (options.profile) {
+    const timings = result.profile || { purge: 0, minify: 0, write: 0 };
+    const totalMs = Date.now() - totalStart;
+
+    console.log('\nEmilyCSS build profile\n');
+    console.log('Framework: ' + frameworkMs + 'ms');
+    console.log('Purge:     ' + timings.purge + 'ms');
+    console.log('Minify:    ' + timings.minify + 'ms');
+    console.log('Write:     ' + timings.write + 'ms');
+    console.log('Total:     ' + totalMs + 'ms');
+  }
+
   console.log('Build complete');
 }
 
 if (require.main === module) {
   const args = process.argv.slice(2);
-  build({ keepFull: args.includes('--keep-full') });
+  build({
+    keepFull: args.includes('--keep-full'),
+    profile: args.includes('--profile'),
+  });
 }
 
 module.exports = {

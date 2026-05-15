@@ -1988,6 +1988,109 @@ test('unknown CLI command exits with status 1 and prints error', () => {
   );
 });
 
+test('CLI build accepts --profile', () => {
+  const tmpDir = createTempProject();
+
+  try {
+    const tmpConfig = JSON.parse(JSON.stringify(config));
+    tmpConfig.purge = {
+      sourceDir: tmpDir,
+      sourceGlobs: [path.join(tmpDir, '**/*.html').replace(/\\/g, '/')],
+      ignore: [],
+      extensions: ['.html'],
+    };
+
+    fs.writeFileSync(path.join(tmpDir, 'emily.config.json'), JSON.stringify(tmpConfig, null, 2));
+    fs.writeFileSync(path.join(tmpDir, 'index.html'), '<div class="flex"></div>');
+
+    const result = spawnSync(
+      'node',
+      [path.join(__dirname, '../bin/emilyui.js'), 'build', '--profile'],
+      {
+        cwd: tmpDir,
+        encoding: 'utf8',
+      },
+    );
+
+    assert.strictEqual(result.status, 0);
+    assert.ok(
+      result.stdout.includes('EmilyCSS build profile'),
+      'Expected build --profile to print profile heading',
+    );
+  } finally {
+    removeTempProject(tmpDir);
+  }
+});
+
+test('build --profile output includes Total timing', () => {
+  const tmpDir = createTempProject();
+
+  try {
+    const tmpConfig = JSON.parse(JSON.stringify(config));
+    tmpConfig.purge = {
+      sourceDir: tmpDir,
+      sourceGlobs: [path.join(tmpDir, '**/*.html').replace(/\\/g, '/')],
+      ignore: [],
+      extensions: ['.html'],
+    };
+
+    fs.writeFileSync(path.join(tmpDir, 'emily.config.json'), JSON.stringify(tmpConfig, null, 2));
+    fs.writeFileSync(path.join(tmpDir, 'index.html'), '<div class="flex"></div>');
+
+    const result = spawnSync(
+      'node',
+      [path.join(__dirname, '../bin/emilyui.js'), 'build', '--profile'],
+      {
+        cwd: tmpDir,
+        encoding: 'utf8',
+      },
+    );
+
+    assert.strictEqual(result.status, 0);
+    assert.ok(
+      /Total:\s+\d+ms/.test(result.stdout),
+      'Expected profile output to include Total timing',
+    );
+  } finally {
+    removeTempProject(tmpDir);
+  }
+});
+
+test('normal build output remains unchanged without --profile', () => {
+  const tmpDir = createTempProject();
+
+  try {
+    const tmpConfig = JSON.parse(JSON.stringify(config));
+    tmpConfig.purge = {
+      sourceDir: tmpDir,
+      sourceGlobs: [path.join(tmpDir, '**/*.html').replace(/\\/g, '/')],
+      ignore: [],
+      extensions: ['.html'],
+    };
+
+    fs.writeFileSync(path.join(tmpDir, 'emily.config.json'), JSON.stringify(tmpConfig, null, 2));
+    fs.writeFileSync(path.join(tmpDir, 'index.html'), '<div class="flex"></div>');
+
+    const result = spawnSync(
+      'node',
+      [path.join(__dirname, '../bin/emilyui.js'), 'build'],
+      {
+        cwd: tmpDir,
+        encoding: 'utf8',
+      },
+    );
+
+    assert.strictEqual(result.status, 0);
+    assert.ok(result.stdout.includes('Build complete'), 'Expected normal build completion output');
+    assert.ok(
+      !result.stdout.includes('EmilyCSS build profile'),
+      'Normal build should not print profile output',
+    );
+  } finally {
+    removeTempProject(tmpDir);
+  }
+});
+
 test('npm pack includes bundled showcase template', () => {
   const files = getPackedFiles();
 

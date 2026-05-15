@@ -10,6 +10,7 @@ const usageText = `
   Usage:
     emily-css init        Set up a new project
     emily-css build       Generate production CSS to the configured output path
+      --profile           Print coarse build timing information
     emily-css watch       Dev mode: rebuild on changes
     emily-css doctor      Scan project files for unknown EmilyCSS classes
     emily-css migrate     Generate a Tailwind-to-EmilyCSS migration report
@@ -24,7 +25,10 @@ if (command === "init") {
   require("../src/init.js");
 } else if (command === "build") {
   const { build } = require("../src/index.js");
-  build({ keepFull: process.argv.includes("--keep-full") });
+  build({
+    keepFull: process.argv.includes("--keep-full"),
+    profile: process.argv.includes("--profile"),
+  });
 } else if (command === "watch") {
   require("../src/watch.js");
 } else if (command === "showcase") {
@@ -48,6 +52,7 @@ if (command === "init") {
   Commands:
     emily-css init        Set up a new project (interactive wizard)
     emily-css build       Generate production CSS to the configured output path
+      --profile           Print coarse build timing information
     emily-css watch       Dev mode: watch for changes and rebuild
     emily-css doctor      Scan project files for unknown EmilyCSS classes
     emily-css migrate     Generate a Tailwind-to-EmilyCSS migration report
