@@ -1,157 +1,106 @@
 # emilyCSS
 
-**A config-driven design system generator for developers working in constrained or legacy environments.**
+Token-first, framework-agnostic CSS generation for teams that want predictable utilities without adopting a full app framework.
 
-Define your brand in one JSON file and generate a production-ready, accessibility-first stylesheet in seconds.
+## What emilyCSS is
 
-## The Mental Model
+emilyCSS lets you define design tokens in `emily.config.json` and generate static CSS you can use anywhere: HTML, Drupal, WordPress, Power Pages, React, Vue, and other environments.
 
-emilyCSS is built for real-world systems like **Drupal, Power Pages, WordPress, static HTML**, and other environments where modern build pipelines often don't exist.
+## Why teams use it
 
-1. **Configure** — Define your brand colours, fonts, and spacing in `emily.config.json`
-2. **Generate** — Run one command to produce a clean, optimized CSS file
-3. **Deploy** — Link the stylesheet and copy production-ready components from the showcase
+- Token-first utility generation from your own colours, spacing, typography, and motion settings
+- Framework-agnostic output (`dist/emily.css` and `dist/emily.min.css`)
+- Accessibility-focused utility coverage (focus rings, visually-hidden helpers, motion-aware variants)
+- Tooling support with manifest and IntelliSense JSON generation
+- CommonJS package with Node 16+ compatibility
 
-## Quick Start
-
-### 1. Initialize
+## Install and basic workflow
 
 ```bash
+npm install emily-css
 npx emily-css init
+npx emily-css build
+npx emily-css watch
 ```
 
-This creates your `emily.config.json`, walks you through your brand settings (colours, fonts, spacing, etc.), and runs your first build.
-
-### 2. Link the CSS
+Link production CSS in your project:
 
 ```html
 <link rel="stylesheet" href="./dist/emily.min.css">
 ```
 
-### 3. Start Building
-
-Use the generated utilities and browse the showcase for ready-to-copy components.
+## Core commands
 
 ```bash
-npx emily-css build     # Rebuild after config changes
-npx emily-css watch     # Watch mode for development
+npx emily-css init
+npx emily-css build
+npx emily-css build --profile
+npx emily-css watch
+npx emily-css doctor
+npx emily-css migrate
+npx emily-css migrate --import-colours
+npx emily-css showcase
+npx emily-css help
+npx emily-css version
 ```
 
-## Core Features
+## Doctor and migrate
 
-- **Token-Driven Colours** — One hex per colour → balanced 10-shade scale using OKLCH
-- **Predictable Spacing** — Everything scales from your baseUnit
-- **Accessibility First** — Focus-visible rings, motion utilities, WCAG 2.2 AA colours
-- **No Build Pipeline Required** — Just a static CSS file
-- **Smart Purge** — Remove unused utilities for tiny production files
-- **UI Starter Kit** — Copy-paste accessible components from showcase.html
+- `doctor` checks for unknown EmilyCSS classes and variants.
+- `doctor` now also reports non-failing accessibility warnings (for example obvious focus-removal or same-token text/background patterns).
+- `migrate` is report-only and helps plan Tailwind-to-Emily migrations without modifying files.
 
-## Commands
+## Manifest and IntelliSense JSON
 
-```bash
-npx emily-css init     # Setup config + first build
-npx emily-css build    # Regenerate CSS
-npx emily-css watch    # Development watch mode
-npx emily-css purge    # Remove unused styles for production
-npx emily-css migrate  # Report-only Tailwind-to-EmilyCSS migration analysis
-  --import-colours     # Imported palette mode (visual parity class suggestions)
-```
-
-## Migration (1.2.0-alpha)
-
-- `emily-css migrate` is report-only and does not modify files.
-- Default migration mode is semantic (`gray/slate/zinc/stone` remap toward `neutral` naming).
-- `emily-css migrate --import-colours` enables imported palette mode for parity-oriented palette suggestions.
-- Arbitrary value utilities (for example `w-[37px]`, `bg-[#0f172a]`) are detected and reported as unsupported.
-
-## How Purge Works
-
-emilyCSS scans your templates for used class names and removes everything else.
-
-Supported files: `.html`, `.php`, `.twig`, `.liquid`, `.jsx`, `.vue`, `.astro`, etc. (configurable).
-
-**Important:** Dynamically constructed classes like `bg-${colour}` are not detected. Use static strings or add them to the safelist.
-
-## File Size (Typical)
-
-| State | Size |
-|-------|------|
-| Full build | ~1.1 MB |
-| After purge | 10–50 KB |
-
-## Configuration
-
-Edit `emily.config.json`:
+Enable machine-readable outputs when needed:
 
 ```json
 {
-  "name": "My Brand",
-  "baseUnit": "8px",
-  "fontFamily": {
-    "heading": "lexend",
-    "body": "inter"
-  },
-  "colours": {
-    "brand": "#2563EB",
-    "accent": "#2563EB",
-    "btn-primary": "#2563EB",
-    "btn-secondary": "#2563EB",
-    "neutral": "#57534E"
-  },
-  "semanticColours": {
-    "dark": "#1A1A1A",
-    "light": "#FAFAFA"
-  },
-  "purge": {
-    "content": ["./**/*.{html,php,jsx,tsx,vue}"]
+  "manifest": true,
+  "intellisense": {
+    "enabled": true,
+    "output": "dist/emily.intellisense.json"
   }
 }
 ```
 
-After changes: `npx emily-css build`
+Generated files:
 
-## Component Showcase
+- `dist/emily.manifest.json`
+- `dist/emily.intellisense.json`
 
-After your first build, open `showcase.html` in your browser. It contains production-ready, accessible components (buttons, forms, alerts, cards, etc.) built with your brand.
+These files are intended for tooling, audits, and editor integrations. A VSCode extension is not required for generation.
 
-## EmilyUI vs emilyCSS
+## Minimal configuration example
 
-- **EmilyUI** — The broader brand / ecosystem
-- **emilyCSS** — The current product (the emily-css npm package + CLI)
-
-## Example Components
-
-### Button
-
-```html
-<button class="px-6 py-3 rounded-lg bg-brand-80 text-white hover:bg-brand-90 focus-visible:ring-2 focus-visible:ring-brand-50 font-medium">
-  Submit
-</button>
+```json
+{
+  "name": "My Brand",
+  "fontFamily": {
+    "heading": "atkinson",
+    "body": "inter"
+  },
+  "colours": {
+    "brand": "#0077B6",
+    "accent": "#0EA5E9",
+    "neutral": "#57534E",
+    "success": "#0F766E",
+    "error": "#B91C1C"
+  },
+  "manifest": true,
+  "intellisense": true
+}
 ```
 
-### Responsive Card
+## Notes on compatibility
 
-```html
-<div class="w-full md:w-96 p-6 rounded-xl bg-white border border-neutral-20 shadow-sm">
-  <h2 class="text-2xl font-semibold text-neutral-90">Card Title</h2>
-  <p class="mt-3 text-neutral-70">Content goes here.</p>
-</div>
-```
+- Package format: CommonJS
+- Runtime support: Node 16+
+- ESM-only major upgrades are intentionally avoided where they would break compatibility
 
-## Fonts
+## Documentation stubs
 
-emilyCSS applies font stacks but does not include font files. Recommended approach:
-
-```bash
-npm install @fontsource/inter @fontsource/lexend
-```
-
-Then import the weights you need.
-
-## Support
-
-- **Website:** https://www.emilyui.com
-- **GitHub:** https://github.com/andyjterry/emily-ui
+Starter docs are available in [`docs/`](./docs) for installation, configuration, variants, accessibility, doctor, migrate, manifest, and IntelliSense.
 
 ## License
 
