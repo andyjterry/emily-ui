@@ -823,8 +823,38 @@ test('raw pink rgba focus glow appears only as --focus-ring-glow fallback', () =
 
 // animationUtilities and backdropUtilities imported below via generators.js
 const { overflowUtilities, sizingUtilities, positioningUtilities, displayUtilities, shadowUtilities, contentScrollUtilities, spaceUtilities, divideUtilities, backgroundUtilities, filterUtilities, opacityUtilities, cursorUtilities, ringUtilities, animationUtilities, backdropUtilities, transformUtilities, containerUtilities } = require('../src/generators.js');
+const generatorsFromShim = require('../src/generators.js');
+const generatorsFromIndex = require('../src/generators/index.js');
 
 section('13. New Utilities');
+
+test('generators.js compatibility shim exports object', () => {
+  assert.ok(generatorsFromShim && typeof generatorsFromShim === 'object');
+});
+
+test('generators.js shim and generators/index.js export the same keys', () => {
+  assert.deepStrictEqual(
+    Object.keys(generatorsFromShim).sort(),
+    Object.keys(generatorsFromIndex).sort(),
+  );
+});
+
+test('generators.js shim keeps key public generator exports available', () => {
+  [
+    'displayUtilities',
+    'sizingUtilities',
+    'positioningUtilities',
+    'overflowUtilities',
+    'transformUtilities',
+    'ringUtilities',
+    'formUtilities',
+    'accessibilityUtilities',
+    'animationUtilities',
+    'backgroundUtilities',
+  ].forEach((name) => {
+    assert.strictEqual(typeof generatorsFromShim[name], 'function', `Missing ${name} export from shim`);
+  });
+});
 
 // Animations
 test('animationUtilities includes @keyframes spin', () => {
