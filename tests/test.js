@@ -2506,6 +2506,38 @@ test('generateManifest skips expanded variant selectors', () => {
   assert.ok(!classes.includes('dark:text-brand-80'), 'Dark-expanded selector should be skipped');
 });
 
+test('generateManifest extracts root utility classes from combinator selectors', () => {
+  const css = [
+    '.space-y-3 > * + * { margin-top: var(--space-3); }',
+    '.space-x-4 > * + * { margin-left: var(--space-4); }',
+    '.divide-x > * + * { border-left-width: 1px; }',
+    '.divide-y > * + * { border-top-width: 1px; }',
+  ].join('\n');
+
+  const manifest = generateManifest(css);
+  const classes = manifest.utilities.map((utility) => utility.class);
+
+  assert.ok(classes.includes('space-y-3'), 'Expected space-y-3 utility in manifest');
+  assert.ok(classes.includes('space-x-4'), 'Expected space-x-4 utility in manifest');
+  assert.ok(classes.includes('divide-x'), 'Expected divide-x utility in manifest');
+  assert.ok(classes.includes('divide-y'), 'Expected divide-y utility in manifest');
+});
+
+test('generateManifest keeps combinator base utilities but skips pseudo-state expanded selectors', () => {
+  const css = [
+    '.space-y-3 > * + * { margin-top: var(--space-3); }',
+    '.hover\\:space-y-3:hover > * + * { margin-top: var(--space-3); }',
+    '.focus-visible\\:divide-x:focus-visible > * + * { border-left-width: 1px; }',
+  ].join('\n');
+
+  const manifest = generateManifest(css);
+  const classes = manifest.utilities.map((utility) => utility.class);
+
+  assert.ok(classes.includes('space-y-3'), 'Expected base space-y-3 utility in manifest');
+  assert.ok(!classes.includes('hover:space-y-3'), 'Expanded hover selector should be skipped');
+  assert.ok(!classes.includes('focus-visible:divide-x'), 'Expanded focus-visible selector should be skipped');
+});
+
 test('generateManifest uses fallback responsive variants only when config breakpoints are missing', () => {
   const manifest = generateManifest('.p-4 { padding: 1rem; }');
   const entry = manifest.utilities.find((utility) => utility.class === 'p-4');
@@ -2835,6 +2867,28 @@ test('doctor validates known variant + known base class with no issues', () => {
       tmpDir,
       'page.html',
       '<div class="md:flex hover:bg-brand-80 focus-visible:ring-2"></div>',
+    );
+    process.chdir(tmpDir);
+
+    const result = doctor();
+    assert.strictEqual(result.ok, true);
+    assert.strictEqual(result.exitCode, 0);
+    assert.strictEqual(result.issues.length, 0);
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
+test('doctor accepts space/divide utilities that are defined with combinator selectors', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    buildDoctorConfig(
+      tmpDir,
+      'page.html',
+      '<div class="space-y-3 space-x-4 divide-x divide-y"></div>',
     );
     process.chdir(tmpDir);
 

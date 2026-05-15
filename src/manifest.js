@@ -39,18 +39,76 @@ function getTokenFromDeclarations(declarations) {
   return null;
 }
 
-function isSimpleBaseClassSelector(selector) {
-  if (!selector || !selector.startsWith('.')) return false;
-  if (selector.includes(' ')) return false;
-  if (selector.includes(',')) return false;
-  if (selector.includes('[')) return false;
-  if (selector.includes(':')) return false;
-  if (selector.includes('::')) return false;
-  if (selector.includes('>')) return false;
-  if (selector.includes('+')) return false;
-  if (selector.includes('~')) return false;
+function readLeadingClassSelector(selector) {
+  if (!selector || !selector.startsWith('.')) return null;
 
-  return true;
+  let classSelector = '.';
+
+  for (let i = 1; i < selector.length; i++) {
+    const char = selector[i];
+
+    if (char === '\\' && i + 1 < selector.length) {
+      classSelector += selector[i] + selector[i + 1];
+      i++;
+      continue;
+    }
+
+    if (
+      char === ' ' ||
+      char === '\t' ||
+      char === '\n' ||
+      char === '\r' ||
+      char === ',' ||
+      char === '>' ||
+      char === '+' ||
+      char === '~' ||
+      char === ':' ||
+      char === '['
+    ) {
+      break;
+    }
+
+    classSelector += char;
+  }
+
+  return classSelector.length > 1 ? classSelector : null;
+}
+
+function extractManifestClassSelectors(selector) {
+  if (typeof selector !== 'string' || selector.trim().length === 0) {
+    return [];
+  }
+
+  const classSelectors = [];
+  const seen = new Set();
+  const selectorParts = selector
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  selectorParts.forEach((part) => {
+    const classSelector = readLeadingClassSelector(part);
+    if (!classSelector) return;
+    if (classSelector.includes('\\:')) return;
+
+    const remainder = part.slice(classSelector.length).trimStart();
+
+    // Expanded pseudo-state / pseudo-element and attribute selectors are not
+    // base utilities in the manifest (for example .hover\:x:hover, .x[...]).
+    if (
+      remainder.startsWith(':') ||
+      remainder.startsWith('::') ||
+      remainder.startsWith('[')
+    ) {
+      return;
+    }
+
+    if (seen.has(classSelector)) return;
+    seen.add(classSelector);
+    classSelectors.push(classSelector);
+  });
+
+  return classSelectors;
 }
 
 function inferCategory(className, property) {
@@ -270,21 +328,25 @@ function generateManifest(css, config = {}) {
   while ((ruleMatch = ruleRegex.exec(cleanedCss)) !== null) {
     const selector = ruleMatch[1].trim();
     const declarationBlock = ruleMatch[2].trim();
-
-    if (!isSimpleBaseClassSelector(selector)) continue;
+    const classSelectors = extractManifestClassSelectors(selector);
+    if (classSelectors.length === 0) continue;
 
     const { declarations, firstProperty, firstValue } = parseDeclarations(declarationBlock);
     if (!firstProperty) continue;
 
-    manifest.utilities.push({
-      class: normalizeClassName(selector),
-      category: inferCategory(normalizeClassName(selector), firstProperty),
-      property: firstProperty,
-      value: firstValue,
-      token: getTokenFromDeclarations(declarations),
-      declarations,
-      variants,
-      source: 'generated-css',
+    classSelectors.forEach((classSelector) => {
+      const className = normalizeClassName(classSelector);
+
+      manifest.utilities.push({
+        class: className,
+        category: inferCategory(className, firstProperty),
+        property: firstProperty,
+        value: firstValue,
+        token: getTokenFromDeclarations(declarations),
+        declarations,
+        variants,
+        source: 'generated-css',
+      });
     });
   }
 
