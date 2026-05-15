@@ -203,7 +203,13 @@ async function main() {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function bumpVersion(version, type) {
-  const [major, minor, patch] = version.split('.').map(Number)
+  const baseVersion = version.replace(/^v/, '').split('+')[0].split('-')[0]
+  const [major, minor, patch] = baseVersion.split('.').map(Number)
+
+  if (![major, minor, patch].every(Number.isInteger)) {
+    throw new Error(`Invalid version format: ${version}`)
+  }
+
   if (type === 'major') return `${major + 1}.0.0`
   if (type === 'minor') return `${major}.${minor + 1}.0`
   return `${major}.${minor}.${patch + 1}`
