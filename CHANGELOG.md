@@ -4,6 +4,25 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.2.2 — May 2026
+
+### Added
+- Added IntelliSense JSON generation via `intellisense` config output (`dist/emily.intellisense.json` by default).
+- Added build profiling via `emily-css build --profile` with coarse timing buckets.
+- Added initial accessibility warnings to `emily-css doctor` (focus removal, same token text/background, and `cursor-pointer` on non-interactive elements).
+- Added documentation stubs in `docs/` for installation, configuration, variants, accessibility, doctor, migrate, manifest, and IntelliSense.
+
+### Changed
+- Stabilised manifest schema metadata with explicit `schemaVersion`, package name, and package version fields.
+- Improved purge class extraction for complex variant patterns and safer junk filtering.
+- Updated README to reflect current product direction and command surface.
+
+### Notes
+- EmilyCSS remains CommonJS-compatible and continues to support Node 16+.
+- ESM-only dependency major upgrades remain intentionally deferred for compatibility.
+
+---
+
 ## v1.2.1 — May 2026
 
 ### Changed
