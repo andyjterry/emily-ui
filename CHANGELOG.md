@@ -25,6 +25,11 @@ All notable changes to `emily-css` are documented here.
 
 ## v1.2.1 — May 2026
 
+**Refactor utility generators into modules**
+
+---
+## v1.2.1 — May 2026
+
 **updated the full system to be more efficient**
 
 ### Added
