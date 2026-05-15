@@ -36,23 +36,48 @@ function getAllFiles(dir, extensions = DEFAULT_EXTENSIONS) {
 
 function extractClassNames(content) {
   const classNames = new Set();
-  const classRegex = /(?:class|className)\s*=\s*["']([^"']+)["']/g;
+
+  function isLikelyClassToken(token) {
+    if (!token || typeof token !== "string") return false;
+    if (token.length > 120) return false;
+    if (token.includes("://")) return false;
+    if (token.startsWith(".") || token.startsWith("#") || token.startsWith("@")) return false;
+    if (token.endsWith(":")) return false;
+    if (/[(){};,`$]/.test(token)) return false;
+    if (!/^[a-zA-Z0-9:#_./\-[\]]+$/.test(token)) return false;
+    if (!/[a-zA-Z]/.test(token)) return false;
+
+    return true;
+  }
+
+  function addClassToken(token) {
+    if (!token) return;
+
+    const cleaned = token.trim().replace(/^['"`]+|['"`]+$/g, "");
+    if (!cleaned) return;
+    if (!isLikelyClassToken(cleaned)) return;
+
+    classNames.add(cleaned);
+  }
+
+  const classRegex = /(?:class|className)\s*=\s*(["'])([\s\S]*?)\1/g;
   let match;
 
   while ((match = classRegex.exec(content)) !== null) {
-    const classes = match[1].split(/\s+/);
-    classes.forEach((cls) => {
-      if (cls.trim()) classNames.add(cls.trim());
-    });
+    const classes = match[2].split(/\s+/);
+    classes.forEach(addClassToken);
   }
 
-  const vueRegex = /(?::class|class\.|v-bind:class)\s*=\s*["'{]([^"'}]+)["'}]/g;
-  while ((match = vueRegex.exec(content)) !== null) {
-    const classes = match[1].split(/[\s,]+/);
-    classes.forEach((cls) => {
-      const cleaned = cls.replace(/['"`{}"]/g, "").trim();
-      if (cleaned) classNames.add(cleaned);
-    });
+  const vueBindingRegex = /(?:\:class|v-bind:class)\s*=\s*(["'])([\s\S]*?)\1/g;
+  const vueObjectKeyRegex = /['"`]([^'"`]+)['"`]\s*:/g;
+
+  while ((match = vueBindingRegex.exec(content)) !== null) {
+    const bindingContent = match[2];
+    let keyMatch;
+
+    while ((keyMatch = vueObjectKeyRegex.exec(bindingContent)) !== null) {
+      addClassToken(keyMatch[1]);
+    }
   }
 
   const templateStringRegex = /`([^`]+)`/g;
@@ -62,14 +87,9 @@ function extractClassNames(content) {
 
     possibleClasses.forEach((cls) => {
       const cleaned = cls.trim();
-
-      if (
-        cleaned &&
-        /^[a-zA-Z0-9:_./-]+$/.test(cleaned) &&
-        /[-:]/.test(cleaned)
-      ) {
-        classNames.add(cleaned);
-      }
+      if (!cleaned) return;
+      if (!/[-:]/.test(cleaned)) return;
+      addClassToken(cleaned);
     });
   }
 

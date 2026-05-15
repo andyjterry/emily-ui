@@ -569,6 +569,40 @@ test('extractClassNames handles decimal class names like p-0.5', () => {
   assert.ok(classes.has('m-1.5'), 'Missing "m-1.5"');
 });
 
+test('extractClassNames handles dark, group, and peer variant chains', () => {
+  const html = '<div class="dark:hover:bg-brand-80 group-hover:flex peer-focus:block"></div>';
+  const classes = extractClassNames(html);
+
+  assert.ok(classes.has('dark:hover:bg-brand-80'), 'Missing "dark:hover:bg-brand-80"');
+  assert.ok(classes.has('group-hover:flex'), 'Missing "group-hover:flex"');
+  assert.ok(classes.has('peer-focus:block'), 'Missing "peer-focus:block"');
+});
+
+test('extractClassNames handles template string state variants', () => {
+  const js = 'const classes = `dark:hover:bg-brand-80 focus-visible:ring-2`;';
+  const classes = extractClassNames(js);
+
+  assert.ok(classes.has('dark:hover:bg-brand-80'), 'Missing template class "dark:hover:bg-brand-80"');
+  assert.ok(classes.has('focus-visible:ring-2'), 'Missing template class "focus-visible:ring-2"');
+});
+
+test('extractClassNames handles Vue object syntax for aria/data variants', () => {
+  const vue = "<div :class=\"{ 'aria-expanded:block': isOpen, 'data-open:flex': open }\"></div>";
+  const classes = extractClassNames(vue);
+
+  assert.ok(classes.has('aria-expanded:block'), 'Missing Vue class "aria-expanded:block"');
+  assert.ok(classes.has('data-open:flex'), 'Missing Vue class "data-open:flex"');
+});
+
+test('extractClassNames avoids collecting obvious JavaScript/url junk', () => {
+  const js = 'function test() {}\\nconst value = \"https://example.com\";';
+  const classes = extractClassNames(js);
+
+  assert.ok(!classes.has('function'), 'Should not include "function"');
+  assert.ok(!classes.has('test'), 'Should not include "test"');
+  assert.ok(!classes.has('https://example.com'), 'Should not include URL tokens');
+});
+
 test('purgeCSS keeps rules for classes that are used', () => {
   const css = '.flex { display: flex; }\n.hidden { display: none; }\n';
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'emily-test-'));
