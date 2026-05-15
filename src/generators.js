@@ -281,6 +281,7 @@ function transitionUtilities() {
 // Transforms
 function transformUtilities(spacing) {
   let css = `/* Transforms */\n`;
+  const composedTransform = 'translate(var(--translate-x, 0), var(--translate-y, 0)) rotate(var(--rotate, 0)) skewX(var(--skew-x, 0)) skewY(var(--skew-y, 0)) scaleX(var(--scale-x, 1)) scaleY(var(--scale-y, 1))';
 
   css += `.transform { transform: translateZ(0); }\n`;
   css += `.transform-gpu { transform: translate3d(0, 0, 0); }\n`;
@@ -289,30 +290,30 @@ function transformUtilities(spacing) {
   // Translate
   Object.entries(spacing).forEach(([key, value]) => {
     const escaped = escapeClassName(key);
-    css += `.translate-x-${escaped} { transform: translateX(${value}); }\n`;
-    css += `.translate-y-${escaped} { transform: translateY(${value}); }\n`;
-    css += `.-translate-x-${escaped} { transform: translateX(-${value}); }\n`;
-    css += `.-translate-y-${escaped} { transform: translateY(-${value}); }\n`;
+    css += `.translate-x-${escaped} { --translate-x: ${value}; transform: ${composedTransform}; }\n`;
+    css += `.translate-y-${escaped} { --translate-y: ${value}; transform: ${composedTransform}; }\n`;
+    css += `.-translate-x-${escaped} { --translate-x: -${value}; transform: ${composedTransform}; }\n`;
+    css += `.-translate-y-${escaped} { --translate-y: -${value}; transform: ${composedTransform}; }\n`;
   });
 
   // Rotate
   const rotations = [0, 1, 2, 3, 6, 12, 45, 90, 180];
   rotations.forEach(deg => {
-    css += `.rotate-${deg} { transform: rotate(${deg}deg); }\n`;
-    if (deg > 0) css += `.-rotate-${deg} { transform: rotate(-${deg}deg); }\n`;
+    css += `.rotate-${deg} { --rotate: ${deg}deg; transform: ${composedTransform}; }\n`;
+    if (deg > 0) css += `.-rotate-${deg} { --rotate: -${deg}deg; transform: ${composedTransform}; }\n`;
   });
 
   // Scale
   const scales = [0, 50, 75, 90, 95, 100, 110, 125, 150];
   scales.forEach(scale => {
-    css += `.scale-${scale} { transform: scale(${scale / 100}); }\n`;
+    css += `.scale-${scale} { --scale-x: ${scale / 100}; --scale-y: ${scale / 100}; transform: ${composedTransform}; }\n`;
   });
 
   // Skew
   const skews = [0, 1, 2, 3];
   skews.forEach(sk => {
-    css += `.skew-x-${sk} { transform: skewX(${sk}deg); }\n`;
-    css += `.skew-y-${sk} { transform: skewY(${sk}deg); }\n`;
+    css += `.skew-x-${sk} { --skew-x: ${sk}deg; transform: ${composedTransform}; }\n`;
+    css += `.skew-y-${sk} { --skew-y: ${sk}deg; transform: ${composedTransform}; }\n`;
   });
 
   // Transform origin
@@ -349,18 +350,21 @@ function shadowUtilities() {
 function ringUtilities(colours) {
   let css = `/* Rings & Outlines */\n`;
 
-  css += `.ring-0 { box-shadow: 0 0 0 0px var(--ring-color, transparent); }\n`;
-  css += `.ring-1 { box-shadow: 0 0 0 1px var(--ring-color, transparent); }\n`;
-  css += `.ring-2 { box-shadow: 0 0 0 2px var(--ring-color, transparent); }\n`;
+  css += `.ring-0 { --ring-offset-width: 0px; --ring-offset-color: #fff; --ring-color: currentColor; box-shadow: 0 0 0 var(--ring-offset-width, 0px) var(--ring-offset-color, #fff), 0 0 0 var(--ring-offset-width, 0px) transparent; }\n`;
+  css += `.ring-1 { --ring-offset-width: 0px; --ring-offset-color: #fff; --ring-color: currentColor; box-shadow: 0 0 0 var(--ring-offset-width, 0px) var(--ring-offset-color, #fff), 0 0 0 calc(1px + var(--ring-offset-width, 0px)) var(--ring-color, currentColor); }\n`;
+  css += `.ring-2 { --ring-offset-width: 0px; --ring-offset-color: #fff; --ring-color: currentColor; box-shadow: 0 0 0 var(--ring-offset-width, 0px) var(--ring-offset-color, #fff), 0 0 0 calc(2px + var(--ring-offset-width, 0px)) var(--ring-color, currentColor); }\n`;
 
   css += `.ring-offset-0 { --ring-offset-width: 0px; }\n`;
   css += `.ring-offset-2 { --ring-offset-width: 2px; }\n`;
   css += `.ring-offset-4 { --ring-offset-width: 4px; }\n`;
+  css += `.ring-offset-white { --ring-offset-color: #fff; }\n`;
+  css += `.ring-offset-black { --ring-offset-color: #000; }\n`;
 
   // Ring colours
   Object.entries(colours).forEach(([colourName, shades]) => {
     Object.entries(shades).forEach(([shade]) => {
       css += `.ring-${colourName}-${shade} { --ring-color: var(--color-${colourName}-${shade}); }\n`;
+      css += `.ring-offset-${colourName}-${shade} { --ring-offset-color: var(--color-${colourName}-${shade}); }\n`;
     });
   });
 
@@ -642,13 +646,10 @@ function accessibilityUtilities() {
 // Container Queries (Forward-looking)
 function containerUtilities() {
   return `/* Container Queries */
-@supports (container-type: inline-size) {
-  .container-type-inline { container-type: inline-size; }
-  @container (min-width: 20rem) { .cq-xs\\: { /* utilities */ } }
-  @container (min-width: 28rem) { .cq-sm\\: { /* utilities */ } }
-  @container (min-width: 36rem) { .cq-md\\: { /* utilities */ } }
-  @container (min-width: 48rem) { .cq-lg\\: { /* utilities */ } }
-}
+.container-type-inline { container-type: inline-size; }
+.container-type-size { container-type: size; }
+.container-type-normal { container-type: normal; }
+.container-name-none { container-name: none; }
 
 `;
 }

@@ -5,23 +5,11 @@ const { Select, Input, Confirm } = require("enquirer");
 const chalk = require("chalk");
 const ora = require("ora");
 const boxen = require("boxen");
+const { DEFAULT_PURGE_IGNORE, PURGE_EXTENSIONS } = require("./constants.js");
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
-
-const DEFAULT_PURGE_IGNORE = [
-  "node_modules",
-  ".git",
-  ".nuxt",
-  ".next",
-  ".output",
-  "dist",
-  "build",
-  "coverage",
-  ".cache",
-  ".vite",
-];
 
 const COLOUR_PRESETS = {
   primary: [
@@ -67,28 +55,6 @@ const FONT_OPTIONS = [
   { name: "nunito", message: "Nunito (friendly, rounded)" },
   { name: "atkinson", message: "Atkinson Hyperlegible (maximum legibility)" },
   { name: "system", message: "System sans-serif (no download required)" },
-];
-
-const PURGE_EXTENSIONS = [
-  ".html",
-  ".htm",
-  ".twig",
-  ".njk",
-  ".liquid",
-  ".hbs",
-  ".js",
-  ".jsx",
-  ".ts",
-  ".tsx",
-  ".vue",
-  ".php",
-  ".astro",
-  ".svelte",
-  ".blade.php",
-  ".jinja",
-  ".jinja2",
-  ".j2",
-  ".md",
 ];
 
 // ============================================================================
@@ -662,7 +628,7 @@ async function init() {
 
     const baseUnitRaw = await new Input({
       name: "baseUnit",
-      message: "Base spacing unit in px (18px = 1.125rem)",
+      message: "Base spacing unit in px (label/documentation only)",
       initial: "18",
       validate: function (value) {
         const parsed = Number.parseInt(value, 10);

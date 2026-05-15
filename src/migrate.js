@@ -5,29 +5,8 @@ const fg = require('fast-glob');
 const { extractClassNames, getAllFiles } = require('./purge.js');
 const { generateManifest } = require('./manifest.js');
 const { normaliseClassForManifest, suggestClassName } = require('./doctor.js');
-
-const DEFAULT_EXTENSIONS = [
-  '.html',
-  '.htm',
-  '.twig',
-  '.njk',
-  '.liquid',
-  '.hbs',
-  '.js',
-  '.jsx',
-  '.ts',
-  '.tsx',
-  '.vue',
-  '.php',
-  '.astro',
-  '.svelte',
-  '.blade.php',
-  '.jinja',
-  '.jinja2',
-  '.j2',
-  '.md',
-  '.mdx',
-];
+const { DEFAULT_EXTENSIONS } = require('./constants.js');
+const MIGRATION_DEFAULT_EXTENSIONS = [...DEFAULT_EXTENSIONS, '.mdx'];
 
 const TAILWIND_MAPPINGS = {
   'text-gray-900': {
@@ -162,6 +141,150 @@ const TAILWIND_SHADE_TO_EMILY_SHADE = {
   '900': '90',
   '950': '100',
 };
+
+const SINGLE_WORD_UTILITY_ALLOWLIST = new Set([
+  'flex',
+  'grid',
+  'hidden',
+  'block',
+  'inline',
+  'table',
+  'contents',
+  'flow',
+  'container',
+  'relative',
+  'absolute',
+  'fixed',
+  'sticky',
+  'static',
+  'visible',
+  'invisible',
+  'uppercase',
+  'lowercase',
+  'capitalize',
+  'truncate',
+  'antialiased',
+  'italic',
+  'not-italic',
+  'underline',
+  'overline',
+  'line-through',
+]);
+
+const UTILITY_PREFIX_ALLOWLIST = new Set([
+  'bg',
+  'text',
+  'border',
+  'outline',
+  'accent',
+  'fill',
+  'stroke',
+  'ring',
+  'rounded',
+  'shadow',
+  'font',
+  'leading',
+  'tracking',
+  'p',
+  'px',
+  'py',
+  'pt',
+  'pr',
+  'pb',
+  'pl',
+  'm',
+  'mx',
+  'my',
+  'mt',
+  'mr',
+  'mb',
+  'ml',
+  'w',
+  'h',
+  'min-w',
+  'max-w',
+  'min-h',
+  'max-h',
+  'gap',
+  'space',
+  'inset',
+  'top',
+  'right',
+  'bottom',
+  'left',
+  'z',
+  'order',
+  'col',
+  'row',
+  'grid-cols',
+  'grid-rows',
+  'justify',
+  'items',
+  'content',
+  'self',
+  'place',
+  'object',
+  'overflow',
+  'divide',
+  'cursor',
+  'select',
+  'duration',
+  'delay',
+  'ease',
+  'scale',
+  'rotate',
+  'translate',
+  'skew',
+  'origin',
+  'opacity',
+  'basis',
+  'grow',
+  'shrink',
+]);
+
+function hasUtilityLikeSyntax(className) {
+  if (!className || typeof className !== 'string') {
+    return false;
+  }
+
+  const variantSeparatorIndex = className.lastIndexOf(':');
+  if (variantSeparatorIndex !== -1) {
+    const baseClass = className.slice(variantSeparatorIndex + 1);
+    if (!baseClass) {
+      return false;
+    }
+    return hasUtilityLikeSyntax(baseClass);
+  }
+
+  if (className.startsWith('-')) {
+    const baseClass = className.slice(1);
+    return baseClass.length > 0 && hasUtilityLikeSyntax(baseClass);
+  }
+
+  if (SINGLE_WORD_UTILITY_ALLOWLIST.has(className)) {
+    return true;
+  }
+
+  if (
+    hasArbitraryValueSyntax(className) ||
+    className.includes('/') ||
+    className.includes('.') ||
+    className.includes('_') ||
+    /\d/.test(className)
+  ) {
+    return true;
+  }
+
+  const parts = className.split('-').filter(Boolean);
+
+  if (parts.length >= 2) {
+    const first = parts[0];
+    const firstTwo = `${parts[0]}-${parts[1]}`;
+    return UTILITY_PREFIX_ALLOWLIST.has(first) || UTILITY_PREFIX_ALLOWLIST.has(firstTwo);
+  }
+
+  return false;
+}
 
 function getConfigPath(options = {}) {
   return options.configPath || path.join(process.cwd(), 'emily.config.json');
@@ -443,12 +566,15 @@ function isLikelyUtilityClass(className) {
   if (/\s/.test(className)) return false;
   if (className.length > 120) return false;
   if (className.startsWith('--')) return false;
+  if (className.startsWith(':')) return false;
   if (className.startsWith('.') || className.startsWith('#') || className.startsWith('@')) return false;
   if (className.endsWith(':')) return false;
   if (className.includes('://')) return false;
   if (/[;()={},`]/.test(className)) return false;
   if (!/[a-zA-Z]/.test(className)) return false;
   if (!/^[a-zA-Z0-9:#_./\-[\]]+$/.test(className)) return false;
+  if (/^[a-z]+$/.test(className) && !SINGLE_WORD_UTILITY_ALLOWLIST.has(className)) return false;
+  if (!hasUtilityLikeSyntax(className) && !SINGLE_WORD_UTILITY_ALLOWLIST.has(className)) return false;
 
   return true;
 }
@@ -614,7 +740,7 @@ function migrateClasses(input, options = {}) {
 }
 
 function getFilesToScan(config, options = {}) {
-  const extensions = (config && config.purge && config.purge.extensions) || DEFAULT_EXTENSIONS;
+  const extensions = (config && config.purge && config.purge.extensions) || MIGRATION_DEFAULT_EXTENSIONS;
   const ignore = (config && config.purge && config.purge.ignore) || [];
 
   if (options.sourceGlobs && options.sourceGlobs.length > 0) {

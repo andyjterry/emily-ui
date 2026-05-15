@@ -3,28 +3,7 @@ const path = require("path");
 const fg = require("fast-glob");
 const { extractClassNames } = require("./purge.js");
 const { ensureFullFramework, generateManifest } = require("./index.js");
-
-const DEFAULT_EXTENSIONS = [
-  ".html",
-  ".htm",
-  ".twig",
-  ".njk",
-  ".liquid",
-  ".hbs",
-  ".js",
-  ".jsx",
-  ".ts",
-  ".tsx",
-  ".vue",
-  ".php",
-  ".astro",
-  ".svelte",
-  ".blade.php",
-  ".jinja",
-  ".jinja2",
-  ".j2",
-  ".md",
-];
+const { DEFAULT_EXTENSIONS } = require("./constants.js");
 
 function getConfigPath() {
   return path.join(process.cwd(), "emily.config.json");

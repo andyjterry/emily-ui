@@ -2,28 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
-
-const DEFAULT_EXTENSIONS = [
-  ".html",
-  ".htm",
-  ".twig",
-  ".njk",
-  ".liquid",
-  ".hbs",
-  ".js",
-  ".jsx",
-  ".ts",
-  ".tsx",
-  ".vue",
-  ".php",
-  ".astro",
-  ".svelte",
-  ".blade.php",
-  ".jinja",
-  ".jinja2",
-  ".j2",
-  ".md",
-];
+const { DEFAULT_EXTENSIONS } = require("./constants.js");
 
 function getAllFiles(dir, extensions = DEFAULT_EXTENSIONS) {
   let files = [];

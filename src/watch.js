@@ -3,6 +3,10 @@ const path = require("path");
 const chokidar = require("chokidar");
 const chalk = require("chalk");
 const fg = require("fast-glob");
+const {
+  DEFAULT_PURGE_IGNORE,
+  DEFAULT_EXTENSIONS,
+} = require("./constants.js");
 
 const {
   buildFullFramework,
@@ -16,6 +20,7 @@ let isRunning = false;
 let pendingRun = false;
 let previousClasses = new Set();
 let hasRunOnce = false;
+let activeIgnoreList = DEFAULT_PURGE_IGNORE;
 
 function readConfig() {
   const configPath = path.join(process.cwd(), "emily.config.json");
@@ -34,22 +39,26 @@ function normalisePath(filePath) {
   return filePath.replace(/\\/g, "/");
 }
 
-function shouldIgnore(filePath) {
-  const normalised = normalisePath(filePath);
+function normaliseIgnoreEntry(entry) {
+  return normalisePath(String(entry || ""))
+    .replace(/^\.\/+/, "")
+    .replace(/^\/+|\/+$/g, "");
+}
 
-  return [
-    "node_modules/",
-    ".git/",
-    ".nuxt/",
-    ".next/",
-    ".output/",
-    "dist/",
-    "build/",
-    "coverage/",
-    ".cache/",
-    ".vite/",
-  ].some(
-    (part) => normalised.includes("/" + part) || normalised.startsWith(part),
+function shouldIgnore(filePath, ignoreList = DEFAULT_PURGE_IGNORE) {
+  if (!filePath) return false;
+
+  const normalised = normalisePath(filePath);
+  const normalisedIgnoreList = (Array.isArray(ignoreList) ? ignoreList : DEFAULT_PURGE_IGNORE)
+    .map(normaliseIgnoreEntry)
+    .filter(Boolean);
+
+  return normalisedIgnoreList.some(
+    (entry) =>
+      normalised === entry ||
+      normalised.startsWith(entry + "/") ||
+      normalised.includes("/" + entry + "/") ||
+      normalised.endsWith("/" + entry),
   );
 }
 
@@ -80,27 +89,7 @@ function getScanFiles(config) {
   }
 
   const sourceDir = config.purge?.sourceDir || ".";
-  const extensions = config.purge?.extensions || [
-    ".html",
-    ".htm",
-    ".twig",
-    ".njk",
-    ".liquid",
-    ".hbs",
-    ".js",
-    ".jsx",
-    ".ts",
-    ".tsx",
-    ".vue",
-    ".php",
-    ".astro",
-    ".svelte",
-    ".blade.php",
-    ".jinja",
-    ".jinja2",
-    ".j2",
-    ".md",
-  ];
+  const extensions = config.purge?.extensions || DEFAULT_EXTENSIONS;
 
   return fg.sync(
     extensions.map((ext) => `${sourceDir.replace(/\/$/, "")}/**/*${ext}`),
@@ -115,9 +104,10 @@ function getScanFiles(config) {
 function collectUsedClasses(config) {
   const files = getScanFiles(config);
   const usedClasses = new Set();
+  const ignoreList = config.purge?.ignore || DEFAULT_PURGE_IGNORE;
 
   for (const file of files) {
-    if (shouldIgnore(file)) continue;
+    if (shouldIgnore(file, ignoreList)) continue;
 
     try {
       const content = fs.readFileSync(file, "utf8");
@@ -210,6 +200,7 @@ function runProductionUpdate(filePath) {
 
   try {
     const config = readConfig();
+    activeIgnoreList = config.purge?.ignore || DEFAULT_PURGE_IGNORE;
     const normalisedFilePath = filePath ? normalisePath(filePath) : "";
     const isConfigChange = normalisedFilePath.endsWith("emily.config.json");
 
@@ -244,12 +235,13 @@ function getWatchPaths(config) {
 }
 
 function queueUpdate(filePath) {
-  if (filePath && shouldIgnore(filePath)) return;
+  if (filePath && shouldIgnore(filePath, activeIgnoreList)) return;
   runProductionUpdate(filePath);
 }
 
 function runWatch() {
   const config = readConfig();
+  activeIgnoreList = config.purge?.ignore || DEFAULT_PURGE_IGNORE;
   const watchPaths = getWatchPaths(config);
 
   console.log("");
@@ -270,7 +262,7 @@ function runWatch() {
   runProductionUpdate();
 
   const watcher = chokidar.watch(watchPaths, {
-    ignored: shouldIgnore,
+    ignored: (filePath) => shouldIgnore(filePath, activeIgnoreList),
     ignoreInitial: true,
     awaitWriteFinish: {
       stabilityThreshold: 500,

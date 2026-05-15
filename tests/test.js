@@ -148,6 +148,31 @@ function buildDoctorConfig(tmpDir, sourceFilename, classMarkup, manifestConfig =
   fs.writeFileSync(path.join(tmpDir, sourceFilename), classMarkup);
 }
 
+let generatedFrameworkCssCache = null;
+
+function getGeneratedFrameworkCss() {
+  if (generatedFrameworkCssCache !== null) {
+    return generatedFrameworkCssCache;
+  }
+
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    fs.writeFileSync(
+      path.join(tmpDir, 'emily.config.json'),
+      JSON.stringify(config, null, 2),
+    );
+    process.chdir(tmpDir);
+    buildFullFramework();
+    generatedFrameworkCssCache = fs.readFileSync(path.join(tmpDir, 'dist', 'emily.css'), 'utf8');
+    return generatedFrameworkCssCache;
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+}
+
 // ─── 1. Colour Generation ─────────────────────────────────────────────────────
 
 section('1. Colour Generation');
@@ -254,6 +279,16 @@ test('generateSpacing preserves "0" key with 0px value', () => {
 test('generateSpacing includes "4" key', () => {
   const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
   assert.ok(spacing['4'] !== undefined, 'Expected spacing["4"] to exist');
+});
+
+test('generateSpacing ignores baseUnit and uses spacing.scale as source of truth', () => {
+  const scale = { 1: '0.25rem', 2: '0.5rem' };
+  const spacingSmall = generateSpacing('4px', scale);
+  const spacingLarge = generateSpacing('20px', scale);
+
+  assert.deepStrictEqual(spacingSmall, scale);
+  assert.deepStrictEqual(spacingLarge, scale);
+  assert.deepStrictEqual(spacingSmall, spacingLarge);
 });
 
 // ─── 3. Border Utilities ──────────────────────────────────────────────────────
@@ -756,10 +791,38 @@ requireBuild('all 6 colour backgrounds exist in built CSS', () => {
   });
 });
 
+test('generated CSS variables include --focus-ring-glow', () => {
+  const css = getGeneratedFrameworkCss();
+  assert.ok(
+    css.includes('--focus-ring-glow: color-mix(in srgb, var(--color-brand-80) 12%, transparent);'),
+    'Missing --focus-ring-glow variable in generated CSS',
+  );
+});
+
+test('focus styles use var(--focus-ring-glow) fallback pattern', () => {
+  const css = getGeneratedFrameworkCss();
+  assert.ok(
+    css.includes('box-shadow: 0 0 0 4px var(--focus-ring-glow, rgba(219, 39, 119, 0.1));'),
+    'Expected focus box-shadow to use var(--focus-ring-glow, rgba(...))',
+  );
+});
+
+test('raw pink rgba focus glow appears only as --focus-ring-glow fallback', () => {
+  const css = getGeneratedFrameworkCss();
+  const rawRgbaMatches = css.match(/rgba\(219, 39, 119, 0\.1\)/g) || [];
+  const fallbackMatches = css.match(/var\(--focus-ring-glow,\s*rgba\(219, 39, 119, 0\.1\)\)/g) || [];
+
+  assert.strictEqual(
+    rawRgbaMatches.length,
+    fallbackMatches.length,
+    'Found raw rgba(219, 39, 119, 0.1) outside the allowed var() fallback',
+  );
+});
+
 // ─── 13. New Utilities ────────────────────────────────────────────────────────
 
 // animationUtilities and backdropUtilities imported below via generators.js
-const { overflowUtilities, sizingUtilities, positioningUtilities, displayUtilities, shadowUtilities, contentScrollUtilities, spaceUtilities, divideUtilities, backgroundUtilities, filterUtilities, opacityUtilities, cursorUtilities, ringUtilities, animationUtilities, backdropUtilities } = require('../src/generators.js');
+const { overflowUtilities, sizingUtilities, positioningUtilities, displayUtilities, shadowUtilities, contentScrollUtilities, spaceUtilities, divideUtilities, backgroundUtilities, filterUtilities, opacityUtilities, cursorUtilities, ringUtilities, animationUtilities, backdropUtilities, transformUtilities, containerUtilities } = require('../src/generators.js');
 
 section('13. New Utilities');
 
@@ -1005,6 +1068,79 @@ test('ringUtilities .outline-offset-4 uses 4px', () => {
   assert.ok(
     css.includes('.outline-offset-4 { outline-offset: 4px; }'),
     'outline-offset-4 should use 4px'
+  );
+});
+
+test('ringUtilities includes .ring-offset-2', () => {
+  const colours = generateAllColours(config.colours);
+  const css = ringUtilities(colours);
+  assert.ok(css.includes('.ring-offset-2 { --ring-offset-width: 2px; }'), 'Missing .ring-offset-2');
+});
+
+test('ringUtilities .ring-2 uses --ring-offset-width', () => {
+  const colours = generateAllColours(config.colours);
+  const css = ringUtilities(colours);
+  assert.ok(css.includes('.ring-2 {'), 'Missing .ring-2');
+  assert.ok(css.includes('var(--ring-offset-width, 0px)'), 'ring-2 should reference --ring-offset-width');
+});
+
+test('ringUtilities .ring-2 uses calc with ring offset width', () => {
+  const colours = generateAllColours(config.colours);
+  const css = ringUtilities(colours);
+  assert.ok(
+    css.includes('calc(2px + var(--ring-offset-width, 0px))'),
+    'ring-2 should include calc(2px + var(--ring-offset-width, 0px))',
+  );
+});
+
+test('ring colour utilities still set --ring-color', () => {
+  const colours = generateAllColours(config.colours);
+  const css = ringUtilities(colours);
+  assert.ok(
+    css.includes('.ring-brand-80 { --ring-color: var(--color-brand-80); }'),
+    'ring colour utility should set --ring-color',
+  );
+});
+
+test('transform utilities compose translate, rotate, skew, and scale via CSS variables', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const css = transformUtilities(spacing);
+  const shared = 'transform: translate(var(--translate-x, 0), var(--translate-y, 0)) rotate(var(--rotate, 0)) skewX(var(--skew-x, 0)) skewY(var(--skew-y, 0)) scaleX(var(--scale-x, 1)) scaleY(var(--scale-y, 1));';
+
+  assert.ok(css.includes(shared), 'Missing shared composed transform declaration');
+  assert.ok(css.includes('.translate-x-4 { --translate-x:'), 'translate-x should set --translate-x');
+  assert.ok(css.includes('.rotate-45 { --rotate: 45deg;'), 'rotate-45 should set --rotate');
+  assert.ok(css.includes('.scale-95 { --scale-x: 0.95; --scale-y: 0.95;'), 'scale-95 should set --scale-x and --scale-y');
+});
+
+test('transform-none remains transform: none', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const css = transformUtilities(spacing);
+  assert.ok(css.includes('.transform-none { transform: none; }'), 'transform-none should remain transform: none');
+});
+
+test('containerUtilities do not include placeholder comments', () => {
+  const css = containerUtilities();
+  assert.ok(!css.includes('/* utilities */'), 'Placeholder comments should not be emitted');
+});
+
+test('containerUtilities include minimal valid container declarations', () => {
+  const css = containerUtilities();
+  assert.ok(
+    css.includes('.container-type-inline { container-type: inline-size; }'),
+    'Missing .container-type-inline declaration',
+  );
+  assert.ok(
+    css.includes('.container-type-size { container-type: size; }'),
+    'Missing .container-type-size declaration',
+  );
+  assert.ok(
+    css.includes('.container-type-normal { container-type: normal; }'),
+    'Missing .container-type-normal declaration',
+  );
+  assert.ok(
+    css.includes('.container-name-none { container-name: none; }'),
+    'Missing .container-name-none declaration',
   );
 });
 
@@ -1710,6 +1846,14 @@ test('init default shadows include xl, 2xl, and inner', () => {
   assert.ok(initJs.includes("inner:"), 'Missing shadow inner in init defaults');
 });
 
+test('init labels baseUnit prompt as documentation-only', () => {
+  const initJs = fs.readFileSync(path.join(__dirname, '../src/init.js'), 'utf-8');
+  assert.ok(
+    initJs.includes('Base spacing unit in px (label/documentation only)'),
+    'Expected baseUnit prompt to clarify it is label/documentation only',
+  );
+});
+
 // ─── 16. CLI / Package Robustness ─────────────────────────────────────────────
 
 section('16. CLI / Package Robustness');
@@ -1741,14 +1885,28 @@ test('CLI -v returns package version', () => {
   assert.strictEqual(output, pkg.version);
 });
 
-test('unknown CLI command shows usage without crashing', () => {
-  const result = spawnSync('node', ['bin/emilyui.js', 'buidl'], {
+test('CLI with no command shows usage and exits cleanly', () => {
+  const result = spawnSync('node', ['bin/emilyui.js'], {
     cwd: path.join(__dirname, '..'),
     encoding: 'utf8',
   });
 
   assert.strictEqual(result.status, 0);
+  assert.ok(result.stdout.includes('Usage:'), 'Expected usage text when no command is provided');
+});
+
+test('unknown CLI command exits with status 1 and prints error', () => {
+  const result = spawnSync('node', ['bin/emilyui.js', 'madeup-command'], {
+    cwd: path.join(__dirname, '..'),
+    encoding: 'utf8',
+  });
+
+  assert.strictEqual(result.status, 1);
   assert.ok(result.stdout.includes('Usage:'), 'Expected usage text for unknown command');
+  assert.ok(
+    result.stderr.includes('Unknown command: madeup-command'),
+    'Expected clear unknown command error',
+  );
 });
 
 test('npm pack includes bundled showcase template', () => {
@@ -1775,6 +1933,15 @@ test('npm pack does not include old tarballs', () => {
   assert.ok(
     !files.some((file) => /^emily-css-\d+\.\d+\.\d+\.tgz$/.test(file)),
     'npm package should not include old .tgz files',
+  );
+});
+
+test('npm pack does not include tests/head_test.js', () => {
+  const files = getPackedFiles();
+
+  assert.ok(
+    !files.includes('tests/head_test.js'),
+    'npm package should not include tests/head_test.js',
   );
 });
 
@@ -1881,6 +2048,38 @@ test('shipped JS files contain no null bytes', () => {
 
     assert.strictEqual(nullByteCount, 0, `${relativeFile} contains null bytes`);
   });
+});
+
+test('watch.js shouldIgnore supports optional ignoreList argument', () => {
+  const watchJs = fs.readFileSync(path.join(__dirname, '../src/watch.js'), 'utf8');
+  assert.ok(
+    watchJs.includes('function shouldIgnore(filePath, ignoreList = DEFAULT_PURGE_IGNORE)'),
+    'watch.js should define shouldIgnore(filePath, ignoreList = DEFAULT_PURGE_IGNORE)',
+  );
+});
+
+test('watch.js collectUsedClasses filters with config purge ignore list', () => {
+  const watchJs = fs.readFileSync(path.join(__dirname, '../src/watch.js'), 'utf8');
+  assert.ok(
+    watchJs.includes('const ignoreList = config.purge?.ignore || DEFAULT_PURGE_IGNORE;'),
+    'collectUsedClasses should derive ignore list from config.purge.ignore',
+  );
+  assert.ok(
+    watchJs.includes('shouldIgnore(file, ignoreList)'),
+    'collectUsedClasses should call shouldIgnore(file, ignoreList)',
+  );
+});
+
+test('watch.js uses active config ignore list for queue and chokidar ignored callback', () => {
+  const watchJs = fs.readFileSync(path.join(__dirname, '../src/watch.js'), 'utf8');
+  assert.ok(
+    watchJs.includes('if (filePath && shouldIgnore(filePath, activeIgnoreList)) return;'),
+    'queueUpdate should use activeIgnoreList',
+  );
+  assert.ok(
+    watchJs.includes('ignored: (filePath) => shouldIgnore(filePath, activeIgnoreList),'),
+    'chokidar ignored callback should use activeIgnoreList',
+  );
 });
 
 // ─── 17. Softened Plain Colours, prose-emily, Focus Helpers ──────────────────
@@ -2509,12 +2708,12 @@ test('semantic mode remaps slate/gray families to neutral naming', () => {
 });
 
 test('unsupported class is flagged', () => {
-  const report = migrateClasses('<div class="enterprise-legacy-token"></div>', {
+  const report = migrateClasses('<div class="bg-enterprise-token"></div>', {
     manifest: { utilities: [] },
   });
 
   assert.ok(
-    report.unsupported.includes('enterprise-legacy-token'),
+    report.unsupported.includes('bg-enterprise-token'),
     'Expected unknown class to be reported as unsupported',
   );
 });
@@ -2679,6 +2878,34 @@ test('migrateClasses reports arbitrary value utilities as unsupported', () => {
   assert.ok(report.unsupported.includes('w-[37px]'));
   assert.ok(report.unsupported.includes('bg-[#0f172a]'));
   assert.ok(report.unsupported.includes('grid-cols-[200px_1fr]'));
+});
+
+test('migrateClasses ignores pseudo-state and prose tokens while keeping valid utilities', () => {
+  const report = migrateClasses(
+    '<div class=":hover :focus-visible classes config-driven config-driven-system enterprise-content-block flex grid hidden block rounded-lg bg-brand-80 hover:bg-brand-80 md:flex -mb-px w-[37px] bg-[#0f172a]"></div>',
+    { manifest: { utilities: [] } },
+  );
+
+  assert.ok(!report.found.includes(':hover'), 'Expected :hover to be ignored');
+  assert.ok(!report.found.includes(':focus-visible'), 'Expected :focus-visible to be ignored');
+  assert.ok(!report.found.includes('classes'), 'Expected classes to be ignored');
+  assert.ok(!report.found.includes('config-driven'), 'Expected config-driven to be ignored');
+  assert.ok(!report.found.includes('config-driven-system'), 'Expected config-driven-system to be ignored');
+  assert.ok(!report.found.includes('enterprise-content-block'), 'Expected enterprise-content-block to be ignored');
+  assert.ok(report.found.includes('flex'), 'Expected flex to be kept');
+  assert.ok(report.found.includes('grid'), 'Expected grid to be kept');
+  assert.ok(report.found.includes('hidden'), 'Expected hidden to be kept');
+  assert.ok(report.found.includes('block'), 'Expected block to be kept');
+  assert.ok(report.found.includes('rounded-lg'), 'Expected rounded-lg to be kept');
+  assert.ok(report.found.includes('bg-brand-80'), 'Expected bg-brand-80 to be kept');
+  assert.ok(report.found.includes('hover:bg-brand-80'), 'Expected hover:bg-brand-80 to be kept');
+  assert.ok(report.found.includes('md:flex'), 'Expected md:flex to be kept');
+  assert.ok(report.found.includes('-mb-px'), 'Expected -mb-px to be kept');
+  assert.ok(report.found.includes('w-[37px]'), 'Expected w-[37px] to be kept');
+  assert.ok(
+    report.arbitraryValueUtilities.includes('bg-[#0f172a]'),
+    'Expected bg-[#0f172a] to be detected as an arbitrary value utility',
+  );
 });
 
 test('migrate command supports --import-colours and prints palette suggestion', () => {

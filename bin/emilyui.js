@@ -4,6 +4,21 @@ const path = require("path");
 
 const command = process.argv[2];
 const packageJson = require(path.join(__dirname, "..", "package.json"));
+const usageText = `
+  emily-css — Config-driven CSS framework generator
+
+  Usage:
+    emily-css init        Set up a new project
+    emily-css build       Generate production CSS to the configured output path
+    emily-css watch       Dev mode: rebuild on changes
+    emily-css doctor      Scan project files for unknown EmilyCSS classes
+    emily-css migrate     Generate a Tailwind-to-EmilyCSS migration report
+      --import-colours    Detect Tailwind colour palettes and suggest importedPalettes config
+    emily-css showcase    Browse components in your browser
+    emily-css help        Full command reference
+
+  Run emily-css help for more detail.
+`;
 
 if (command === "init") {
   require("../src/init.js");
@@ -50,19 +65,11 @@ if (command === "init") {
   Docs: https://emilyui.dev
 `);
 } else {
-  console.log(`
-  emily-css — Config-driven CSS framework generator
-
-  Usage:
-    emily-css init        Set up a new project
-    emily-css build       Generate production CSS to the configured output path
-    emily-css watch       Dev mode: rebuild on changes
-    emily-css doctor      Scan project files for unknown EmilyCSS classes
-    emily-css migrate     Generate a Tailwind-to-EmilyCSS migration report
-      --import-colours    Detect Tailwind colour palettes and suggest importedPalettes config
-    emily-css showcase    Browse components in your browser
-    emily-css help        Full command reference
-
-  Run emily-css help for more detail.
-`);
+  if (!command) {
+    console.log(usageText);
+  } else {
+    console.error(`Unknown command: ${command}`);
+    console.log(usageText);
+    process.exitCode = 1;
+  }
 }

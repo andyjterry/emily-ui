@@ -235,6 +235,7 @@ function generateCSSVariables(colours, spacing, config) {
       css += `  --color-${name}: ${hex};\n`;
     });
   }
+  css += `  --focus-ring-glow: color-mix(in srgb, var(--color-brand-80) 12%, transparent);\n`;
 
   // Spacing variables
   Object.entries(spacing).forEach(([key, value]) => {
@@ -1241,7 +1242,7 @@ function generatePatternComponents() {
     outline: 2px solid var(--color-neutral-80);
     outline-offset: 3px;
     border-color: var(--color-neutral-80);
-    box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.1);
+    box-shadow: 0 0 0 4px var(--focus-ring-glow, rgba(219, 39, 119, 0.1));
   }
 
   .checkbox-group,
@@ -1272,7 +1273,7 @@ function generatePatternComponents() {
   input[type="checkbox"]:focus {
     outline: 2px solid var(--color-neutral-80);
     outline-offset: 3px;
-    box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.1);
+    box-shadow: 0 0 0 4px var(--focus-ring-glow, rgba(219, 39, 119, 0.1));
   }
 
   input[type="radio"] {
@@ -1317,7 +1318,7 @@ function generatePatternComponents() {
     outline: 2px solid var(--color-neutral-80);
     outline-offset: 3px;
     border-radius: 50%;
-    box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.1);
+    box-shadow: 0 0 0 4px var(--focus-ring-glow, rgba(219, 39, 119, 0.1));
   }
 
   input[aria-invalid="true"] {
@@ -1382,7 +1383,7 @@ function generatePatternComponents() {
   .btn-primary:focus-visible {
     outline: 2px solid var(--color-neutral-80);
     outline-offset: 3px;
-    box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.1);
+    box-shadow: 0 0 0 4px var(--focus-ring-glow, rgba(219, 39, 119, 0.1));
   }
 
   .btn-secondary {
@@ -1400,7 +1401,7 @@ function generatePatternComponents() {
   .btn-secondary:focus-visible {
     outline: 2px solid var(--color-neutral-80);
     outline-offset: 3px;
-    box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.1);
+    box-shadow: 0 0 0 4px var(--focus-ring-glow, rgba(219, 39, 119, 0.1));
   }
 
   .btn-ghost {
@@ -1416,7 +1417,7 @@ function generatePatternComponents() {
   .btn-ghost:focus-visible {
     outline: 2px solid var(--color-neutral-80);
     outline-offset: 3px;
-    box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.1);
+    box-shadow: 0 0 0 4px var(--focus-ring-glow, rgba(219, 39, 119, 0.1));
   }
 
   .btn-danger {
@@ -1432,7 +1433,7 @@ function generatePatternComponents() {
   .btn-danger:focus-visible {
     outline: 2px solid var(--color-neutral-80);
     outline-offset: 3px;
-    box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.1);
+    box-shadow: 0 0 0 4px var(--focus-ring-glow, rgba(219, 39, 119, 0.1));
   }
 
   .btn-sm {

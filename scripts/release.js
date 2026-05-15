@@ -18,6 +18,30 @@ async function main() {
   console.log(chalk.bold(`\n  emilyCSS release\n`))
   console.log(chalk.dim(`  Current version: v${currentVersion}`))
 
+  // Pre-flight check: trigger browser-based npm login before release flow
+  if (process.env.EMILY_NPM_AUTH_OK !== '1') {
+    console.log(chalk.dim('  Please complete npm login in your browser when prompted.\n'))
+    try {
+      execSync('npm login --auth-type=web', { cwd: ROOT, stdio: 'inherit' })
+    } catch {
+      console.log(chalk.red('\n  npm login failed. Release cancelled.\n'))
+      process.exit(1)
+    }
+
+    try {
+      const npmUser = execSync('npm whoami', {
+        cwd: ROOT,
+        stdio: ['ignore', 'pipe', 'pipe']
+      }).toString().trim()
+      console.log(chalk.green(`\n  ✓ npm login complete${npmUser ? ` (${npmUser})` : ''}`))
+    } catch {
+      console.log(chalk.red('\n  npm auth could not be verified after login. Release cancelled.\n'))
+      process.exit(1)
+    }
+  } else {
+    console.log(chalk.green('  ✓ npm auth already verified by ship'))
+  }
+
   // Get last git tag
   let lastTag = ''
   try {

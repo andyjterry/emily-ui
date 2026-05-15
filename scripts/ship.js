@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict'
 
-const { spawnSync } = require('child_process')
+const { spawnSync, execSync } = require('child_process')
 const chalk = require('chalk')
 const path = require('path')
 const fs = require('fs')
@@ -19,6 +19,28 @@ if (fs.existsSync(GIT_LOCK_PATH)) {
   console.log()
   process.exit(1)
 }
+
+// Pre-flight check: Trigger browser-based npm login before ship flow begins
+console.log(chalk.bold('  Step 0 — npm Login\n'))
+console.log(chalk.dim('  Please complete npm login in your browser when prompted.\n'))
+try {
+  execSync('npm login --auth-type=web', { cwd: ROOT, stdio: 'inherit' })
+} catch {
+  console.log(chalk.red('\n  npm login failed. Ship cancelled.\n'))
+  process.exit(1)
+}
+
+let npmUser = ''
+try {
+  npmUser = execSync('npm whoami', {
+    cwd: ROOT,
+    stdio: ['ignore', 'pipe', 'pipe']
+  }).toString().trim()
+} catch {
+  console.log(chalk.red('\n  npm auth could not be verified after login. Ship cancelled.\n'))
+  process.exit(1)
+}
+console.log(chalk.green(`\n  ✓ npm login complete${npmUser ? ` (${npmUser})` : ''}`))
 
 console.log(chalk.dim('  This will run commit, then release + publish.'))
 console.log(chalk.dim('  Both steps are interactive — work through them in order.\n'))
@@ -40,6 +62,7 @@ console.log(chalk.bold('\n  Step 2 — Release + Publish\n'))
 const releaseResult = spawnSync('node', [path.join(__dirname, 'release.js')], {
   stdio: 'inherit',
   cwd: ROOT,
+  env: { ...process.env, EMILY_NPM_AUTH_OK: '1' },
 })
 
 if (releaseResult.status !== 0) {
