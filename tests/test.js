@@ -46,6 +46,9 @@ const {
 const config = JSON.parse(
   fs.readFileSync(path.join(__dirname, '../emily.config.json'), 'utf8')
 );
+const packageInfo = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8')
+);
 
 // ─── Test runner ──────────────────────────────────────────────────────────────
 
@@ -2306,6 +2309,21 @@ test('generateManifest exists and returns an object with utilities', () => {
   assert.ok(manifest && typeof manifest === 'object', 'Manifest should be an object');
   assert.ok(Array.isArray(manifest.utilities), 'Manifest utilities should be an array');
   assert.ok(manifest.utilities.length > 0, 'Manifest utilities should not be empty');
+});
+
+test('generateManifest includes schemaVersion metadata', () => {
+  const manifest = generateManifest('.p-4 { padding: 1rem; }');
+  assert.strictEqual(manifest.schemaVersion, '1');
+});
+
+test('generateManifest includes package metadata', () => {
+  const manifest = generateManifest('.p-4 { padding: 1rem; }');
+  assert.strictEqual(manifest.package, packageInfo.name);
+});
+
+test('generateManifest includes package version metadata', () => {
+  const manifest = generateManifest('.p-4 { padding: 1rem; }');
+  assert.strictEqual(manifest.version, packageInfo.version);
 });
 
 test('generateManifest maps text-brand-80 to colour with token and declarations', () => {

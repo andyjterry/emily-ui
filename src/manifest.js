@@ -1,4 +1,5 @@
 const MANIFEST_VERSION = '1.1.0';
+const packageJson = require('../package.json');
 const {
   DEFAULT_RESPONSIVE_VARIANTS,
   BASE_VARIANTS,
@@ -249,7 +250,10 @@ function getVariants(config) {
 
 function generateManifest(css, config = {}) {
   const manifest = {
-    version: MANIFEST_VERSION,
+    schemaVersion: '1',
+    package: packageJson.name || 'emily-css',
+    version: packageJson.version || '0.0.0',
+    manifestVersion: MANIFEST_VERSION,
     generatedAt: new Date().toISOString(),
     utilities: [],
   };
