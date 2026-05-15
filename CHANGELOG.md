@@ -23,6 +23,17 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.2.1 — May 2026
+
+**updated the full system to be more efficient**
+
+### Added
+- updated the full system to be more efficient
+
+### Changed
+- updated release logic
+
+---
 ## v1.1.1 — May 2026
 
 **updated changes and added**
