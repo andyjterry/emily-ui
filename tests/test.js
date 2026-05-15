@@ -2848,6 +2848,135 @@ test('doctor validates known variant + known base class with no issues', () => {
   }
 });
 
+test('doctor warns when text and background use the same colour token', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    buildDoctorConfig(tmpDir, 'page.html', '<div class="bg-brand-80 text-brand-80"></div>');
+    process.chdir(tmpDir);
+
+    const result = doctor();
+    assert.strictEqual(result.ok, true);
+    assert.strictEqual(result.exitCode, 0);
+    assert.strictEqual(result.issues.length, 0);
+    assert.ok(
+      result.warnings.some((warning) => warning.reason === 'same-text-background-colour'),
+      'Expected same-text-background-colour warning',
+    );
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
+test('doctor warns when focus-ring-none has no visible focus replacement', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    buildDoctorConfig(tmpDir, 'page.html', '<button class="focus-ring-none">Open</button>');
+    process.chdir(tmpDir);
+
+    const result = doctor();
+    assert.strictEqual(result.ok, true);
+    assert.strictEqual(result.exitCode, 0);
+    assert.ok(
+      result.warnings.some((warning) => warning.reason === 'focus-removal'),
+      'Expected focus-removal warning',
+    );
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
+test('doctor does not warn when focus-ring-none has visible focus replacement', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    buildDoctorConfig(
+      tmpDir,
+      'page.html',
+      '<button class="focus-ring-none focus-visible:ring-2">Open</button>',
+    );
+    process.chdir(tmpDir);
+
+    const result = doctor();
+    assert.strictEqual(result.ok, true);
+    assert.strictEqual(result.exitCode, 0);
+    assert.ok(
+      !result.warnings.some((warning) => warning.reason === 'focus-removal'),
+      'Did not expect focus-removal warning when replacement focus class exists',
+    );
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
+test('doctor warns for cursor-pointer on non-interactive elements', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    buildDoctorConfig(tmpDir, 'page.html', '<div class="cursor-pointer"></div>');
+    process.chdir(tmpDir);
+
+    const result = doctor();
+    assert.strictEqual(result.ok, true);
+    assert.strictEqual(result.exitCode, 0);
+    assert.ok(
+      result.warnings.some((warning) => warning.reason === 'cursor-pointer-non-interactive'),
+      'Expected cursor-pointer-non-interactive warning',
+    );
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
+test('doctor does not warn for cursor-pointer on button elements', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    buildDoctorConfig(tmpDir, 'page.html', '<button class="cursor-pointer">Click</button>');
+    process.chdir(tmpDir);
+
+    const result = doctor();
+    assert.strictEqual(result.ok, true);
+    assert.strictEqual(result.exitCode, 0);
+    assert.ok(
+      !result.warnings.some((warning) => warning.reason === 'cursor-pointer-non-interactive'),
+      'Did not expect non-interactive cursor warning on button',
+    );
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
+test('doctor warnings alone do not return a failing exit code', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    buildDoctorConfig(tmpDir, 'page.html', '<div class="bg-brand-80 text-brand-80"></div>');
+    process.chdir(tmpDir);
+
+    const result = doctor();
+    assert.strictEqual(result.ok, true);
+    assert.strictEqual(result.exitCode, 0);
+    assert.strictEqual(result.issues.length, 0);
+    assert.ok(result.warnings.length > 0, 'Expected at least one warning');
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
 test('doctor reports unknown class and includes suggestion', () => {
   const tmpDir = createTempProject();
   const originalCwd = process.cwd();

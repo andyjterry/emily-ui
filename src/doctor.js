@@ -185,6 +185,102 @@ function loadManifest(config, css) {
   return generateManifest(css, config);
 }
 
+const INTERACTIVE_TAGS = new Set([
+  "a",
+  "button",
+  "input",
+  "select",
+  "textarea",
+  "summary",
+  "option",
+]);
+
+const VISIBLE_FOCUS_CLASSES = new Set([
+  "focus-ring",
+  "focus-visible:ring-2",
+  "outline",
+  "outline-2",
+]);
+const KNOWN_CLASS_SHIMS = new Set(["focus-ring-none"]);
+
+function parseElementClassLists(content) {
+  const entries = [];
+  const classAttrRegex =
+    /<([a-zA-Z][a-zA-Z0-9-]*)\b[^>]*?\b(?:class|className)\s*=\s*(["'])([\s\S]*?)\2[^>]*?>/g;
+  let match;
+
+  while ((match = classAttrRegex.exec(content)) !== null) {
+    const tagName = match[1].toLowerCase();
+    const classes = match[3]
+      .split(/\s+/)
+      .map((cls) => cls.trim())
+      .filter(Boolean);
+
+    entries.push({ tagName, classes });
+  }
+
+  return entries;
+}
+
+function hasVisibleFocusReplacement(classes) {
+  return classes.some((className) => VISIBLE_FOCUS_CLASSES.has(className));
+}
+
+function extractColourToken(className, prefix) {
+  const match = className.match(new RegExp(`^${prefix}([a-z][a-z0-9-]*-\\d{1,3})$`));
+  return match ? match[1] : null;
+}
+
+function createAccessibilityWarnings(filePath, content) {
+  const warnings = [];
+  const classEntries = parseElementClassLists(content);
+
+  classEntries.forEach(({ tagName, classes }) => {
+    if (classes.includes("focus-ring-none") && !hasVisibleFocusReplacement(classes)) {
+      warnings.push({
+        file: filePath,
+        reason: "focus-removal",
+        className: "focus-ring-none",
+        message:
+          'focus-ring-none removes visible focus styles without a replacement focus class.',
+      });
+    }
+
+    const bgTokens = new Set();
+    const textTokens = new Set();
+
+    classes.forEach((className) => {
+      const bgToken = extractColourToken(className, "bg-");
+      const textToken = extractColourToken(className, "text-");
+
+      if (bgToken) bgTokens.add(bgToken);
+      if (textToken) textTokens.add(textToken);
+    });
+
+    bgTokens.forEach((token) => {
+      if (textTokens.has(token)) {
+        warnings.push({
+          file: filePath,
+          reason: "same-text-background-colour",
+          className: `bg-${token} text-${token}`,
+          message: `Text and background both use token "${token}", which is likely unreadable.`,
+        });
+      }
+    });
+
+    if (classes.includes("cursor-pointer") && !INTERACTIVE_TAGS.has(tagName)) {
+      warnings.push({
+        file: filePath,
+        reason: "cursor-pointer-non-interactive",
+        className: "cursor-pointer",
+        message: `cursor-pointer is applied to non-interactive <${tagName}>.`,
+      });
+    }
+  });
+
+  return warnings;
+}
+
 function doctor() {
   const config = getConfig();
 
@@ -208,6 +304,7 @@ function doctor() {
 
   const files = getFilesToScan(config);
   const issues = [];
+  const warnings = [];
   const suggestionCache = new Map();
 
   files.forEach((filePath) => {
@@ -218,7 +315,8 @@ function doctor() {
       classes.forEach((className) => {
         const parsed = normaliseClassForManifest(className);
         const unknownVariants = parsed.variants.filter((variant) => !variantSet.has(variant));
-        const knownBase = utilitySet.has(parsed.baseClass);
+        const knownBase =
+          utilitySet.has(parsed.baseClass) || KNOWN_CLASS_SHIMS.has(parsed.baseClass);
 
         if (unknownVariants.length === 0 && knownBase) {
           return;
@@ -236,14 +334,31 @@ function doctor() {
           suggestion: suggestionCache.get(className),
         });
       });
+
+      warnings.push(...createAccessibilityWarnings(filePath, content));
     } catch (error) {
       // Keep parity with purge behaviour: unreadable files are skipped.
     }
   });
 
-  if (issues.length === 0) {
+  if (issues.length === 0 && warnings.length === 0) {
     console.log("✓ EmilyCSS doctor found no class issues");
-    return { ok: true, issues: [], exitCode: 0 };
+    return { ok: true, issues: [], warnings: [], exitCode: 0 };
+  }
+
+  if (warnings.length > 0) {
+    console.log(
+      `EmilyCSS doctor warning${warnings.length === 1 ? "" : "s"} (${warnings.length})\n`,
+    );
+    warnings.forEach((warning) => {
+      console.log(path.relative(process.cwd(), warning.file));
+      console.log(`  Warning: ${warning.message}`);
+      console.log("");
+    });
+  }
+
+  if (issues.length === 0) {
+    return { ok: true, issues: [], warnings, exitCode: 0 };
   }
 
   console.log(`EmilyCSS doctor found ${issues.length} issue${issues.length === 1 ? "" : "s"}\n`);
@@ -262,7 +377,7 @@ function doctor() {
   });
 
   console.log("Run `emily-css build` after fixing classes.");
-  return { ok: false, issues, exitCode: 1 };
+  return { ok: false, issues, warnings, exitCode: 1 };
 }
 
 module.exports = {
