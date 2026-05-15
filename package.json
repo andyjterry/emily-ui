@@ -45,12 +45,12 @@
     "node": ">=16.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.0"
+    "nodemon": "^3.1.14"
   },
   "dependencies": {
     "boxen": "^5.1.2",
     "chalk": "^4.1.2",
-    "chokidar": "^5.0.0",
+    "chokidar": "^4.0.3",
     "cross-spawn": "^7.0.6",
     "enquirer": "^2.4.1",
     "fast-glob": "^3.3.3",

@@ -3,6 +3,32 @@
 All notable changes to `emily-css` are documented here.
 
 ---
+
+## v1.2.1 — May 2026
+
+### Changed
+- Refactored utility generators into smaller internal modules.
+- Kept `src/generators.js` as a compatibility shim so existing imports continue to work.
+- Moved shared defaults into `src/constants.js`.
+- Updated watch mode so configured purge ignore rules are respected consistently.
+- Improved release hardening and package output checks.
+
+### Fixed
+- Kept dependency versions on CommonJS-compatible majors to support Node 16+.
+- Avoided ESM-only dependency upgrades that would break the current CommonJS CLI.
+
+### Dependency compatibility
+EmilyCSS intentionally stays on CommonJS-compatible dependency majors for now:
+
+- `chalk@4`
+- `ora@5`
+- `boxen@5`
+- `chokidar@4`
+
+Newer major versions are ESM-focused and may require newer Node versions. EmilyCSS currently supports Node 16+ and CommonJS.
+
+---
+
 ## v1.2.0-alpha.0 — May 2026
 
 ### Added
@@ -12,9 +38,17 @@ All notable changes to `emily-css` are documented here.
 - Detection and reporting for arbitrary value utilities during migration analysis.
 
 ### Notes
-- Migration in this alpha is analysis-only: no source files are modified by `migrate`.
+- Migration in this alpha is analysis-only. No source files are modified by `migrate`.
 
 ---
+
+## v1.1.1 — May 2026
+
+### Added
+- Utility manifest generation for future tooling, doctor checks, migration support, and editor integrations.
+
+---
+
 ## v1.1.0 — May 2026
 
 ### Added
