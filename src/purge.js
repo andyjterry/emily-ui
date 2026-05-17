@@ -1,37 +1,27 @@
-// new version
+'use strict';
 
 const fs = require("fs");
 const path = require("path");
-const { DEFAULT_EXTENSIONS } = require("./constants.js");
+const fg = require("fast-glob");
+const { DEFAULT_EXTENSIONS, DEFAULT_PURGE_IGNORE } = require("./constants.js");
 
 function getAllFiles(dir, extensions = DEFAULT_EXTENSIONS) {
-  let files = [];
+  const absoluteDir = path.isAbsolute(dir) ? dir : path.resolve(dir);
+  const patterns = extensions.map((ext) => `**/*${ext}`);
+  const ignore = DEFAULT_PURGE_IGNORE.map((d) => `**/${d}/**`);
 
   try {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name);
-
-      if (
-        entry.name.startsWith(".") ||
-        entry.name === "node_modules" ||
-        entry.name === "dist"
-      ) {
-        continue;
-      }
-
-      if (entry.isDirectory()) {
-        files = files.concat(getAllFiles(fullPath, extensions));
-      } else if (extensions.some((ext) => entry.name.endsWith(ext))) {
-        files.push(fullPath);
-      }
-    }
+    return fg.sync(patterns, {
+      cwd: absoluteDir,
+      ignore,
+      onlyFiles: true,
+      unique: true,
+      absolute: true,
+    });
   } catch (err) {
-    console.warn(`Warning: Could not read directory ${dir}: ${err.message}`);
+    console.warn(`Warning: Could not scan directory ${absoluteDir}: ${err.message}`);
+    return [];
   }
-
-  return files;
 }
 
 function extractClassNames(content) {
@@ -186,8 +176,6 @@ function purgeBlock(block, usedClasses) {
 
 function getFilesForPurge(scanDir, config, extensions) {
   if (config?.purge?.sourceGlobs && config.purge.sourceGlobs.length) {
-    const fg = require("fast-glob");
-
     console.log(`\n🔍 Scanning using sourceGlobs`);
     config.purge.sourceGlobs.forEach((glob) => console.log(`   - ${glob}`));
     console.log(`   Extensions: ${extensions.join(", ")}`);

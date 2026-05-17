@@ -4,3 +4,5 @@ dist/
 .DS_Store
 Thumbs.db
 emily-css.zip
+project_context.txt
+bundle-context.js

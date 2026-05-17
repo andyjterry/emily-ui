@@ -12,7 +12,7 @@ emilyCSS lets you define design tokens in `emily.config.json` and generate stati
 - Framework-agnostic output (`dist/emily.css` and `dist/emily.min.css`)
 - Accessibility-focused utility coverage (focus rings, visually-hidden helpers, motion-aware variants)
 - Tooling support with manifest and IntelliSense JSON generation
-- CommonJS package with Node 16+ compatibility
+- CommonJS package with Node 22+ compatibility
 
 ## Install and basic workflow
 
@@ -95,7 +95,7 @@ These files are intended for tooling, audits, and editor integrations. A VSCode 
 ## Notes on compatibility
 
 - Package format: CommonJS
-- Runtime support: Node 16+
+- Runtime support: Node 22+
 - ESM-only major upgrades are intentionally avoided where they would break compatibility
 
 ## Documentation stubs

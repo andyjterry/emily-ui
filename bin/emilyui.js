@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const fs = require("fs");
 const path = require("path");
 
 const command = process.argv[2];
@@ -15,6 +16,7 @@ const usageText = `
     emily-css doctor      Scan project files for unknown EmilyCSS classes
     emily-css migrate     Generate a Tailwind-to-EmilyCSS migration report
       --import-colours    Detect Tailwind colour palettes and suggest importedPalettes config
+    emily-css manifest    Generate the utility/token manifest JSON
     emily-css showcase    Browse components in your browser
     emily-css help        Full command reference
 
@@ -43,6 +45,19 @@ if (command === "init") {
   const importColours = process.argv.includes("--import-colours");
   const report = generateMigrationReport({ importColours });
   console.log(formatMigrationReport(report, { importColours }));
+} else if (command === "manifest") {
+  const { getConfig, getFullCssPath, getManifestOutputPath, ensureDirectoryForFile } = require("../src/config.js");
+  const { ensureFullFramework } = require("../src/index.js");
+  const { generateManifest } = require("../src/manifest.js");
+  const config = getConfig();
+  ensureFullFramework();
+  const fullCssPath = getFullCssPath(config);
+  const css = fs.readFileSync(fullCssPath, "utf8");
+  const manifestData = generateManifest(css, config);
+  const manifestPath = getManifestOutputPath(config);
+  ensureDirectoryForFile(manifestPath);
+  fs.writeFileSync(manifestPath, JSON.stringify(manifestData, null, 2));
+  console.log(`✓ Generated manifest: ${manifestPath}`);
 } else if (command === "version" || command === "--version" || command === "-v") {
   console.log(packageJson.version);
 } else if (command === "help") {
@@ -57,6 +72,7 @@ if (command === "init") {
     emily-css doctor      Scan project files for unknown EmilyCSS classes
     emily-css migrate     Generate a Tailwind-to-EmilyCSS migration report
       --import-colours    Detect Tailwind colour palettes and suggest importedPalettes config
+    emily-css manifest    Generate the utility/token manifest JSON
     emily-css showcase    Launch the component showcase in your browser
     emily-css version     Show installed version
     emily-css help        Show this help text

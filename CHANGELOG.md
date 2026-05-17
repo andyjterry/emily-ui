@@ -4,6 +4,21 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.2.4 — May 2026
+
+### Changed
+- Extracted shared config/path helpers (`getConfig`, `getFullCssPath`, `getManifestSettings`, etc.) into `src/config.js` to eliminate duplication between `src/index.js` and `src/doctor.js`. No behaviour change.
+- Updated `purge.js` file discovery to use `fast-glob` (already a dependency) instead of manual recursive `fs.readdirSync`, and to respect `DEFAULT_PURGE_IGNORE` from `src/constants.js` rather than hardcoded ignores.
+- Updated Node engine requirement to `>=22.0.0`. Node 16 and 18 are EOL.
+
+### Added
+- `emily-css manifest` CLI command. Generates the utility/token manifest JSON to the configured output path (default: `dist/emily.manifest.json`). The manifest feature existed internally — this wires it as a standalone command.
+
+### Notes
+- Current runtime support is Node 22+.
+
+---
+
 ## v1.2.3 — May 2026
 
 ****
@@ -23,7 +38,7 @@ All notable changes to `emily-css` are documented here.
 - Updated README to reflect current product direction and command surface.
 
 ### Notes
-- EmilyCSS remains CommonJS-compatible and continues to support Node 16+.
+- EmilyCSS remains CommonJS-compatible. Node engine requirement updated to >=22 in v1.2.4.
 - ESM-only dependency major upgrades remain intentionally deferred for compatibility.
 
 ---

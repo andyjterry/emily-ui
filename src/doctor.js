@@ -1,54 +1,17 @@
+'use strict';
+
 const fs = require("fs");
 const path = require("path");
 const fg = require("fast-glob");
 const { extractClassNames } = require("./purge.js");
 const { ensureFullFramework, generateManifest } = require("./index.js");
 const { DEFAULT_EXTENSIONS } = require("./constants.js");
-
-function getConfigPath() {
-  return path.join(process.cwd(), "emily.config.json");
-}
-
-function getConfig() {
-  const configPath = getConfigPath();
-
-  if (!fs.existsSync(configPath)) {
-    console.error('\n  emily-css: No config found. Run "emily-css init" first.\n');
-    process.exit(1);
-  }
-
-  return JSON.parse(fs.readFileSync(configPath, "utf8"));
-}
-
-function getFullCssPath(config) {
-  return path.join(process.cwd(), config.output?.fullCss || "dist/emily.css");
-}
-
-function getManifestSettings(config) {
-  const manifestConfig = config.manifest;
-
-  if (manifestConfig === true) {
-    return { enabled: true, output: "dist/emily.manifest.json" };
-  }
-
-  if (manifestConfig && typeof manifestConfig === "object") {
-    return {
-      enabled: manifestConfig.enabled === true,
-      output: manifestConfig.output || "dist/emily.manifest.json",
-    };
-  }
-
-  return { enabled: false, output: "dist/emily.manifest.json" };
-}
-
-function getManifestOutputPath(config) {
-  const manifestSettings = getManifestSettings(config);
-  const outputPath = manifestSettings.output || "dist/emily.manifest.json";
-
-  return path.isAbsolute(outputPath)
-    ? outputPath
-    : path.join(process.cwd(), outputPath);
-}
+const {
+  getConfig,
+  getFullCssPath,
+  getManifestSettings,
+  getManifestOutputPath,
+} = require("./config.js");
 
 function normaliseClassForManifest(className) {
   if (!className || typeof className !== "string") {
