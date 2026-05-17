@@ -6,6 +6,20 @@ All notable changes to `emily-css` are documented here.
 
 ## v1.2.4 — May 2026
 
+**chore: release v1.2.4**
+
+### Changed
+- chore: release v1.2.4
+
+---
+# Changelog
+
+All notable changes to `emily-css` are documented here.
+
+---
+
+## v1.2.4 — May 2026
+
 ### Changed
 - Extracted shared config/path helpers (`getConfig`, `getFullCssPath`, `getManifestSettings`, etc.) into `src/config.js` to eliminate duplication between `src/index.js` and `src/doctor.js`. No behaviour change.
 - Updated `purge.js` file discovery to use `fast-glob` (already a dependency) instead of manual recursive `fs.readdirSync`, and to respect `DEFAULT_PURGE_IGNORE` from `src/constants.js` rather than hardcoded ignores.
