@@ -4,6 +4,14 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.2.6 — May 2026
+
+**Fix migration scanner false positives by ignoring prose tokens, JS property access, and dynamic placeholders while keeping valid utility classes and arbitrary value support.**
+
+### Fixed
+- fix: tighten migration class filtering
+
+---
 ## v1.2.5 — May 2026
 
 **Node 18+ Compatibility and Docs/CLI Alignment**
