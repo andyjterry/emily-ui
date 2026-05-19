@@ -574,6 +574,13 @@ function isLikelyUtilityClass(className) {
   if (/[;()={},`]/.test(className)) return false;
   if (!/[a-zA-Z]/.test(className)) return false;
   if (!/^[a-zA-Z0-9:#_./\-[\]]+$/.test(className)) return false;
+
+/*
+ * Ignore obvious prose / JS expressions
+ */
+if (/[.]+$/.test(className)) return false;
+if (/^[[][^:\]]+[]]$/.test(className)) return false;
+if (/^[a-zA-Z]+\.[a-zA-Z0-9_$]+$/.test(className)) return false;
   if (/^[a-z]+$/.test(className) && !SINGLE_WORD_UTILITY_ALLOWLIST.has(className)) return false;
   if (!hasUtilityLikeSyntax(className) && !SINGLE_WORD_UTILITY_ALLOWLIST.has(className)) return false;
 
