@@ -224,11 +224,14 @@ const UTILITY_PREFIX_ALLOWLIST = new Set([
   'content',
   'self',
   'place',
+  'box',
   'object',
   'overflow',
+  'overscroll',
   'divide',
   'cursor',
   'select',
+  'transition',
   'duration',
   'delay',
   'ease',
@@ -241,6 +244,9 @@ const UTILITY_PREFIX_ALLOWLIST = new Set([
   'basis',
   'grow',
   'shrink',
+  'color-scheme',
+  'field-sizing',
+  'scrollbar',
 ]);
 
 function hasUtilityLikeSyntax(className) {
