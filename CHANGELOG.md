@@ -4,6 +4,28 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.2.8 — May 2026
+
+**Expand Tailwind-compat utility coverage and align migration scanner utility-family detection.**
+
+### Added
+- utilities: negative margin set (`-m-*`, `-mx-*`, `-my-*`, `-mt-*`, `-mr-*`, `-mb-*`, `-ml-*`)
+- utilities: full positioning values (`top/right/bottom/left/inset(-x/-y)-full`)
+- utilities: `box-border`, `box-content`
+- utilities: `justify-items-*`, `justify-self-*`
+- utilities: `max-h-none`
+- utilities: font weight completion (`font-thin`, `font-extralight`, `font-extrabold`, `font-black`)
+- utilities: `bg-origin-*` and `bg-gradient-to-*`
+- utilities: `transition-all`, `transition-shadow`
+- utilities: `scale-x-*`, `scale-y-*`, expanded skew and negative skew variants
+- utilities: full overscroll set (`overscroll-*`, `overscroll-x-*`, `overscroll-y-*`)
+
+### Changed
+- migrate: expanded utility-prefix detection to include `box-*`, `overscroll-*`, `transition-*`, `color-scheme-*`, `field-sizing-*`, and `scrollbar-*` families.
+- docs: updated README and migrate documentation with new compatibility coverage.
+
+---
+
 ## v1.2.7 — May 2026
 
 **Fix migration scanner filtering so Vue dynamic class placeholders such as [rootClass] are not reported as unsupported arbitrary value utilities.**

@@ -11,6 +11,7 @@ emilyCSS lets you define design tokens in `emily.config.json` and generate stati
 - Token-first utility generation from your own colours, spacing, typography, and motion settings
 - Framework-agnostic output (`dist/emily.css` and `dist/emily.min.css`)
 - Accessibility-focused utility coverage (focus rings, visually-hidden helpers, motion-aware variants)
+- Broader Tailwind-style compatibility coverage for everyday migration classes
 - Tooling support with manifest and IntelliSense JSON generation
 - CommonJS package with Node 18+ compatibility
 
@@ -66,6 +67,23 @@ npm run emily:help
 - `doctor` now also reports non-failing accessibility warnings (for example obvious focus-removal or same-token text/background patterns).
 - `migrate` is report-only and helps plan Tailwind-to-Emily migrations without modifying files.
 - For best migrate accuracy, generate the full framework/manifest first (`emily-css build --keep-full` or enable `manifest: true`).
+
+## Tailwind compatibility additions
+
+Recent utility coverage additions include:
+
+- Negative margin utilities: `-m-*`, `-mx-*`, `-my-*`, `-mt-*`, `-mr-*`, `-mb-*`, `-ml-*`
+- Positioning full values: `top-full`, `right-full`, `bottom-full`, `left-full`, `inset-full`, `inset-x-full`, `inset-y-full`
+- Box sizing: `box-border`, `box-content`
+- Grid alignment: `justify-items-*`, `justify-self-*`
+- Sizing completion: `max-h-none`
+- Typography completion: `font-thin`, `font-extralight`, `font-extrabold`, `font-black`
+- Background origin and gradient directions: `bg-origin-*`, `bg-gradient-to-*`
+- Transition completion: `transition-all`, `transition-shadow`
+- Transform axis utilities: `scale-x-*`, `scale-y-*`, extended `skew-x-*`, `skew-y-*`, and negative skew variants
+- Overscroll behavior: `overscroll-*`, `overscroll-x-*`, `overscroll-y-*`
+
+Migration scanner utility-prefix detection was also expanded for classes like `box-*`, `overscroll-*`, `transition-*`, `color-scheme-*`, `field-sizing-*`, and `scrollbar-*`.
 
 ## Manifest and IntelliSense JSON
 
