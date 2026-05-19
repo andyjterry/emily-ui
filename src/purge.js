@@ -222,6 +222,9 @@ function printFileSummary(files, extensions) {
 function purgeCSS(css, scanDir, config) {
   const resolvedPurgeConfig = resolvePurgeConfig(config);
   const extensions = resolvedPurgeConfig.extensions || DEFAULT_EXTENSIONS;
+  const safelist = Array.isArray(resolvedPurgeConfig.safelist)
+    ? resolvedPurgeConfig.safelist
+    : [];
   const files = getFilesForPurge(scanDir, config, extensions);
 
   printFileSummary(files, extensions);
@@ -245,7 +248,12 @@ function purgeCSS(css, scanDir, config) {
     }
   }
 
+  safelist.forEach((className) => usedClasses.add(className));
+
   console.log(`   Extracted ${usedClasses.size} unique class names`);
+  if (safelist.length > 0) {
+    console.log(`   Safelisted ${safelist.length} class names`);
+  }
 
   const blocks = extractBlocks(css);
   const purgedBlocks = blocks

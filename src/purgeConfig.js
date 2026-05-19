@@ -170,12 +170,21 @@ function resolvePurgeConfig(config = {}, options = {}) {
   }
 
   const sourceDir = purge.sourceDir || preset.sourceDir || '.';
+  const safelist = Array.isArray(purge.safelist)
+    ? unique(
+      purge.safelist
+        .filter((entry) => typeof entry === 'string')
+        .map((entry) => entry.trim())
+        .filter(Boolean),
+    )
+    : [];
 
   return {
     projectType,
     sourceDir,
     sourceGlobs,
     ignore: unique([...DEFAULT_PURGE_IGNORE, ...(purge.ignore || [])]),
+    safelist,
     extensions: Array.isArray(purge.extensions) && purge.extensions.length > 0
       ? purge.extensions
       : DEFAULT_EXTENSIONS,
@@ -188,4 +197,3 @@ module.exports = {
   detectProjectType,
   resolvePurgeConfig,
 };
-

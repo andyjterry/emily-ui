@@ -57,6 +57,16 @@
       "project_context.txt",
       "bundle-context.js"
     ],
+    "safelist": [
+      "bg-dark",
+      "text-dark",
+      "border-dark",
+      "fill-dark",
+      "bg-light",
+      "text-light",
+      "border-light",
+      "fill-light"
+    ],
     "extensions": [
       ".html",
       ".htm",
