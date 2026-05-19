@@ -56,6 +56,16 @@ const FONT_OPTIONS = [
   { name: "atkinson", message: "Atkinson Hyperlegible (maximum legibility)" },
   { name: "system", message: "System sans-serif (no download required)" },
 ];
+const CORE_COLOUR_KEYS = new Set([
+  "brand",
+  "accent",
+  "btn-primary",
+  "btn-secondary",
+  "success",
+  "warning",
+  "error",
+  "neutral",
+]);
 
 // ============================================================================
 // HELPERS
@@ -65,8 +75,45 @@ function isValidHex(hex) {
   return /^#[0-9A-F]{6}$/i.test(hex);
 }
 
+function isPlainObject(value) {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    !Array.isArray(value)
+  );
+}
+
+function mergeWithDefaults(defaults, existing) {
+  if (!isPlainObject(defaults)) {
+    return existing === undefined ? defaults : existing;
+  }
+
+  const output = { ...defaults };
+
+  if (!isPlainObject(existing)) {
+    return output;
+  }
+
+  Object.keys(existing).forEach((key) => {
+    if (isPlainObject(defaults[key]) && isPlainObject(existing[key])) {
+      output[key] = mergeWithDefaults(defaults[key], existing[key]);
+      return;
+    }
+
+    output[key] = existing[key];
+  });
+
+  return output;
+}
+
 function colourSwatch(hex) {
   return chalk.hex(hex)("■");
+}
+
+function normaliseHex(value) {
+  return typeof value === "string" && isValidHex(value)
+    ? value.toUpperCase()
+    : null;
 }
 
 async function askHex(promptName, message, initial) {
@@ -84,28 +131,69 @@ async function askHex(promptName, message, initial) {
   return value.toUpperCase();
 }
 
-async function askColourFromPresets(label, presets, defaultHex) {
+async function askColourFromPresets(label, presets, defaultHex, currentHex) {
+  const defaultHexValue = normaliseHex(defaultHex);
+  const currentHexValue = normaliseHex(currentHex);
+
   const choices = presets.map(function (opt) {
     if (opt.value === "custom") {
       return { name: "custom", message: "Enter your own hex" };
     }
 
+    const upperHex = String(opt.value).toUpperCase();
     return {
-      name: opt.value,
+      name: upperHex,
       message:
-        colourSwatch(opt.value) + " " + opt.label + " " + chalk.gray(opt.value),
+        colourSwatch(upperHex) + " " + opt.label + " " + chalk.gray(upperHex),
     };
   });
+
+  let initial = Math.max(
+    0,
+    choices.findIndex((choice) => choice.name === "custom"),
+  );
+
+  if (currentHexValue) {
+    const currentIndex = choices.findIndex(
+      (choice) => choice.name === currentHexValue,
+    );
+
+    if (currentIndex !== -1) {
+      initial = currentIndex;
+    } else {
+      choices.unshift({
+        name: "__current__",
+        message:
+          "Keep current " +
+          label +
+          " " +
+          colourSwatch(currentHexValue) +
+          " " +
+          chalk.gray(currentHexValue),
+      });
+      initial = 0;
+    }
+  } else if (defaultHexValue) {
+    const defaultIndex = choices.findIndex(
+      (choice) => choice.name === defaultHexValue,
+    );
+    if (defaultIndex !== -1) {
+      initial = defaultIndex;
+    }
+  }
 
   const selected = await new Select({
     name: label,
     message: label + " colour",
     choices,
+    initial,
   }).run();
 
+  if (selected === "__current__" && currentHexValue) return currentHexValue;
   if (selected !== "custom") return selected.toUpperCase();
 
-  return askHex(label + "Custom", "Enter " + label + " hex", defaultHex);
+  const fallbackHex = currentHexValue || defaultHexValue || "#000000";
+  return askHex(label + "Custom", "Enter " + label + " hex", fallbackHex);
 }
 
 function hasFile(fileName) {
@@ -122,6 +210,50 @@ function readPackageJson() {
   } catch {
     return null;
   }
+}
+
+function readExistingConfig() {
+  const configPath = path.join(process.cwd(), "emily.config.json");
+
+  if (!fs.existsSync(configPath)) return null;
+
+  try {
+    return JSON.parse(fs.readFileSync(configPath, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+function getFontInitialIndex(fontKey, fallbackIndex) {
+  if (!fontKey || typeof fontKey !== "string") return fallbackIndex;
+  const normalised = fontKey.toLowerCase();
+  const index = FONT_OPTIONS.findIndex((option) => option.name === normalised);
+  return index === -1 ? fallbackIndex : index;
+}
+
+function getExistingAdditionalColours(existingColours) {
+  if (!isPlainObject(existingColours)) return {};
+
+  const additional = {};
+  Object.entries(existingColours).forEach(([name, value]) => {
+    if (CORE_COLOUR_KEYS.has(name)) return;
+    if (!/^[a-z][a-z0-9-]*$/.test(name)) return;
+
+    const upperHex = normaliseHex(value);
+    if (!upperHex) return;
+    additional[name] = upperHex;
+  });
+
+  return additional;
+}
+
+function getBaseUnitInitial(config) {
+  const rawBaseUnit = config && typeof config.baseUnit === "string"
+    ? config.baseUnit
+    : "";
+  const parsed = Number.parseInt(rawBaseUnit, 10);
+  if (Number.isNaN(parsed) || parsed <= 0) return "18";
+  return String(parsed);
 }
 
 function hasDependency(packageJson, dependencyName) {
@@ -344,6 +476,16 @@ function createDefaultConfig({
       sourceDir: detectedProject.sourceDir,
       sourceGlobs: detectedProject.sourceGlobs,
       ignore: DEFAULT_PURGE_IGNORE,
+      safelist: [
+        "bg-dark",
+        "text-dark",
+        "border-dark",
+        "fill-dark",
+        "bg-light",
+        "text-light",
+        "border-light",
+        "fill-light",
+      ],
       extensions: PURGE_EXTENSIONS,
     },
 
@@ -492,10 +634,24 @@ async function init() {
     const spinner = ora("Analysing project structure...").start();
     const detectedProject = detectProject();
     spinner.succeed("Detected project: " + chalk.cyan(detectedProject.name));
+    const existingConfig = readExistingConfig();
+    const existingColours = isPlainObject(existingConfig && existingConfig.colours)
+      ? existingConfig.colours
+      : {};
+
+    if (existingConfig) {
+      console.log(
+        chalk.gray(
+          "  Found existing emily.config.json. Prompts are pre-filled from current settings.",
+        ),
+      );
+    }
 
     const packageJsonData = readPackageJson();
     const pkgName =
-      packageJsonData && packageJsonData.name
+      existingConfig && typeof existingConfig.name === "string" && existingConfig.name.trim()
+        ? existingConfig.name.trim()
+        : packageJsonData && packageJsonData.name
         ? titleCasePackageName(packageJsonData.name)
         : "My Design System";
 
@@ -523,11 +679,13 @@ async function init() {
       "brand",
       COLOUR_PRESETS.primary,
       "#DB2777",
+      existingColours.brand,
     );
     const accent = await askColourFromPresets(
       "accent",
       COLOUR_PRESETS.secondary,
       "#2563EB",
+      existingColours.accent,
     );
 
     console.log(
@@ -549,16 +707,19 @@ async function init() {
       "success",
       COLOUR_PRESETS.success,
       "#017F65",
+      existingColours.success,
     );
     const warning = await askColourFromPresets(
       "warning",
       COLOUR_PRESETS.warning,
       "#FFC107",
+      existingColours.warning,
     );
     const error = await askColourFromPresets(
       "error",
       COLOUR_PRESETS.error,
       "#B20000",
+      existingColours.error,
     );
 
     const colours = {
@@ -569,7 +730,8 @@ async function init() {
       success,
       warning,
       error,
-      neutral: "#57534E",
+      neutral: normaliseHex(existingColours.neutral) || "#57534E",
+      ...getExistingAdditionalColours(existingColours),
     };
 
     let addingMore = true;
@@ -619,14 +781,24 @@ async function init() {
       name: "headingFont",
       message: "Heading font",
       choices: FONT_OPTIONS,
-      initial: 0,
+      initial: getFontInitialIndex(
+        isPlainObject(existingConfig && existingConfig.fontFamily)
+          ? existingConfig.fontFamily.heading
+          : existingConfig && existingConfig.fontFamily,
+        0,
+      ),
     }).run();
 
     const bodyFont = await new Select({
       name: "bodyFont",
       message: "Body font",
       choices: FONT_OPTIONS,
-      initial: 1,
+      initial: getFontInitialIndex(
+        isPlainObject(existingConfig && existingConfig.fontFamily)
+          ? existingConfig.fontFamily.body
+          : existingConfig && existingConfig.fontFamily,
+        1,
+      ),
     }).run();
 
     // =========================================================================
@@ -636,7 +808,7 @@ async function init() {
     const baseUnitRaw = await new Input({
       name: "baseUnit",
       message: "Base spacing unit in px (label/documentation only)",
-      initial: "18",
+      initial: getBaseUnitInitial(existingConfig),
       validate: function (value) {
         const parsed = Number.parseInt(value, 10);
 
@@ -675,7 +847,7 @@ async function init() {
     // BUILD
     // =========================================================================
 
-    const config = createDefaultConfig({
+    const generatedDefaults = createDefaultConfig({
       name: projectName.trim(),
       colours,
       headingFont,
@@ -683,6 +855,19 @@ async function init() {
       baseUnit,
       detectedProject,
     });
+    const config = mergeWithDefaults(generatedDefaults, existingConfig);
+    config.name = projectName.trim();
+
+    if (!existingConfig || !existingConfig.description) {
+      config.description = config.name + " design system";
+    }
+
+    config.baseUnit = baseUnit + "px";
+    config.fontFamily = {
+      heading: headingFont,
+      body: bodyFont,
+    };
+    config.colours = colours;
 
     const configPath = path.join(process.cwd(), "emily.config.json");
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + "\n");
