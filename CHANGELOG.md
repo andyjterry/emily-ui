@@ -6,6 +6,20 @@ All notable changes to `emily-css` are documented here.
 
 ## v1.2.8 — May 2026
 
+**feat(purge): add purge safelist support and keep semantic dark/light utilities**
+
+### Added
+- feat(purge): add purge safelist support and keep semantic dark/light utilities
+- add purge safelist support and keep semantic dark/light utilities
+- widen utility-prefix detection for scanner
+- expand Tailwind-compatible utility coverage
+
+### Changed
+- add coverage for new utility classes
+
+---
+## v1.2.8 — May 2026
+
 **Expand Tailwind-compat utility coverage and align migration scanner utility-family detection.**
 
 ### Added
