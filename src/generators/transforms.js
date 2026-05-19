@@ -32,13 +32,19 @@ function transformUtilities(spacing) {
   const scales = [0, 50, 75, 90, 95, 100, 110, 125, 150];
   scales.forEach(scale => {
     css += `.scale-${scale} { --scale-x: ${scale / 100}; --scale-y: ${scale / 100}; transform: ${composedTransform}; }\n`;
+    css += `.scale-x-${scale} { --scale-x: ${scale / 100}; transform: ${composedTransform}; }\n`;
+    css += `.scale-y-${scale} { --scale-y: ${scale / 100}; transform: ${composedTransform}; }\n`;
   });
 
   // Skew
-  const skews = [0, 1, 2, 3];
+  const skews = [0, 1, 2, 3, 6, 12];
   skews.forEach(sk => {
     css += `.skew-x-${sk} { --skew-x: ${sk}deg; transform: ${composedTransform}; }\n`;
     css += `.skew-y-${sk} { --skew-y: ${sk}deg; transform: ${composedTransform}; }\n`;
+    if (sk > 0) {
+      css += `.-skew-x-${sk} { --skew-x: -${sk}deg; transform: ${composedTransform}; }\n`;
+      css += `.-skew-y-${sk} { --skew-y: -${sk}deg; transform: ${composedTransform}; }\n`;
+    }
   });
 
   // Transform origin

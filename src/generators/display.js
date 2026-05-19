@@ -37,6 +37,8 @@ function displayUtilities() {
 .clear-right { clear: right; }
 .clear-both { clear: both; }
 .clear-none { clear: none; }
+.box-border { box-sizing: border-box; }
+.box-content { box-sizing: content-box; }
 
 `;
 }

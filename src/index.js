@@ -356,6 +356,17 @@ function generateSpacingUtilities(spacing) {
     css += `.ml-${escaped} { margin-left: ${value}; }\n`;
     css += `.ms-${escaped} { margin-inline-start: ${value}; }\n`;
     css += `.me-${escaped} { margin-inline-end: ${value}; }\n`;
+    if (value !== '0' && value !== '0px') {
+      css += `.-m-${escaped} { margin: -${value}; }\n`;
+      css += `.-mx-${escaped} { margin-left: -${value}; margin-right: -${value}; }\n`;
+      css += `.-my-${escaped} { margin-top: -${value}; margin-bottom: -${value}; }\n`;
+      css += `.-mt-${escaped} { margin-top: -${value}; }\n`;
+      css += `.-mr-${escaped} { margin-right: -${value}; }\n`;
+      css += `.-mb-${escaped} { margin-bottom: -${value}; }\n`;
+      css += `.-ml-${escaped} { margin-left: -${value}; }\n`;
+      css += `.-ms-${escaped} { margin-inline-start: -${value}; }\n`;
+      css += `.-me-${escaped} { margin-inline-end: -${value}; }\n`;
+    }
   });
 
   // Margin auto
@@ -552,6 +563,16 @@ function generateGridUtilities(spacing) {
     css += `.gap-y-${escaped} { row-gap: ${value}; }\n`;
   });
 
+  css += `.justify-items-start { justify-items: start; }\n`;
+  css += `.justify-items-end { justify-items: end; }\n`;
+  css += `.justify-items-center { justify-items: center; }\n`;
+  css += `.justify-items-stretch { justify-items: stretch; }\n`;
+  css += `.justify-self-auto { justify-self: auto; }\n`;
+  css += `.justify-self-start { justify-self: start; }\n`;
+  css += `.justify-self-end { justify-self: end; }\n`;
+  css += `.justify-self-center { justify-self: center; }\n`;
+  css += `.justify-self-stretch { justify-self: stretch; }\n`;
+
   css += `\n`;
   return css;
 }
@@ -567,7 +588,23 @@ function generateTypographyUtilities(config) {
     css += `.text-${fontSize.name} { font-size: var(--text-${fontSize.name}); line-height: ${fontSize.lineHeight}; }\n`;
   });
 
-  Object.entries(config.typography.fontWeights).forEach(([name, weight]) => {
+  const fontWeightDefaults = {
+    thin: 100,
+    extralight: 200,
+    light: 300,
+    normal: 400,
+    medium: 500,
+    semibold: 600,
+    bold: 700,
+    extrabold: 800,
+    black: 900,
+  };
+  const resolvedFontWeights = {
+    ...fontWeightDefaults,
+    ...(config.typography.fontWeights || {}),
+  };
+
+  Object.entries(resolvedFontWeights).forEach(([name, weight]) => {
     css += `.font-${name} { font-weight: ${weight}; }\n`;
   });
 

@@ -75,6 +75,7 @@ function sizingUtilities(spacing) {
   css += `.max-w-max { max-width: max-content; }\n`;
   css += `.max-w-fit { max-width: fit-content; }\n`;
   css += `.max-h-0 { max-height: 0; }\n`;
+  css += `.max-h-none { max-height: none; }\n`;
   css += `.max-h-full { max-height: 100%; }\n`;
   css += `.max-h-screen { max-height: 100vh; }\n`;
   css += `.max-h-svh { max-height: 100svh; }\n`;
