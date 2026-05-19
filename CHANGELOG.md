@@ -4,6 +4,14 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.2.7 — May 2026
+
+**Fix migration scanner filtering so Vue dynamic class placeholders such as [rootClass] are not reported as unsupported arbitrary value utilities.**
+
+### Fixed
+- fix: ignore dynamic class placeholders in migration scan
+
+---
 ## v1.2.6 — May 2026
 
 **Fix migration scanner false positives by ignoring prose tokens, JS property access, and dynamic placeholders while keeping valid utility classes and arbitrary value support.**
