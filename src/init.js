@@ -154,6 +154,11 @@ function addEmilyScriptsToPackageJson() {
     const scripts = {
       "emily:build": "emily-css build",
       "emily:watch": "emily-css watch",
+      "emily:doctor": "emily-css doctor",
+      "emily:migrate": "emily-css migrate",
+      "emily:info": "emily-css info",
+      "emily:manifest": "emily-css manifest",
+      "emily:version": "emily-css version",
       "emily:help": "emily-css help",
       "emily:showcase": "emily-css showcase",
     };
@@ -288,7 +293,7 @@ function detectProject() {
     sourceDir: ".",
     outputPath: "dist/emily.min.css",
     sourceGlobs: [
-      "./**/*.{html,htm,twig,njk,liquid,hbs,php,astro,svelte,vue,js,ts}",
+      "./**/*.{html,htm,twig,njk,liquid,hbs,php,astro,svelte,vue,blade.php,jinja,jinja2,j2}",
     ],
     linkHint: '<link rel="stylesheet" href="./dist/emily.min.css">',
   };
@@ -324,6 +329,8 @@ function createDefaultConfig({
       css: detectedProject.outputPath,
       fullCss: "dist/emily.css",
     },
+
+    manifest: true,
 
     colours,
 
@@ -721,6 +728,11 @@ async function init() {
                   ? "\n\nScripts added:\n" +
                     chalk.cyan("  npm run emily:build\n") +
                     chalk.cyan("  npm run emily:watch\n") +
+                    chalk.cyan("  npm run emily:doctor\n") +
+                    chalk.cyan("  npm run emily:migrate\n") +
+                    chalk.cyan("  npm run emily:info\n") +
+                    chalk.cyan("  npm run emily:manifest\n") +
+                    chalk.cyan("  npm run emily:version\n") +
                     chalk.cyan("  npm run emily:showcase\n") +
                     chalk.cyan("  npm run emily:help")
                   : ""),

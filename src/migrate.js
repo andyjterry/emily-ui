@@ -6,6 +6,7 @@ const { extractClassNames, getAllFiles } = require('./purge.js');
 const { generateManifest } = require('./manifest.js');
 const { normaliseClassForManifest, suggestClassName } = require('./doctor.js');
 const { DEFAULT_EXTENSIONS } = require('./constants.js');
+const { resolvePurgeConfig } = require('./purgeConfig.js');
 const MIGRATION_DEFAULT_EXTENSIONS = [...DEFAULT_EXTENSIONS, '.mdx'];
 
 const TAILWIND_MAPPINGS = {
@@ -740,8 +741,11 @@ function migrateClasses(input, options = {}) {
 }
 
 function getFilesToScan(config, options = {}) {
-  const extensions = (config && config.purge && config.purge.extensions) || MIGRATION_DEFAULT_EXTENSIONS;
-  const ignore = (config && config.purge && config.purge.ignore) || [];
+  const resolvedPurgeConfig = resolvePurgeConfig(config || {});
+  const extensions = Array.from(
+    new Set([...(resolvedPurgeConfig.extensions || MIGRATION_DEFAULT_EXTENSIONS), '.mdx']),
+  );
+  const ignore = resolvedPurgeConfig.ignore || [];
 
   if (options.sourceGlobs && options.sourceGlobs.length > 0) {
     return fg.sync(options.sourceGlobs, {
@@ -752,8 +756,8 @@ function getFilesToScan(config, options = {}) {
     });
   }
 
-  if (config && config.purge && config.purge.sourceGlobs && config.purge.sourceGlobs.length > 0) {
-    return fg.sync(config.purge.sourceGlobs, {
+  if (resolvedPurgeConfig.sourceGlobs && resolvedPurgeConfig.sourceGlobs.length > 0) {
+    return fg.sync(resolvedPurgeConfig.sourceGlobs, {
       ignore,
       onlyFiles: true,
       unique: true,
@@ -763,7 +767,7 @@ function getFilesToScan(config, options = {}) {
 
   const sourceDir =
     options.sourceDir ||
-    (config && config.purge && config.purge.sourceDir) ||
+    resolvedPurgeConfig.sourceDir ||
     '.';
 
   const scanDir = path.isAbsolute(sourceDir)

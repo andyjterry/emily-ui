@@ -13,6 +13,7 @@ const usageText = `
     emily-css build       Generate production CSS to the configured output path
       --profile           Print coarse build timing information
     emily-css watch       Dev mode: rebuild on changes
+    emily-css info        Show project config and CSS stats
     emily-css doctor      Scan project files for unknown EmilyCSS classes
     emily-css migrate     Generate a Tailwind-to-EmilyCSS migration report
       --import-colours    Detect Tailwind colour palettes and suggest importedPalettes config
@@ -35,6 +36,9 @@ if (command === "init") {
   require("../src/watch.js");
 } else if (command === "showcase") {
   require("../src/showcase.js");
+} else if (command === "info") {
+  const { info } = require("../src/info.js");
+  info();
 } else if (command === "doctor") {
   const { doctor } = require("../src/doctor.js");
   const result = doctor();
@@ -69,6 +73,7 @@ if (command === "init") {
     emily-css build       Generate production CSS to the configured output path
       --profile           Print coarse build timing information
     emily-css watch       Dev mode: watch for changes and rebuild
+    emily-css info        Show project config, output paths, and CSS stats
     emily-css doctor      Scan project files for unknown EmilyCSS classes
     emily-css migrate     Generate a Tailwind-to-EmilyCSS migration report
       --import-colours    Detect Tailwind colour palettes and suggest importedPalettes config
@@ -80,7 +85,12 @@ if (command === "init") {
   npm scripts (added by init):
     npm run emily:build      Same as emily-css build
     npm run emily:watch      Same as emily-css watch
+    npm run emily:doctor     Same as emily-css doctor
+    npm run emily:migrate    Same as emily-css migrate
+    npm run emily:info       Same as emily-css info
+    npm run emily:manifest   Same as emily-css manifest
     npm run emily:showcase   Same as emily-css showcase
+    npm run emily:version    Same as emily-css version
     npm run emily:help       Same as emily-css help
   
   Docs: https://emilyui.dev

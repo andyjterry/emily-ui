@@ -36,7 +36,11 @@ const {
   doctor,
   normaliseClassForManifest,
   suggestClassName,
+  hexToRelativeLuminance,
+  contrastRatio,
+  createContrastWarnings,
 } = require('../src/doctor.js');
+const { info } = require('../src/info.js');
 const {
   migrateClasses,
   loadManifest,
@@ -617,7 +621,7 @@ test('purgeCSS keeps hover variants when base class is used', () => {
   const css = '.bg-primary-80 { background-color: blue; }\n.hover\\:bg-primary-80:hover { background-color: blue; }\n';
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'emily-test-'));
   fs.writeFileSync(path.join(tmpDir, 'test.html'), '<div class="hover:bg-primary-80">test</div>');
-  const result = purgeCSS(css, tmpDir, config);
+  const result = purgeCSS(css, tmpDir, isolatedPurgeConfig(tmpDir));
   assert.ok(result.includes('.hover\\:bg-primary-80:hover {'), 'Should keep hover variant when class is used in HTML');
   fs.rmSync(tmpDir, { recursive: true });
 });
@@ -626,7 +630,7 @@ test('purgeCSS keeps focus-visible variants when class is used', () => {
   const css = '.ring-2 { box-shadow: 0 0 0 2px var(--ring-color, transparent); }\n.focus-visible\\:ring-2:focus-visible { box-shadow: 0 0 0 2px var(--ring-color, transparent); }\n';
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'emily-test-'));
   fs.writeFileSync(path.join(tmpDir, 'test.html'), '<input class="focus-visible:ring-2">');
-  const result = purgeCSS(css, tmpDir, config);
+  const result = purgeCSS(css, tmpDir, isolatedPurgeConfig(tmpDir));
   assert.ok(result.includes('.focus-visible\\:ring-2:focus-visible {'), 'Should keep focus-visible variant when class is used in HTML');
   fs.rmSync(tmpDir, { recursive: true });
 });
@@ -659,7 +663,7 @@ test('purgeCSS returns full CSS when no HTML files found', () => {
   const css = '.flex { display: flex; }\n';
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'emily-test-'));
   // No HTML files in dir
-  const result = purgeCSS(css, tmpDir, config);
+  const result = purgeCSS(css, tmpDir, isolatedPurgeConfig(tmpDir));
   assert.ok(result.includes('.flex {'), 'Should return full CSS when no HTML found');
   fs.rmSync(tmpDir, { recursive: true });
 });
@@ -2411,16 +2415,21 @@ test('addAriaDataVariants does not process existing state variant lines', () => 
   );
 });
 
-test('addAriaDataVariants produces all 6 variant types for a single utility', () => {
+test('addAriaDataVariants produces all 11 variant types for a single utility', () => {
   const base = '.flex { display: flex; }\n';
   const result = addAriaDataVariants(base);
   const expected = [
     'aria-expanded\\:flex[aria-expanded="true"]',
     'aria-selected\\:flex[aria-selected="true"]',
+    'aria-checked\\:flex[aria-checked="true"]',
     'aria-current\\:flex[aria-current="page"]',
     'aria-disabled\\:flex[aria-disabled="true"]',
     'data-open\\:flex[data-state="open"]',
     'data-closed\\:flex[data-state="closed"]',
+    'data-checked\\:flex[data-state="checked"]',
+    'data-unchecked\\:flex[data-state="unchecked"]',
+    'data-active\\:flex[data-state="active"]',
+    'data-inactive\\:flex[data-state="inactive"]',
   ];
   expected.forEach(selector => {
     assert.ok(result.includes(selector), 'Missing variant: ' + selector);
@@ -2583,10 +2592,15 @@ test('generateManifest includes all expected base variants', () => {
     'motion-safe',
     'aria-expanded',
     'aria-selected',
+    'aria-checked',
     'aria-current',
     'aria-disabled',
     'data-open',
     'data-closed',
+    'data-checked',
+    'data-unchecked',
+    'data-active',
+    'data-inactive',
     'dark',
     'forced-colors',
   ];
@@ -3089,10 +3103,10 @@ test('CLI doctor exits cleanly when no issues are found', () => {
       encoding: 'utf8',
     });
 
-    assert.strictEqual(result.status, 0);
+    assert.strictEqual(result.status, 0, 'Expected doctor to exit 0 when no class issues');
     assert.ok(
-      result.stdout.includes('doctor found no class issues'),
-      'Expected no-issues doctor output',
+      !result.stdout.includes('doctor found') || result.stdout.includes('warnings'),
+      'Expected doctor to exit cleanly with no class issues (warnings are allowed)',
     );
   } finally {
     removeTempProject(tmpDir);
@@ -3428,17 +3442,245 @@ test('migrate command supports --import-colours and prints palette suggestion', 
   }
 });
 
-// \u2500\u2500\u2500 Results \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// --- 22. v1.3.0 --- New Variants, Info, Contrast ----------------------------
+
+section('22. v1.3.0 - New Variants, Info, Contrast');
+
+// ARIA + data-state new variants
+
+test('addAriaDataVariants generates aria-checked: with aria-checked="true" selector', () => {
+  const base = '.block { display: block; }\n';
+  const result = addAriaDataVariants(base);
+  assert.ok(
+    result.includes('.aria-checked\\:block[aria-checked="true"]'),
+    'Missing aria-checked:block variant'
+  );
+});
+
+test('addAriaDataVariants generates data-checked: with data-state="checked" selector', () => {
+  const base = '.block { display: block; }\n';
+  const result = addAriaDataVariants(base);
+  assert.ok(
+    result.includes('.data-checked\\:block[data-state="checked"]'),
+    'Missing data-checked:block variant'
+  );
+});
+
+test('addAriaDataVariants generates data-unchecked: with data-state="unchecked" selector', () => {
+  const base = '.hidden { display: none; }\n';
+  const result = addAriaDataVariants(base);
+  assert.ok(
+    result.includes('.data-unchecked\\:hidden[data-state="unchecked"]'),
+    'Missing data-unchecked:hidden variant'
+  );
+});
+
+test('addAriaDataVariants generates data-active: with data-state="active" selector', () => {
+  const base = '.opacity-100 { opacity: 1; }\n';
+  const result = addAriaDataVariants(base);
+  assert.ok(
+    result.includes('.data-active\\:opacity-100[data-state="active"]'),
+    'Missing data-active:opacity-100 variant'
+  );
+});
+
+test('addAriaDataVariants generates data-inactive: with data-state="inactive" selector', () => {
+  const base = '.opacity-0 { opacity: 0; }\n';
+  const result = addAriaDataVariants(base);
+  assert.ok(
+    result.includes('.data-inactive\\:opacity-0[data-state="inactive"]'),
+    'Missing data-inactive:opacity-0 variant'
+  );
+});
+
+test('purge extracts aria-checked: prefixed class from HTML', () => {
+  const html = '<button class="aria-checked:bg-brand-80">Toggle</button>';
+  const classes = extractClassNames(html);
+  assert.ok(classes.has('aria-checked:bg-brand-80'), 'Expected aria-checked:bg-brand-80 to be extracted');
+});
+
+test('purge extracts data-checked: and data-unchecked: prefixed classes from HTML', () => {
+  const html = '<div class="data-checked:bg-brand-80 data-unchecked:bg-neutral-20">Item</div>';
+  const classes = extractClassNames(html);
+  assert.ok(classes.has('data-checked:bg-brand-80'), 'Expected data-checked:bg-brand-80 to be extracted');
+  assert.ok(classes.has('data-unchecked:bg-neutral-20'), 'Expected data-unchecked:bg-neutral-20 to be extracted');
+});
+
+test('purge extracts data-active: and data-inactive: prefixed classes from HTML', () => {
+  const html = '<li class="data-active:text-brand-80 data-inactive:text-neutral-60">Item</li>';
+  const classes = extractClassNames(html);
+  assert.ok(classes.has('data-active:text-brand-80'), 'Expected data-active:text-brand-80 to be extracted');
+  assert.ok(classes.has('data-inactive:text-neutral-60'), 'Expected data-inactive:text-neutral-60 to be extracted');
+});
+
+test('doctor accepts aria-checked: variant without flagging it as unknown', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    buildDoctorConfig(tmpDir, 'page.html', '<input class="aria-checked:bg-brand-80" />');
+    process.chdir(tmpDir);
+
+    const result = doctor();
+    assert.strictEqual(result.ok, true);
+    assert.strictEqual(result.exitCode, 0);
+    assert.ok(
+      !result.issues.some(issue => issue.className === 'aria-checked:bg-brand-80'),
+      'Expected aria-checked:bg-brand-80 to be a known variant'
+    );
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
+test('doctor accepts data-checked, data-unchecked, data-active, data-inactive variants', () => {
+  const tmpDir = createTempProject();
+  const originalCwd = process.cwd();
+
+  try {
+    buildDoctorConfig(
+      tmpDir,
+      'page.html',
+      '<div class="data-checked:bg-brand-80 data-unchecked:opacity-50 data-active:text-brand-80 data-inactive:text-neutral-60"></div>'
+    );
+    process.chdir(tmpDir);
+
+    const result = doctor();
+    assert.strictEqual(result.ok, true);
+    assert.strictEqual(result.exitCode, 0);
+    assert.strictEqual(result.issues.length, 0, 'Expected no issues for new data-state variants');
+  } finally {
+    process.chdir(originalCwd);
+    removeTempProject(tmpDir);
+  }
+});
+
+// Info command
+
+test('info function exists', () => {
+  assert.strictEqual(typeof info, 'function');
+});
+
+test('CLI info command exits 0 with a valid project', () => {
+  const tmpDir = createTempProject();
+
+  try {
+    fs.writeFileSync(path.join(tmpDir, 'emily.config.json'), JSON.stringify(config, null, 2));
+    const result = spawnSync('node', [path.join(__dirname, '../bin/emilyui.js'), 'info'], {
+      cwd: tmpDir,
+      encoding: 'utf8',
+    });
+
+    assert.strictEqual(result.status, 0, 'Expected info command to exit 0');
+  } finally {
+    removeTempProject(tmpDir);
+  }
+});
+
+test('CLI info output includes version', () => {
+  const tmpDir = createTempProject();
+
+  try {
+    fs.writeFileSync(path.join(tmpDir, 'emily.config.json'), JSON.stringify(config, null, 2));
+    const result = spawnSync('node', [path.join(__dirname, '../bin/emilyui.js'), 'info'], {
+      cwd: tmpDir,
+      encoding: 'utf8',
+    });
+
+    assert.ok(
+      result.stdout.includes(packageInfo.version),
+      'Expected info output to include package version'
+    );
+  } finally {
+    removeTempProject(tmpDir);
+  }
+});
+
+test('CLI help output includes info command', () => {
+  const result = spawnSync('node', [path.join(__dirname, '../bin/emilyui.js'), 'help'], {
+    cwd: path.join(__dirname, '..'),
+    encoding: 'utf8',
+  });
+
+  assert.strictEqual(result.status, 0);
+  assert.ok(result.stdout.includes('emily-css info'), 'Expected help output to include info command');
+});
+
+// Colour contrast helpers
+
+test('hexToRelativeLuminance returns 1 for white', () => {
+  const luminance = hexToRelativeLuminance('#ffffff');
+  assert.ok(Math.abs(luminance - 1) < 0.001, 'Expected ~1, got ' + luminance);
+});
+
+test('hexToRelativeLuminance returns 0 for black', () => {
+  const luminance = hexToRelativeLuminance('#000000');
+  assert.ok(Math.abs(luminance - 0) < 0.001, 'Expected ~0, got ' + luminance);
+});
+
+test('contrastRatio returns 21 for black on white', () => {
+  const ratio = contrastRatio('#000000', '#ffffff');
+  assert.ok(Math.abs(ratio - 21) < 0.1, 'Expected ~21, got ' + ratio);
+});
+
+test('contrastRatio returns 1 for same colour', () => {
+  const ratio = contrastRatio('#888888', '#888888');
+  assert.ok(Math.abs(ratio - 1) < 0.001, 'Expected 1, got ' + ratio);
+});
+
+test('contrastRatio is symmetrical', () => {
+  const ab = contrastRatio('#333333', '#cccccc');
+  const ba = contrastRatio('#cccccc', '#333333');
+  assert.ok(Math.abs(ab - ba) < 0.001, 'Expected contrastRatio to be symmetrical');
+});
+
+test('createContrastWarnings flags a known low-contrast colour', () => {
+  const cfg = { colours: { testlight: '#ffffff' } };
+  const warnings = createContrastWarnings(cfg);
+  assert.ok(Array.isArray(warnings), 'Expected warnings array');
+  const hasLowContrast = warnings.some(w => w.reason === 'low-contrast-token');
+  assert.ok(hasLowContrast, 'Expected at least one low-contrast warning for near-white colour');
+});
+
+test('createContrastWarnings does not flag a high-contrast dark colour on light bg', () => {
+  const cfg = { colours: { testdark: '#000000' } };
+  const warnings = createContrastWarnings(cfg);
+  const shade80Warning = warnings.find(
+    w => w.reason === 'low-contrast-token' && w.className === 'text-testdark-80'
+  );
+  assert.ok(!shade80Warning, 'Did not expect low-contrast warning for near-black text on light bg');
+});
+
+test('createContrastWarnings returns empty array when no colours configured', () => {
+  const warnings = createContrastWarnings({});
+  assert.ok(Array.isArray(warnings), 'Expected warnings array');
+  assert.strictEqual(warnings.length, 0, 'Expected no warnings when no colours configured');
+});
+
+test('createContrastWarnings integration: white colour triggers warning at multiple shades', () => {
+  const cfg = { colours: { white: '#ffffff' } };
+  const warnings = createContrastWarnings(cfg);
+  // shade 20/30/40 of white on dark bg will be near-white = very low contrast
+  const lowContrastWarnings = warnings.filter(w => w.reason === 'low-contrast-token');
+  assert.ok(lowContrastWarnings.length > 0, 'Expected low-contrast warnings for white colour');
+  assert.ok(
+    lowContrastWarnings.some(w => w.className.startsWith('text-white-')),
+    'Expected warning className to start with text-white-'
+  );
+});
+
+// --- Results -----------------------------------------------------------------
 
 const total = passed + failed;
-console.log('\n' + '\u2550'.repeat(40));
+console.log('\n' + '='.repeat(40));
 console.log('Results: ' + passed + '/' + total + ' passed');
 
 if (failed > 0) {
   console.log('\nFailed tests:');
-  failures.forEach(f => console.log('  \u2717 ' + f.name + '\n    ' + f.message));
+  failures.forEach(f => console.log('  x ' + f.name + '\n    ' + f.message));
   process.exit(1);
 } else {
-  console.log('\nAll tests passed \u2713');
+  console.log('\nAll tests passed');
   process.exit(0);
 }

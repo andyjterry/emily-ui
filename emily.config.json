@@ -12,6 +12,10 @@
     "css": "dist/emily.min.css",
     "fullCss": "dist/emily.css"
   },
+  "manifest": {
+    "enabled": true,
+    "output": "dist/emily.manifest.json"
+  },
   "colours": {
     "brand": "#DB2777",
     "accent": "#F59E0B",
@@ -30,7 +34,7 @@
     "projectType": "Static/Generic",
     "sourceDir": ".",
     "sourceGlobs": [
-      "./**/*.{html,htm,twig,njk,liquid,hbs,php,astro,svelte,vue,js,ts}"
+      "./**/*.{html,htm,twig,njk,liquid,hbs,php,astro,svelte,vue,blade.php,jinja,jinja2,j2}"
     ],
     "ignore": [
       "node_modules",
@@ -42,7 +46,16 @@
       "build",
       "coverage",
       ".cache",
-      ".vite"
+      ".vite",
+      "src",
+      "bin",
+      "scripts",
+      "tests",
+      "docs",
+      "showcase.html",
+      "component-test.html",
+      "project_context.txt",
+      "bundle-context.js"
     ],
     "extensions": [
       ".html",

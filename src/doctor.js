@@ -4,8 +4,9 @@ const fs = require("fs");
 const path = require("path");
 const fg = require("fast-glob");
 const { extractClassNames } = require("./purge.js");
-const { ensureFullFramework, generateManifest } = require("./index.js");
+const { ensureFullFramework, generateManifest, generateColourScale } = require("./index.js");
 const { DEFAULT_EXTENSIONS } = require("./constants.js");
+const { resolvePurgeConfig } = require("./purgeConfig.js");
 const {
   getConfig,
   getFullCssPath,
@@ -111,18 +112,20 @@ function suggestClassName(className, utilitySet, variantSet) {
 }
 
 function getFilesToScan(config) {
-  const extensions = config?.purge?.extensions || DEFAULT_EXTENSIONS;
-  const ignore = config?.purge?.ignore || [];
+  const resolvedPurgeConfig = resolvePurgeConfig(config);
+  const extensions = resolvedPurgeConfig.extensions || DEFAULT_EXTENSIONS;
+  const ignore = resolvedPurgeConfig.ignore || [];
+  const sourceGlobs = resolvedPurgeConfig.sourceGlobs || [];
 
-  if (config?.purge?.sourceGlobs && config.purge.sourceGlobs.length > 0) {
-    return fg.sync(config.purge.sourceGlobs, {
+  if (sourceGlobs.length > 0) {
+    return fg.sync(sourceGlobs, {
       ignore,
       onlyFiles: true,
       unique: true,
     });
   }
 
-  const sourceDir = config?.purge?.sourceDir || ".";
+  const sourceDir = resolvedPurgeConfig.sourceDir || ".";
   const scanDir = path.isAbsolute(sourceDir)
     ? sourceDir
     : path.join(process.cwd(), sourceDir);
@@ -244,6 +247,79 @@ function createAccessibilityWarnings(filePath, content) {
   return warnings;
 }
 
+// ─── Colour contrast helpers ──────────────────────────────────────────────────
+
+function hexToRelativeLuminance(hex) {
+  const toLinear = (c) => {
+    const v = parseInt(c, 16) / 255;
+    return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  const r = toLinear(hex.slice(1, 3));
+  const g = toLinear(hex.slice(3, 5));
+  const b = toLinear(hex.slice(5, 7));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function contrastRatio(hexA, hexB) {
+  const lA = hexToRelativeLuminance(hexA);
+  const lB = hexToRelativeLuminance(hexB);
+  const lighter = Math.max(lA, lB);
+  const darker  = Math.min(lA, lB);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+// Check configured brand colours against standard light/dark backgrounds.
+// Shades 60–80 are the most common text-on-light use case.
+// Shades 20–40 are the most common text-on-dark use case.
+function createContrastWarnings(config) {
+  const warnings = [];
+  const colours = config.colours || {};
+  const LIGHT_BG = '#FAFAFA';
+  const DARK_BG  = '#1A1A1A';
+  const THRESHOLD_NORMAL = 4.5;
+
+  Object.entries(colours).forEach(([name, baseHex]) => {
+    let scale;
+    try {
+      scale = generateColourScale(baseHex);
+    } catch {
+      return;
+    }
+
+    // Shades typically used as text on light backgrounds
+    [60, 70, 80].forEach((shade) => {
+      const hex = scale[shade];
+      if (!hex) return;
+      const ratio = contrastRatio(hex, LIGHT_BG);
+      if (ratio < THRESHOLD_NORMAL) {
+        warnings.push({
+          file: 'emily.config.json',
+          reason: 'low-contrast-token',
+          className: `text-${name}-${shade}`,
+          message: `text-${name}-${shade} on a light background has ~${ratio.toFixed(1)}:1 contrast (WCAG AA needs 4.5:1 for normal text). Consider using a darker shade.`,
+        });
+      }
+    });
+
+    // Shades typically used as text on dark backgrounds
+    [20, 30, 40].forEach((shade) => {
+      const hex = scale[shade];
+      if (!hex) return;
+      const ratio = contrastRatio(hex, DARK_BG);
+      if (ratio < THRESHOLD_NORMAL) {
+        warnings.push({
+          file: 'emily.config.json',
+          reason: 'low-contrast-token',
+          className: `text-${name}-${shade}`,
+          message: `text-${name}-${shade} on a dark background has ~${ratio.toFixed(1)}:1 contrast (WCAG AA needs 4.5:1 for normal text). Consider using a lighter shade.`,
+        });
+      }
+    });
+  });
+
+  return warnings;
+}
+
 function doctor() {
   const config = getConfig();
 
@@ -304,8 +380,10 @@ function doctor() {
     }
   });
 
+  warnings.push(...createContrastWarnings(config));
+
   if (issues.length === 0 && warnings.length === 0) {
-    console.log("✓ EmilyCSS doctor found no class issues");
+    console.log("\u2713 EmilyCSS doctor found no class issues");
     return { ok: true, issues: [], warnings: [], exitCode: 0 };
   }
 
@@ -347,4 +425,7 @@ module.exports = {
   doctor,
   normaliseClassForManifest,
   suggestClassName,
+  hexToRelativeLuminance,
+  contrastRatio,
+  createContrastWarnings,
 };

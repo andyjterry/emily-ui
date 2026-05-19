@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const fg = require("fast-glob");
 const { DEFAULT_EXTENSIONS, DEFAULT_PURGE_IGNORE } = require("./constants.js");
+const { resolvePurgeConfig } = require("./purgeConfig.js");
 
 function getAllFiles(dir, extensions = DEFAULT_EXTENSIONS) {
   const absoluteDir = path.isAbsolute(dir) ? dir : path.resolve(dir);
@@ -175,22 +176,27 @@ function purgeBlock(block, usedClasses) {
 }
 
 function getFilesForPurge(scanDir, config, extensions) {
-  if (config?.purge?.sourceGlobs && config.purge.sourceGlobs.length) {
+  const resolvedPurgeConfig = resolvePurgeConfig(config);
+  const sourceGlobs = resolvedPurgeConfig.sourceGlobs || [];
+
+  if (sourceGlobs.length) {
     console.log(`\n🔍 Scanning using sourceGlobs`);
-    config.purge.sourceGlobs.forEach((glob) => console.log(`   - ${glob}`));
+    sourceGlobs.forEach((glob) => console.log(`   - ${glob}`));
     console.log(`   Extensions: ${extensions.join(", ")}`);
 
-    return fg.sync(config.purge.sourceGlobs, {
-      ignore: config.purge.ignore || [],
+    return fg.sync(sourceGlobs, {
+      ignore: resolvedPurgeConfig.ignore || [],
       onlyFiles: true,
       unique: true,
     });
   }
 
-  console.log(`\n🔍 Scanning fallback directory: ${scanDir}`);
+  const fallbackScanDir = resolvedPurgeConfig.sourceDir || scanDir;
+
+  console.log(`\n🔍 Scanning fallback directory: ${fallbackScanDir}`);
   console.log(`   Extensions: ${extensions.join(", ")}`);
 
-  return getAllFiles(scanDir, extensions);
+  return getAllFiles(fallbackScanDir, extensions);
 }
 
 function printFileSummary(files, extensions) {
@@ -214,7 +220,8 @@ function printFileSummary(files, extensions) {
 }
 
 function purgeCSS(css, scanDir, config) {
-  const extensions = config?.purge?.extensions || DEFAULT_EXTENSIONS;
+  const resolvedPurgeConfig = resolvePurgeConfig(config);
+  const extensions = resolvedPurgeConfig.extensions || DEFAULT_EXTENSIONS;
   const files = getFilesForPurge(scanDir, config, extensions);
 
   printFileSummary(files, extensions);

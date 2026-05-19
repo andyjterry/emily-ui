@@ -26,6 +26,11 @@
     "ship": "node scripts/ship.js",
     "emily:build": "emily-css build",
     "emily:watch": "emily-css watch",
+    "emily:doctor": "emily-css doctor",
+    "emily:migrate": "emily-css migrate",
+    "emily:info": "emily-css info",
+    "emily:manifest": "emily-css manifest",
+    "emily:version": "emily-css version",
     "emily:help": "emily-css help"
   },
   "keywords": [
@@ -42,7 +47,7 @@
   "author": "Andy Terry",
   "license": "MIT",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=18.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

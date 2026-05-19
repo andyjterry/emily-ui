@@ -4,6 +4,19 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.3.0 -- May 2026
+
+### Added
+- **ARIA state variants**: Added `aria-checked:` variant prefix, generating CSS rules targeting `[aria-checked="true"]`. Completes the ARIA variant set alongside `aria-expanded`, `aria-selected`, `aria-current`, and `aria-disabled`.
+- **Data-state variants**: Added `data-checked:`, `data-unchecked:`, `data-active:`, and `data-inactive:` variant prefixes targeting `[data-state="*"]` selectors. Used by Radix UI, Headless UI, and similar headless component libraries. Completes the data-state set alongside `data-open:` and `data-closed:`.
+- **`emily-css info` command**: New CLI command. Shows a project overview without triggering a build -- version, framework detection, output paths, CSS file sizes, source globs, file count, colour/spacing/font summary.
+- **Doctor contrast warnings**: `emily-css doctor` now checks configured brand colour shades against standard light and dark backgrounds using the WCAG relative luminance formula. Flags shade/background pairings below 4.5:1 contrast. Non-blocking (warning, not error).
+
+### Changed
+- `BASE_VARIANTS` in `src/constants.js` updated to include the five new variant names so `doctor` and `manifest` recognise them.
+
+---
+
 ## v1.2.4 — May 2026
 
 **chore: release v1.2.4**
@@ -426,9 +439,4 @@ All notable changes to `emily-css` are documented here.
 - 11,844 utility classes generated from `emily.config.json`
 - OKLCH colour scale generation — one hex in, 10-shade scale out
 - Responsive variants (`sm:` `md:` `lg:` `xl:` `2xl:`)
-- State variants (`hover:` `focus-visible:` `active:` `disabled:` `dark:`)
-- Purge system — strips unused classes, ~97% file size reduction
-- Interactive setup wizard (`npx emily-css init`)
-- 72 tests, all passing
-
----
+- State variants (`hover:` `focus-visible:` `active:` `disab

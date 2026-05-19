@@ -849,12 +849,17 @@ function generateSemanticColourUtilities(semanticColours) {
 
 function addAriaDataVariants(css) {
   const variants = [
-    { name: 'aria-expanded', selector: '[aria-expanded="true"]' },
-    { name: 'aria-selected', selector: '[aria-selected="true"]' },
-    { name: 'aria-current',  selector: '[aria-current="page"]' },
-    { name: 'aria-disabled', selector: '[aria-disabled="true"]' },
-    { name: 'data-open',     selector: '[data-state="open"]' },
-    { name: 'data-closed',   selector: '[data-state="closed"]' },
+    { name: 'aria-expanded',  selector: '[aria-expanded="true"]' },
+    { name: 'aria-selected',  selector: '[aria-selected="true"]' },
+    { name: 'aria-checked',   selector: '[aria-checked="true"]' },
+    { name: 'aria-current',   selector: '[aria-current="page"]' },
+    { name: 'aria-disabled',  selector: '[aria-disabled="true"]' },
+    { name: 'data-open',      selector: '[data-state="open"]' },
+    { name: 'data-closed',    selector: '[data-state="closed"]' },
+    { name: 'data-checked',   selector: '[data-state="checked"]' },
+    { name: 'data-unchecked', selector: '[data-state="unchecked"]' },
+    { name: 'data-active',    selector: '[data-state="active"]' },
+    { name: 'data-inactive',  selector: '[data-state="inactive"]' },
   ];
 
   let variantCss = css;
@@ -1828,6 +1833,7 @@ module.exports = {
   oklchToHex,
   generateColourScale,
   generateAllColours,
+  generateFontCSS,
   generateSpacing,
   generateBorderUtilities,
   generateColourUtilities,
@@ -1840,6 +1846,4 @@ module.exports = {
   addAriaDataVariants,
   addResponsiveVariants,
   generateManifest,
-  generateFontCSS,
-  codeUtilities,
 };
