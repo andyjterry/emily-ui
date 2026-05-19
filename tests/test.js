@@ -419,6 +419,13 @@ test('generateTypographyUtilities includes font-weight classes', () => {
   });
 });
 
+test('generateTypographyUtilities includes full common font weight range', () => {
+  const css = generateTypographyUtilities(config);
+  ['thin', 'extralight', 'light', 'normal', 'medium', 'semibold', 'bold', 'extrabold', 'black'].forEach((weight) => {
+    assert.ok(css.includes(`.font-${weight} {`), `Missing .font-${weight}`);
+  });
+});
+
 test('generateTypographyUtilities includes text-left, text-center, text-right', () => {
   const css = generateTypographyUtilities(config);
   ['text-left', 'text-center', 'text-right'].forEach(cls => {
@@ -456,6 +463,15 @@ test('generateSpacingUtilities handles decimal keys like p-0.5', () => {
     css.includes('.p-0\\.5 {'),
     'Missing escaped decimal class ".p-0\\.5 {" — decimal spacing not properly escaped'
   );
+});
+
+test('generateSpacingUtilities includes negative margin variants', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const css = generateSpacingUtilities(spacing);
+  assert.ok(css.includes('.-m-4 { margin: -1rem; }'), 'Missing .-m-4');
+  assert.ok(css.includes('.-mx-4 { margin-left: -1rem; margin-right: -1rem; }'), 'Missing .-mx-4');
+  assert.ok(css.includes('.-mt-4 { margin-top: -1rem; }'), 'Missing .-mt-4');
+  assert.ok(css.includes('.-ml-4 { margin-left: -1rem; }'), 'Missing .-ml-4');
 });
 
 // ─── 7. State Variants ────────────────────────────────────────────────────────
@@ -875,7 +891,7 @@ test('raw pink rgba focus glow appears only as --focus-ring-glow fallback', () =
 // ─── 13. New Utilities ────────────────────────────────────────────────────────
 
 // animationUtilities and backdropUtilities imported below via generators.js
-const { overflowUtilities, sizingUtilities, positioningUtilities, displayUtilities, shadowUtilities, contentScrollUtilities, spaceUtilities, divideUtilities, backgroundUtilities, filterUtilities, opacityUtilities, cursorUtilities, ringUtilities, animationUtilities, backdropUtilities, transformUtilities, containerUtilities } = require('../src/generators.js');
+const { overflowUtilities, sizingUtilities, positioningUtilities, displayUtilities, shadowUtilities, contentScrollUtilities, spaceUtilities, divideUtilities, backgroundUtilities, filterUtilities, opacityUtilities, cursorUtilities, ringUtilities, animationUtilities, backdropUtilities, transformUtilities, containerUtilities, transitionUtilities } = require('../src/generators.js');
 const generatorsFromShim = require('../src/generators.js');
 const generatorsFromIndex = require('../src/generators/index.js');
 
@@ -1084,6 +1100,12 @@ test('opacityUtilities includes .opacity-95', () => {
   assert.ok(css.includes('.opacity-95 {'), 'Missing .opacity-95');
 });
 
+test('transitionUtilities includes transition-all and transition-shadow', () => {
+  const css = transitionUtilities();
+  assert.ok(css.includes('.transition-all { transition-property: all;'), 'Missing .transition-all');
+  assert.ok(css.includes('.transition-shadow { transition-property: box-shadow;'), 'Missing .transition-shadow');
+});
+
 // --- Resize ---
 test('cursorUtilities includes .resize-none', () => {
   const css = cursorUtilities();
@@ -1194,6 +1216,15 @@ test('transform utilities compose translate, rotate, skew, and scale via CSS var
   assert.ok(css.includes('.translate-x-4 { --translate-x:'), 'translate-x should set --translate-x');
   assert.ok(css.includes('.rotate-45 { --rotate: 45deg;'), 'rotate-45 should set --rotate');
   assert.ok(css.includes('.scale-95 { --scale-x: 0.95; --scale-y: 0.95;'), 'scale-95 should set --scale-x and --scale-y');
+});
+
+test('transform utilities include scale-x/y and negative skew variants', () => {
+  const spacing = generateSpacing(config.baseUnit, config.spacing.scale);
+  const css = transformUtilities(spacing);
+  assert.ok(css.includes('.scale-x-125 { --scale-x: 1.25;'), 'Missing .scale-x-125');
+  assert.ok(css.includes('.scale-y-75 { --scale-y: 0.75;'), 'Missing .scale-y-75');
+  assert.ok(css.includes('.skew-x-6 { --skew-x: 6deg;'), 'Missing .skew-x-6');
+  assert.ok(css.includes('.-skew-y-12 { --skew-y: -12deg;'), 'Missing .-skew-y-12');
 });
 
 test('transform-none remains transform: none', () => {
@@ -1381,6 +1412,20 @@ test('backgroundUtilities includes .bg-fixed', () => {
   assert.ok(css.includes('.bg-fixed {'), 'Missing .bg-fixed');
 });
 
+test('backgroundUtilities includes background origin utilities', () => {
+  const css = backgroundUtilities();
+  assert.ok(css.includes('.bg-origin-border { background-origin: border-box; }'), 'Missing .bg-origin-border');
+  assert.ok(css.includes('.bg-origin-padding { background-origin: padding-box; }'), 'Missing .bg-origin-padding');
+  assert.ok(css.includes('.bg-origin-content { background-origin: content-box; }'), 'Missing .bg-origin-content');
+});
+
+test('backgroundUtilities includes gradient direction utilities', () => {
+  const css = backgroundUtilities();
+  assert.ok(css.includes('.bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }'), 'Missing .bg-gradient-to-r');
+  assert.ok(css.includes('.bg-gradient-to-b { background-image: linear-gradient(to bottom, var(--tw-gradient-stops)); }'), 'Missing .bg-gradient-to-b');
+  assert.ok(css.includes('.bg-gradient-to-tl { background-image: linear-gradient(to top left, var(--tw-gradient-stops)); }'), 'Missing .bg-gradient-to-tl');
+});
+
 // --- CSS Filters ---
 test('filterUtilities includes .filter-none', () => {
   const css = filterUtilities();
@@ -1518,6 +1563,12 @@ test('displayUtilities includes clear utilities', () => {
   assert.ok(css.includes('.clear-none { clear: none; }'), 'Missing .clear-none');
 });
 
+test('displayUtilities includes box sizing utilities', () => {
+  const css = displayUtilities();
+  assert.ok(css.includes('.box-border { box-sizing: border-box; }'), 'Missing .box-border');
+  assert.ok(css.includes('.box-content { box-sizing: content-box; }'), 'Missing .box-content');
+});
+
 // ── Sizing extensions ───────────────────────────────────────────────────────
 
 test('sizingUtilities generates size-* (combined width + height)', () => {
@@ -1579,6 +1630,7 @@ test('sizingUtilities generates min-w fit/max/min content', () => {
 
 test('sizingUtilities generates max-h-screen and viewport variants', () => {
   const css = sizingUtilities(testSpacing);
+  assert.ok(css.includes('.max-h-none { max-height: none; }'), 'Missing .max-h-none');
   assert.ok(css.includes('.max-h-screen { max-height: 100vh; }'), 'Missing .max-h-screen');
   assert.ok(css.includes('.max-h-svh { max-height: 100svh; }'), 'Missing .max-h-svh');
   assert.ok(css.includes('.max-w-none { max-width: none; }'), 'Missing .max-w-none');
@@ -1631,6 +1683,17 @@ test('positioningUtilities generates auto positioning', () => {
   assert.ok(css.includes('.inset-y-auto { top: auto; bottom: auto; }'), 'Missing .inset-y-auto');
 });
 
+test('positioningUtilities generates full positioning utilities', () => {
+  const css = positioningUtilities(testSpacing);
+  assert.ok(css.includes('.top-full { top: 100%; }'), 'Missing .top-full');
+  assert.ok(css.includes('.right-full { right: 100%; }'), 'Missing .right-full');
+  assert.ok(css.includes('.bottom-full { bottom: 100%; }'), 'Missing .bottom-full');
+  assert.ok(css.includes('.left-full { left: 100%; }'), 'Missing .left-full');
+  assert.ok(css.includes('.inset-full { inset: 100%; }'), 'Missing .inset-full');
+  assert.ok(css.includes('.inset-x-full { left: 100%; right: 100%; }'), 'Missing .inset-x-full');
+  assert.ok(css.includes('.inset-y-full { top: 100%; bottom: 100%; }'), 'Missing .inset-y-full');
+});
+
 // ── Overflow extensions ─────────────────────────────────────────────────────
 
 test('overflowUtilities includes overflow-clip', () => {
@@ -1657,6 +1720,15 @@ test('overflowUtilities includes text-ellipsis and text-clip', () => {
 test('overflowUtilities includes line-clamp-none', () => {
   const css = overflowUtilities();
   assert.ok(css.includes('.line-clamp-none {'), 'Missing .line-clamp-none');
+});
+
+test('overflowUtilities includes overscroll behaviour utilities', () => {
+  const css = overflowUtilities();
+  assert.ok(css.includes('.overscroll-auto { overscroll-behavior: auto; }'), 'Missing .overscroll-auto');
+  assert.ok(css.includes('.overscroll-contain { overscroll-behavior: contain; }'), 'Missing .overscroll-contain');
+  assert.ok(css.includes('.overscroll-none { overscroll-behavior: none; }'), 'Missing .overscroll-none');
+  assert.ok(css.includes('.overscroll-x-contain { overscroll-behavior-x: contain; }'), 'Missing .overscroll-x-contain');
+  assert.ok(css.includes('.overscroll-y-none { overscroll-behavior-y: none; }'), 'Missing .overscroll-y-none');
 });
 
 // ── Shadow extensions ───────────────────────────────────────────────────────
@@ -1825,6 +1897,14 @@ test('generateGridUtilities includes grid-flow utilities', () => {
   assert.ok(css.includes('.grid-flow-col { grid-auto-flow: column; }'), 'Missing .grid-flow-col');
   assert.ok(css.includes('.grid-flow-dense { grid-auto-flow: dense; }'), 'Missing .grid-flow-dense');
   assert.ok(css.includes('.grid-flow-row-dense { grid-auto-flow: row dense; }'), 'Missing .grid-flow-row-dense');
+});
+
+test('generateGridUtilities includes justify-items and justify-self utilities', () => {
+  const css = generateGridUtilities(testSpacing);
+  assert.ok(css.includes('.justify-items-start { justify-items: start; }'), 'Missing .justify-items-start');
+  assert.ok(css.includes('.justify-items-center { justify-items: center; }'), 'Missing .justify-items-center');
+  assert.ok(css.includes('.justify-self-auto { justify-self: auto; }'), 'Missing .justify-self-auto');
+  assert.ok(css.includes('.justify-self-stretch { justify-self: stretch; }'), 'Missing .justify-self-stretch');
 });
 
 // ── Border extensions ───────────────────────────────────────────────────────
