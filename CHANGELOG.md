@@ -4,6 +4,14 @@ All notable changes to `emily-css` are documented here.
 
 ---
 
+## v1.2.5 — May 2026
+
+**Node 18+ Compatibility and Docs/CLI Alignment**
+
+### Fixed
+- fix(release): align Node support, CLI scripts, and README with current behavior
+
+---
 ## v1.3.0 -- May 2026
 
 ### Added
